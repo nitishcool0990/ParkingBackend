@@ -1,2 +1,2 @@
 # ParkingBackend
-Parking java backend
+Parking spring boot backend
