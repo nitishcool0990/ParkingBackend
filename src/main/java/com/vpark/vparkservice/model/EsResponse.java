@@ -10,15 +10,13 @@ import java.io.Serializable;
  */
 @Data
 @AllArgsConstructor
-public class EsResponse<T> implements Serializable
-{
-	private int status;
-	private T data;
-	private String message;
+public class EsResponse<T> implements Serializable {
+    private int status;
+    private T data;
+    private String message;
 
-	public EsResponse( int status, String message )
-	{
-		this.status = status;
-		this.message = message;
-	}
+    public EsResponse(int status, String message) {
+        this.status = status;
+        this.message = message;
+    }
 }

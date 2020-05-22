@@ -13,19 +13,18 @@ import java.time.LocalDateTime;
  */
 @Data
 @MappedSuperclass
-public abstract class Savable implements Serializable
-{
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "ID", nullable = false, updatable = false)
-	private long id;
+public abstract class Savable implements Serializable {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "ID", nullable = false, updatable = false)
+    private long id;
 
-	@Column(name = "CREATED_DATE", nullable = false, updatable = false)
-	@CreatedDate
-	private LocalDateTime createdDate = LocalDateTime.now();
+    @Column(name = "CREATED_DATE", nullable = false, updatable = false)
+    @CreatedDate
+    private LocalDateTime createdDate = LocalDateTime.now();
 
-	@Column(name = "MODIFIED_DATE", nullable = false)
-	@LastModifiedDate
-	private LocalDateTime modifiedDate = LocalDateTime.now();
+    @Column(name = "MODIFIED_DATE", nullable = false)
+    @LastModifiedDate
+    private LocalDateTime modifiedDate = LocalDateTime.now();
 
 }

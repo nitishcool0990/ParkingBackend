@@ -12,14 +12,12 @@ import org.springframework.web.bind.annotation.RestController;
  * Created by kalana.w on 5/17/2020.
  */
 @RestController
-public class UserController implements IUserController
-{
-	@Autowired
-	private UserService userService;
+public class UserController implements IUserController {
+    @Autowired
+    private UserService userService;
 
-	@Override
-	public ResponseEntity<EsResponse<?>> createNewUser( @RequestBody User user )
-	{
-		return ResponseEntity.ok( this.userService.createNewUser( user ) );
-	}
+    @Override
+    public ResponseEntity<EsResponse<?>> createNewUser(@RequestBody User user) {
+        return ResponseEntity.ok(this.userService.createNewUser(user));
+    }
 }

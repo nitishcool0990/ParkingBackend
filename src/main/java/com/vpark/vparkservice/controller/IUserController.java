@@ -12,8 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
  * Created by kalana.w on 5/17/2020.
  */
 @RequestMapping("users/")
-public interface IUserController
-{
-	@PostMapping(IConstants.VERSION_1)
-	ResponseEntity<EsResponse<?>> createNewUser( @RequestBody User user );
+public interface IUserController {
+    @PostMapping(IConstants.VERSION_1)
+    ResponseEntity<EsResponse<?>> createNewUser(@RequestBody User user);
 }

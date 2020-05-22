@@ -13,28 +13,23 @@ import org.springframework.stereotype.Service;
  * Created by kalana.w on 5/17/2020.
  */
 @Service
-public class UserService
-{
-	@Autowired
-	private PasswordEncoder bcryptEncoder;
+public class UserService {
+    @Autowired
+    private PasswordEncoder bcryptEncoder;
 
-	@Autowired
-	private IUserRepository userRepository;
+    @Autowired
+    private IUserRepository userRepository;
 
-	@Autowired
-	private Environment ENV;
+    @Autowired
+    private Environment ENV;
 
-	public EsResponse<?> createNewUser( User user )
-	{
-		try
-		{
-			user.setPassword( this.bcryptEncoder.encode( user.getPassword() ) );
-			return new EsResponse<>( IConstants.RESPONSE_STATUS_OK, this.userRepository.save( user ), this.ENV.getProperty( "user.registration.success" ) );
-		}
-		catch ( Exception e )
-		{
-			e.printStackTrace();
-			return new EsResponse<>( IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty( "user.registration.fail" ) );
-		}
-	}
+    public EsResponse<?> createNewUser(User user) {
+        try {
+            user.setPassword(this.bcryptEncoder.encode(user.getPassword()));
+            return new EsResponse<>(IConstants.RESPONSE_STATUS_OK, this.userRepository.save(user), this.ENV.getProperty("user.registration.success"));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("user.registration.fail"));
+        }
+    }
 }

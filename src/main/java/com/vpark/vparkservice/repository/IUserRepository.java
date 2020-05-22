@@ -10,7 +10,6 @@ import java.util.Optional;
  * Created by kalana.w on 5/17/2020.
  */
 @Repository
-public interface IUserRepository extends JpaRepository<User, Long>
-{
-	Optional<User> findByMobileNo( String mobileNo );
+public interface IUserRepository extends JpaRepository<User, Long> {
+    Optional<User> findByMobileNo(String mobileNo);
 }

@@ -26,64 +26,68 @@ import java.util.Collections;
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
-public class WebSecurityConfig extends WebSecurityConfigurerAdapter
-{
+public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
-	@Autowired
-	private JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+    @Autowired
+    private JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
-	@Autowired
-	private UserDetailsService jwtUserDetailsService;
+    @Autowired
+    private UserDetailsService jwtUserDetailsService;
 
-	@Autowired
-	private JwtRequestFilter jwtRequestFilter;
+    @Autowired
+    private JwtRequestFilter jwtRequestFilter;
 
-	@Autowired
-	public void configureGlobal( AuthenticationManagerBuilder auth ) throws Exception
-	{
-		auth.userDetailsService( this.jwtUserDetailsService ).passwordEncoder( passwordEncoder() );
-	}
+    @Autowired
+    public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+        auth.userDetailsService(this.jwtUserDetailsService).passwordEncoder(passwordEncoder());
+    }
 
-	@Bean
-	public PasswordEncoder passwordEncoder()
-	{
-		return new BCryptPasswordEncoder();
-	}
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 
-	@Bean
-	@Override
-	public AuthenticationManager authenticationManagerBean() throws Exception
-	{
-		return super.authenticationManagerBean();
-	}
+    @Bean
+    @Override
+    public AuthenticationManager authenticationManagerBean() throws Exception {
+        return super.authenticationManagerBean();
+    }
 
-	@Override
-	protected void configure( HttpSecurity httpSecurity ) throws Exception
-	{
-		httpSecurity.csrf().disable().authorizeRequests().antMatchers( "/sessions/**" ).permitAll().antMatchers( HttpMethod.POST, "/users/" + IConstants.VERSION_1 ).permitAll().anyRequest().authenticated().and().cors().configurationSource( corsConfigurationSource() ).and().exceptionHandling()
-				.authenticationEntryPoint( jwtAuthenticationEntryPoint ).and().sessionManagement().sessionCreationPolicy( SessionCreationPolicy.STATELESS );
+    @Override
+    protected void configure(HttpSecurity httpSecurity) throws Exception {
+        httpSecurity.csrf().disable()
+                .authorizeRequests()
+                .antMatchers("/sessions/**").permitAll()
+                .antMatchers(HttpMethod.POST, "/users/" + IConstants.VERSION_1)
+                .permitAll().anyRequest().authenticated().and().cors().configurationSource(corsConfigurationSource())
+                .and().exceptionHandling()
+                .authenticationEntryPoint(jwtAuthenticationEntryPoint)
+                .and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
-		// Add a filter to validate the tokens with every request
-		httpSecurity.addFilterBefore( this.jwtRequestFilter, UsernamePasswordAuthenticationFilter.class );
-	}
+        // Add a filter to validate the tokens with every request
+        httpSecurity.addFilterBefore(this.jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
+    }
 
-	@Override
-	public void configure( WebSecurity web ) throws Exception
-	{
-		web.ignoring().antMatchers( "/v2/api-docs", "/configuration/ui", "/swagger-resources/**", "/configuration/security", "/swagger-ui.html", "/webjars/**" );
-	}
+    @Override
+    public void configure(WebSecurity web) throws Exception {
+        web.ignoring()
+                .antMatchers("/v2/api-docs",
+                        "/configuration/ui", "/swagger-resources/**",
+                        "/configuration/security", "/swagger-ui.html",
+                        "/webjars/**"
+                );
+    }
 
-	@Bean
-	public CorsConfigurationSource corsConfigurationSource()
-	{
-		CorsConfiguration corsConfiguration = new CorsConfiguration();
-		corsConfiguration.setAllowedHeaders( Collections.singletonList( "*" ) );
-		corsConfiguration.setAllowedOrigins( Collections.singletonList( "*" ) );
-		corsConfiguration.setAllowedMethods( Collections.singletonList( "*" ) );
-		corsConfiguration.setAllowCredentials( true );
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration corsConfiguration = new CorsConfiguration();
+        corsConfiguration.setAllowedHeaders(Collections.singletonList("*"));
+        corsConfiguration.setAllowedOrigins(Collections.singletonList("*"));
+        corsConfiguration.setAllowedMethods(Collections.singletonList("*"));
+        corsConfiguration.setAllowCredentials(true);
 
-		UrlBasedCorsConfigurationSource configurationSource = new UrlBasedCorsConfigurationSource();
-		configurationSource.registerCorsConfiguration( "/**", corsConfiguration );
-		return configurationSource;
-	}
+        UrlBasedCorsConfigurationSource configurationSource = new UrlBasedCorsConfigurationSource();
+        configurationSource.registerCorsConfiguration("/**", corsConfiguration);
+        return configurationSource;
+    }
 }
