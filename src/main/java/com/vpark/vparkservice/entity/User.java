@@ -19,7 +19,10 @@ import java.time.LocalDateTime;
 public class User extends Savable
 {
 	@Column(name = "MOBILE_NO", unique = true, nullable = false)
-	private String username;
+	private String mobileNo;
+
+	@Column(name = "USER_NAME", unique = true, nullable = false)
+	private String userName;
 
 	@Column(name = "PASSWORD", nullable = false)
 	private String password;

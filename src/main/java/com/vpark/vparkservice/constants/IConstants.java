@@ -8,6 +8,8 @@ public interface IConstants
 	int RESPONSE_STATUS_OK = 1;
 	int RESPONSE_STATUS_ERROR = -1;
 
+	String VERSION_1 = "v1";
+
 	enum UserStatus
 	{
 		ACTIVE, INACTIVE, BLOCKED

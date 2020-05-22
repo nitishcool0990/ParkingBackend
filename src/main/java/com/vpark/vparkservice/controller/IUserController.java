@@ -1,5 +1,6 @@
 package com.vpark.vparkservice.controller;
 
+import com.vpark.vparkservice.constants.IConstants;
 import com.vpark.vparkservice.entity.User;
 import com.vpark.vparkservice.model.EsResponse;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +14,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("users/")
 public interface IUserController
 {
-	@PostMapping("v1")
+	@PostMapping(IConstants.VERSION_1)
 	ResponseEntity<EsResponse<?>> createNewUser( @RequestBody User user );
 }
