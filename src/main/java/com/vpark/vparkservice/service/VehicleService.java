@@ -24,6 +24,17 @@ public class VehicleService {
     @Autowired
     private Environment ENV;
 
+    public EsResponse<List<VehicleDto>> findAllVehicles(String vehicleNo, IConstants.VehicleType vehicleType, User user) {
+        try {
+            List<VehicleDto> list = this.vehicleRepository
+                    .findByVehicleNoLikeAndVehicleTypeAndAndUserOrderByModifiedDateDesc(Utility.queryLikeAny(vehicleNo), vehicleType, user);
+            return new EsResponse<>(IConstants.RESPONSE_STATUS_OK, list, this.ENV.getProperty("vehicle.search.success"));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new EsResponse<>(IConstants.RESPONSE_STATUS_OK, this.ENV.getProperty("vehicle.search.failed"));
+        }
+    }
+
     public EsResponse<Vehicle> findVehicleById(long id) {
         try {
             Optional<Vehicle> byId = this.vehicleRepository.findById(id);
@@ -71,14 +82,4 @@ public class VehicleService {
         }
     }
 
-    public EsResponse<List<VehicleDto>> findAllVehicles(String vehicleNo, IConstants.VehicleType vehicleType, User user) {
-        try {
-            List<VehicleDto> list = this.vehicleRepository
-                    .findByVehicleNoLikeAndVehicleTypeAndAndUserOrderByModifiedDateDesc(Utility.queryLikeAny(vehicleNo), vehicleType, user);
-            return new EsResponse<>(IConstants.RESPONSE_STATUS_OK, list, this.ENV.getProperty("vehicle.search.success"));
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new EsResponse<>(IConstants.RESPONSE_STATUS_OK, this.ENV.getProperty("vehicle.search.failed"));
-        }
-    }
 }
