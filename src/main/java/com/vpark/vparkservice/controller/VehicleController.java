@@ -51,7 +51,7 @@ public class VehicleController implements IVehicleController {
 
     @Override
     public ResponseEntity<EsResponse<?>> updateVehicle(@PathVariable long id, @RequestBody Vehicle vehicle) {
-        if (id <= 0) {
+        if (id <= 0 || id != vehicle.getId()) {
             return ResponseEntity.badRequest().body(new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("invalid.id")));
         }
         return ResponseEntity.ok(this.vehicleService.updateVehicle(id, vehicle));
