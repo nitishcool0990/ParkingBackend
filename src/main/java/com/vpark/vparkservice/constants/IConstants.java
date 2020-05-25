@@ -9,7 +9,7 @@ public interface IConstants {
 
     String VERSION_1 = "v1";
 
-    enum UserStatus {
+    enum Status {
         ACTIVE, INACTIVE, BLOCKED
     }
 

@@ -24,18 +24,6 @@ public class User extends Savable {
     @Column(name = "MOBILE_NO", unique = true, nullable = false)
     private String mobileNo;
 
-    @Column(name = "FIRST_NAME", nullable = false)
-    private String firstName;
-
-    @Column(name = "LAST_NAME", nullable = false)
-    private String lastName;
-
-    @Column(name = "EMAIL", unique = true, nullable = false)
-    private String email;
-
-    @Column(name = "CITY", nullable = false)
-    private String city;
-
     @Column(name = "PASSWORD", nullable = false)
     private String password;
 
@@ -44,11 +32,15 @@ public class User extends Savable {
 
     @Column(name = "USER_STATUS", nullable = false, length = 10)
     @Enumerated(EnumType.STRING)
-    private IConstants.UserStatus userStatus = IConstants.UserStatus.INACTIVE;
+    private IConstants.Status status = IConstants.Status.INACTIVE;
 
     @Column(name = "USER_TYPE", nullable = false, length = 10)
     @Enumerated(EnumType.STRING)
     private IConstants.UserType userType;
+
+    @OneToOne(cascade = CascadeType.DETACH, fetch = FetchType.LAZY)
+    @JoinColumn(name = "USER_PROFILE", referencedColumnName = "ID", foreignKey = @ForeignKey(name = "FK_USER_USER_PROFILE"))
+    private UserProfile userProfile;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @OnDelete(action = OnDeleteAction.CASCADE)
