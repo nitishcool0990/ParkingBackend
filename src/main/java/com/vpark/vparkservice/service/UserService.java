@@ -79,6 +79,7 @@ public class UserService {
         }
         User user = userById.getData();
         user.setUserProfile(userProfile);
+        this.userRepository.save(user);
         ProfileDto profileDto = this.modelMapper.map(this.userRepository.save(user).getUserProfile(), ProfileDto.class);
         try {
             return new EsResponse<>(IConstants.RESPONSE_STATUS_OK, profileDto, this.ENV.getProperty("user.profile.update.success"));

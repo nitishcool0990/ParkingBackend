@@ -38,7 +38,7 @@ public class User extends Savable {
     @Enumerated(EnumType.STRING)
     private IConstants.UserType userType;
 
-    @OneToOne(cascade = CascadeType.DETACH, fetch = FetchType.LAZY)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "USER_PROFILE", referencedColumnName = "ID", foreignKey = @ForeignKey(name = "FK_USER_USER_PROFILE"))
     private UserProfile userProfile;
 
