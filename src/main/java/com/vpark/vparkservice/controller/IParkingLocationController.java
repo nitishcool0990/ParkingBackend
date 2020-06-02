@@ -11,7 +11,7 @@ import java.util.List;
 /**
  * Created by kalana.w on 5/22/2020.
  */
-@RequestMapping("vehicles/")
+@RequestMapping("parking-locations/")
 public interface IParkingLocationController {
 
     @GetMapping(IConstants.VERSION_1)

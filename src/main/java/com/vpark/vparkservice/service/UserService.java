@@ -78,6 +78,9 @@ public class UserService {
             return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("user.not.found"));
         }
         User user = userById.getData();
+        if (user.getUserProfile().getId() > 0) {
+            userProfile.setId(user.getUserProfile().getId());
+        }
         user.setUserProfile(userProfile);
         this.userRepository.save(user);
         ProfileDto profileDto = this.modelMapper.map(this.userRepository.save(user).getUserProfile(), ProfileDto.class);
