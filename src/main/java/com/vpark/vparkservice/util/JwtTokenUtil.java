@@ -1,13 +1,11 @@
 package com.vpark.vparkservice.util;
 
-import com.vpark.vparkservice.entity.User;
+import com.vpark.vparkservice.dto.SpringSecurityUserDetails;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
-
 import java.io.Serializable;
 import java.util.Date;
 import java.util.HashMap;
@@ -44,9 +42,9 @@ public class JwtTokenUtil implements Serializable {
         return expiration.before(new Date());
     }
 
-    public String generateToken(UserDetails userDetails, User user) {
+    public String generateToken(SpringSecurityUserDetails userDetails ) {
         Map<String, Object> claims = new HashMap<>();
-        claims.put("user_id", user.getId());
+        claims.put("user_id", userDetails.getUserId());
         claims.put("roles", userDetails.getAuthorities());
         return doGenerateToken(claims, userDetails.getUsername());
     }
@@ -59,7 +57,7 @@ public class JwtTokenUtil implements Serializable {
                 .signWith(SignatureAlgorithm.HS512, secret).compact();
     }
 
-    public Boolean validateToken(String token, UserDetails userDetails) {
+    public Boolean validateToken(String token, SpringSecurityUserDetails userDetails) {
         final String username = getUsernameFromToken(token);
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }

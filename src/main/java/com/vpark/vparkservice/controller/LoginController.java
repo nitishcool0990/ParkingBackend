@@ -1,6 +1,7 @@
 package com.vpark.vparkservice.controller;
 
 import com.vpark.vparkservice.constants.IConstants;
+import com.vpark.vparkservice.dto.SpringSecurityUserDetails;
 import com.vpark.vparkservice.entity.User;
 import com.vpark.vparkservice.model.EsResponse;
 import com.vpark.vparkservice.model.JwtResponse;
@@ -18,7 +19,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Optional;
 
 /**
  * Created by kalana.w on 5/21/2020.
@@ -40,9 +40,9 @@ public class LoginController implements ILoginController {
     @Override
     public ResponseEntity<EsResponse<JwtResponse>> login(@RequestHeader String userName, @RequestHeader String password) throws Exception {
         authenticate(userName, password);
-        final UserDetails userDetails = this.jwtUserDetailsService.loadUserByUsername(userName);
-        Optional<User> byMobileNo = this.userRepository.findByMobileNo(userName);
-        final String token = this.jwtTokenUtil.generateToken(userDetails, byMobileNo.get());
+        final SpringSecurityUserDetails userDetails = this.jwtUserDetailsService.getUserDetails(userName);
+        //Optional<User> byMobileNo = this.userRepository.findByMobileNo(userName);
+        final String token = this.jwtTokenUtil.generateToken(userDetails);
         return ResponseEntity.ok(new EsResponse<>(IConstants.RESPONSE_STATUS_OK, new JwtResponse(token), "authentication success"));
     }
 

@@ -1,5 +1,6 @@
 package com.vpark.vparkservice.service;
 
+import com.vpark.vparkservice.dto.SpringSecurityUserDetails;
 import com.vpark.vparkservice.repository.IUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
@@ -29,5 +30,16 @@ public class JwtUserDetailsService implements UserDetailsService {
         List<GrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority(user.getUserType().name()));
 
         return new User(username, user.getPassword(), authorities);
+    }
+    
+    
+    public SpringSecurityUserDetails getUserDetails(String username) throws UsernameNotFoundException{
+    	
+    	 com.vpark.vparkservice.entity.User user = this.userRepository.findByMobileNo(username).orElseThrow(() -> new UsernameNotFoundException("User Not Found with username: " + username));
+
+         List<GrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority(user.getUserType().name()));
+
+         return new SpringSecurityUserDetails( user.getId() ,  username, user.getPassword() , user.getUserProfile().getFirstName() , authorities ) ;
+        // return new User(username, user.getPassword(), authorities);
     }
 }
