@@ -31,7 +31,7 @@ public class VehicleService {
             return new EsResponse<>(IConstants.RESPONSE_STATUS_OK, list, this.ENV.getProperty("vehicle.search.success"));
         } catch (Exception e) {
             e.printStackTrace();
-            return new EsResponse<>(IConstants.RESPONSE_STATUS_OK, this.ENV.getProperty("vehicle.search.failed"));
+            return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("vehicle.search.failed"));
         }
     }
 
@@ -51,7 +51,7 @@ public class VehicleService {
             return new EsResponse<>(IConstants.RESPONSE_STATUS_OK, this.vehicleRepository.save(vehicle), this.ENV.getProperty("vehicle.creation.success"));
         } catch (Exception e) {
             e.printStackTrace();
-            return new EsResponse<>(IConstants.RESPONSE_STATUS_OK, this.ENV.getProperty("vehicle.creation.failed"));
+            return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("vehicle.creation.failed"));
         }
     }
 
@@ -64,7 +64,7 @@ public class VehicleService {
             return new EsResponse<>(IConstants.RESPONSE_STATUS_OK, this.vehicleRepository.save(vehicle), this.ENV.getProperty("vehicle.update.success"));
         } catch (Exception e) {
             e.printStackTrace();
-            return new EsResponse<>(IConstants.RESPONSE_STATUS_OK, this.ENV.getProperty("vehicle.update.failed"));
+            return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("vehicle.update.failed"));
         }
     }
 
@@ -78,7 +78,7 @@ public class VehicleService {
             return new EsResponse<>(IConstants.RESPONSE_STATUS_OK, this.ENV.getProperty("vehicle.delete.success"));
         } catch (Exception e) {
             e.printStackTrace();
-            return new EsResponse<>(IConstants.RESPONSE_STATUS_OK, this.ENV.getProperty("vehicle.delete.failed"));
+            return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("vehicle.delete.failed"));
         }
     }
 

@@ -12,4 +12,5 @@ import java.util.List;
 @Repository
 public interface IParkingLocationRepository extends JpaRepository<ParkingLocation, Long> {
     List<ParkingLocation> findAllByParkRegion(String region);
+
 }
