@@ -39,7 +39,7 @@ public class JwtUserDetailsService implements UserDetailsService {
 
          List<GrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority(user.getUserType().name()));
 
-         return new SpringSecurityUserDetails( user.getId() ,  username, user.getPassword() , user.getUserProfile().getFirstName() , authorities ) ;
-        // return new User(username, user.getPassword(), authorities);
+         return new SpringSecurityUserDetails( user.getId() ,  username, user.getPassword()  , authorities ) ;
+       
     }
 }
