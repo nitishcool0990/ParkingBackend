@@ -41,7 +41,6 @@ public class LoginController implements ILoginController {
     public ResponseEntity<EsResponse<JwtResponse>> login(@RequestHeader String userName, @RequestHeader String password) throws Exception {
         authenticate(userName, password);
         final SpringSecurityUserDetails userDetails = this.jwtUserDetailsService.getUserDetails(userName);
-        //Optional<User> byMobileNo = this.userRepository.findByMobileNo(userName);
         final String token = this.jwtTokenUtil.generateToken(userDetails);
         return ResponseEntity.ok(new EsResponse<>(IConstants.RESPONSE_STATUS_OK, new JwtResponse(token), "authentication success"));
     }

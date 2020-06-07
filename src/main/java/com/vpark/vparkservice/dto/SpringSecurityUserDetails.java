@@ -4,7 +4,6 @@ package com.vpark.vparkservice.dto;
 import java.util.List;
 
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 
 public class SpringSecurityUserDetails  implements UserDetails{
@@ -25,12 +24,12 @@ public class SpringSecurityUserDetails  implements UserDetails{
 	
 	
 	
-	public SpringSecurityUserDetails(Long userId, String username , String password,  String firstName , List<GrantedAuthority> authorities ) {
+	public SpringSecurityUserDetails(Long userId, String username , String password , List<GrantedAuthority> authorities ) {
 		super();
 		this.userId = userId;
 		this.username = username;
 		this.password = password;
-		this.firstName = firstName;
+
 		this.authorities = authorities ;
 		
 	}
