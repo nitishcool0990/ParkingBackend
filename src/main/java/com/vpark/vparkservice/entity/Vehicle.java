@@ -1,6 +1,7 @@
 package com.vpark.vparkservice.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.vpark.vparkservice.constants.IConstants;
 import lombok.Data;
 import org.hibernate.annotations.DynamicUpdate;
@@ -14,6 +15,7 @@ import javax.persistence.*;
 @Entity
 @DynamicUpdate
 @Table(name = "VEHICLES")
+@JsonIgnoreProperties(value = {"user"}, allowSetters = true)
 public class Vehicle extends Savable {
 
     @Column(name = "VEHICLE_NO", unique = true, nullable = false)
