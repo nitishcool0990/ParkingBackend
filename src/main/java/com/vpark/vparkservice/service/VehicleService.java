@@ -46,8 +46,11 @@ public class VehicleService {
         }
     }
 
-    public EsResponse<Vehicle> createNewVehicle(Vehicle vehicle) {
+    public EsResponse<Vehicle> createNewVehicle(Vehicle vehicle , long userId ) {
         try {
+        	User user = new User() ;
+        	user.setId(userId);
+        	vehicle.setUser(user);
             return new EsResponse<>(IConstants.RESPONSE_STATUS_OK, this.vehicleRepository.save(vehicle), this.ENV.getProperty("vehicle.creation.success"));
         } catch (Exception e) {
             e.printStackTrace();

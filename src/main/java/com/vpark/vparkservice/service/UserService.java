@@ -78,7 +78,7 @@ public class UserService {
             return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("user.not.found"));
         }
         User user = userById.getData();
-        if (user.getUserProfile().getId() > 0) {
+        if ( null != user.getUserProfile() ||   user.getUserProfile().getId() > 0) {
             userProfile.setId(user.getUserProfile().getId());
         }
         user.setUserProfile(userProfile);
