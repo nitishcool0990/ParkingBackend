@@ -9,6 +9,7 @@ import com.vpark.vparkservice.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -58,4 +59,15 @@ public class UserController implements IUserController {
         }
         return ResponseEntity.ok(this.userService.updateUserProfile(id, userProfile));
     }
+    
+    @Override
+    public ResponseEntity<EsResponse<User>> otpVaildation(@PathVariable String mobileNo,@PathVariable String otp){
+    	 return ResponseEntity.ok(this.userService.updateUserStatus(mobileNo,otp));
+    }
+
+	@Override
+	public ResponseEntity<EsResponse<?>> verifyMobileNumber(String mobileNo) {
+		// TODO Auto-generated method stub
+		 return ResponseEntity.ok(this.userService.verifyMobileNumber(mobileNo));
+	}
 }

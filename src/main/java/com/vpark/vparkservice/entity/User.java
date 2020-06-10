@@ -25,10 +25,10 @@ public class User extends Savable {
     private String mobileNo;
 
     @Column(name = "PASSWORD", nullable = false)
-    private String password;
+    private String password="park1234";
 
     @Column(name = "LAST_LOGIN_DATE")
-    private LocalDateTime lastLoginDate;
+    private LocalDateTime lastLoginDate =LocalDateTime.now();;
 
     @Column(name = "USER_STATUS", nullable = false, length = 10)
     @Enumerated(EnumType.STRING)
@@ -36,7 +36,7 @@ public class User extends Savable {
 
     @Column(name = "USER_TYPE", nullable = false, length = 10)
     @Enumerated(EnumType.STRING)
-    private IConstants.UserType userType;
+    private IConstants.UserType userType =IConstants.UserType.USER;
 
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "USER_PROFILE", referencedColumnName = "ID", foreignKey = @ForeignKey(name = "FK_USER_USER_PROFILE"))
@@ -45,4 +45,8 @@ public class User extends Savable {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private List<Vehicle> vehicles;
+
+	
+    
+    
 }

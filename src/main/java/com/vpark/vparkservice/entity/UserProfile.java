@@ -25,7 +25,6 @@ public class UserProfile extends Savable {
     @Column(name = "EMAIL", unique = true, nullable = false)
     private String email;
 
-    @Column(name = "CITY", nullable = false)
-    private String city;
+   
 
 }

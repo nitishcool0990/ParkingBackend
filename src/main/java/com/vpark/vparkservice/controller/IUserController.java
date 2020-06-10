@@ -14,6 +14,9 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("users/")
 public interface IUserController {
 
+	@GetMapping(IConstants.VERSION_1+"/verifyMobileNo/{mobileNo}")
+	 ResponseEntity<EsResponse<?>> verifyMobileNumber(@PathVariable String mobileNo);
+	
     @PostMapping(IConstants.VERSION_1)
     ResponseEntity<EsResponse<?>> createNewUser(@RequestBody User user);
 
@@ -28,4 +31,7 @@ public interface IUserController {
 
     @PatchMapping(IConstants.VERSION_1 + "/{id}/profile")
     ResponseEntity<EsResponse<ProfileDto>> updateUserProfile(@PathVariable long id, @RequestBody UserProfile userProfile);
+    
+    @GetMapping(IConstants.VERSION_1 + "/verifyOTP/{mobileNo}/{otp}")
+    ResponseEntity<EsResponse<User>> otpVaildation(@PathVariable String mobileNo,@PathVariable String otp);
 }
