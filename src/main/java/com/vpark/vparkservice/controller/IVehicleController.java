@@ -23,7 +23,6 @@ public interface IVehicleController {
     @GetMapping(IConstants.VERSION_1)
     ResponseEntity<EsResponse<List<VehicleDto>>> findAllVehicles(
             @RequestParam(required = false) String vehicleNo,
-            @RequestParam(required = false) IConstants.VehicleType vehicleType,
             @RequestParam(required = false) User user
     );
 

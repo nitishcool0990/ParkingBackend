@@ -29,14 +29,11 @@ public class VehicleController  implements IVehicleController {
     @Override
     public ResponseEntity<EsResponse<List<VehicleDto>>> findAllVehicles(
             @RequestParam(required = false, defaultValue = "") String vehicleNo,
-            @RequestParam(required = false) IConstants.VehicleType vehicleType,
-            @RequestParam User user
-    ) {
-        if (vehicleType == null) {
+            @RequestParam User user) {
+     
             return ResponseEntity.ok(this.vehicleService.findAllVehicles(vehicleNo, user));
-        }
-        return ResponseEntity.ok(this.vehicleService.findAllVehicles(vehicleNo, vehicleType, user));
-    }
+     
+     }
 
     @Override
     public ResponseEntity<EsResponse<Vehicle>> findVehicleById(@PathVariable long id) {

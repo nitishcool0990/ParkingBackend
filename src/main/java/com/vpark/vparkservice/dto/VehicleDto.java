@@ -1,6 +1,6 @@
 package com.vpark.vparkservice.dto;
 
-import com.vpark.vparkservice.constants.IConstants;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -12,5 +12,5 @@ import lombok.Data;
 public class VehicleDto {
     private long id;
     private String vehicleNo;
-    private IConstants.VehicleType vehicleType;
+    private String vehicleType;
 }

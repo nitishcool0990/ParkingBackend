@@ -18,7 +18,7 @@ public class ParkingDetails extends Savable {
 
     @Column(name = "VEHICLE_TYPE", nullable = false, length = 10)
     @Enumerated(EnumType.STRING)
-    private IConstants.VehicleType vehicleType;
+    private int vehicleTypeId;
 
     @Column(name = "HOURLY_RATE")
     private double hourlyRate;

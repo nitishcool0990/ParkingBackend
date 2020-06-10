@@ -16,8 +16,12 @@ public interface IConstants {
     enum UserType {
         USER, SUPER_USER, ADMIN
     }
-
-    enum VehicleType {
-        BIKE, CAR, VAN, BUS, LORRY
+    
+    enum Default {
+        TRUE, FALSE 
     }
+    
+    
+
+    
 }
