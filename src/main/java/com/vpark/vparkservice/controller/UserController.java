@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
  * Created by kalana.w on 5/17/2020.
  */
 @RestController
-public class UserController implements IUserController {
+public class UserController  implements IUserController  {
     @Autowired
     private UserService userService;
     @Autowired
@@ -29,27 +29,28 @@ public class UserController implements IUserController {
     }
 
     @Override
-    public ResponseEntity<EsResponse<User>> findUserById(long id) {
-        if (id <= 0) {
+    public ResponseEntity<EsResponse<User>> findUserById( long userId ) {
+    	
+        if (userId <= 0) {
             return ResponseEntity.badRequest().body(new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("invalid.id")));
         }
-        return ResponseEntity.ok(this.userService.findUserById(id));
+        return ResponseEntity.ok(this.userService.findUserById(userId));
     }
 
     @Override
-    public ResponseEntity<EsResponse<ProfileDto>> findUserProfile(long id) {
-        if (id <= 0) {
+    public ResponseEntity<EsResponse<ProfileDto>> findUserProfile(long userId) {
+        if (userId <= 0) {
             return ResponseEntity.badRequest().body(new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("invalid.id")));
         }
-        return ResponseEntity.ok(this.userService.findUserProfile(id));
+        return ResponseEntity.ok(this.userService.findUserProfile(userId));
     }
 
     @Override
-    public ResponseEntity<EsResponse<User>> updateUser(long id, User user) {
-        if (id <= 0 || id != user.getId()) {
+    public ResponseEntity<EsResponse<User>> updateUser(long userId, User user) {
+        if (userId <= 0 || userId != user.getId()) {
             return ResponseEntity.badRequest().body(new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("invalid.id")));
         }
-        return ResponseEntity.ok(this.userService.updateUser(id, user));
+        return ResponseEntity.ok(this.userService.updateUser(userId, user));
     }
 
     @Override

@@ -15,7 +15,6 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Copyright (c) 2018. scicom.com.my - All Rights Reserved
  * Created by kalana.w on 5/8/2020.
  */
 @Service

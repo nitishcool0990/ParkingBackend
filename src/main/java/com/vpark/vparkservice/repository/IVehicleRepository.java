@@ -1,6 +1,6 @@
 package com.vpark.vparkservice.repository;
 
-import com.vpark.vparkservice.constants.IConstants;
+
 import com.vpark.vparkservice.dto.VehicleDto;
 import com.vpark.vparkservice.entity.User;
 import com.vpark.vparkservice.entity.Vehicle;
@@ -14,5 +14,9 @@ import java.util.List;
  */
 @Repository
 public interface IVehicleRepository extends JpaRepository<Vehicle, Long> {
-    List<VehicleDto> findByVehicleNoLikeAndVehicleTypeAndAndUserOrderByModifiedDateDesc(String vehicleNo, IConstants.VehicleType vehicleType, User user);
+
+    //List<VehicleDto> findByVehicleNoLikeAndVehicleTypeAndAndUserOrderByModifiedDateDesc(String vehicleNo,  User user);
+
+    List<VehicleDto> findByVehicleNoLikeAndUserOrderByModifiedDateDesc(String vehicleNo, User user);
+
 }

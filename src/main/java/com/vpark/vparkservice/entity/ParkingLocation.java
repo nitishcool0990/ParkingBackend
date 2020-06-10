@@ -49,4 +49,8 @@ public class ParkingLocation extends Savable {
             joinColumns = @JoinColumn(name = "PARK_LOC_ID", referencedColumnName = "ID", foreignKey = @ForeignKey(name = "FK_PAK_LOC2REVIEW")),
             inverseJoinColumns = @JoinColumn(name = "REVIEW_ID", referencedColumnName = "ID", foreignKey = @ForeignKey(name = "FK_REVIEW2PAK_LOC")))
     private Set<ParkingReviews> parkingReviews = new HashSet<>();
+    
+   @ManyToOne(cascade = CascadeType.ALL,  fetch = FetchType.EAGER)
+    @JoinColumn(name = "PARKING_TYPE_ID", referencedColumnName = "ID", foreignKey = @ForeignKey(name = "FK_PARK_LOC2"))
+    private ParkingType  parkingTypeId ;
 }

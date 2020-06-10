@@ -24,16 +24,18 @@ public class VehicleService {
     @Autowired
     private Environment ENV;
 
-    public EsResponse<List<VehicleDto>> findAllVehicles(String vehicleNo, IConstants.VehicleType vehicleType, User user) {
+    public EsResponse<List<VehicleDto>> findAllVehicles(String vehicleNo, User user) {
         try {
             List<VehicleDto> list = this.vehicleRepository
-                    .findByVehicleNoLikeAndVehicleTypeAndAndUserOrderByModifiedDateDesc(Utility.queryLikeAny(vehicleNo), vehicleType, user);
+                    .findByVehicleNoLikeAndUserOrderByModifiedDateDesc(Utility.queryLikeAny(vehicleNo) , user);
             return new EsResponse<>(IConstants.RESPONSE_STATUS_OK, list, this.ENV.getProperty("vehicle.search.success"));
         } catch (Exception e) {
             e.printStackTrace();
             return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("vehicle.search.failed"));
         }
     }
+
+   
 
     public EsResponse<Vehicle> findVehicleById(long id) {
         try {
@@ -46,8 +48,11 @@ public class VehicleService {
         }
     }
 
-    public EsResponse<Vehicle> createNewVehicle(Vehicle vehicle) {
+    public EsResponse<Vehicle> createNewVehicle(Vehicle vehicle , long userId ) {
         try {
+        	User user = new User() ;
+        	user.setId(userId);
+        	vehicle.setUser(user);
             return new EsResponse<>(IConstants.RESPONSE_STATUS_OK, this.vehicleRepository.save(vehicle), this.ENV.getProperty("vehicle.creation.success"));
         } catch (Exception e) {
             e.printStackTrace();
@@ -81,5 +86,7 @@ public class VehicleService {
             return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("vehicle.delete.failed"));
         }
     }
+
+
 
 }
