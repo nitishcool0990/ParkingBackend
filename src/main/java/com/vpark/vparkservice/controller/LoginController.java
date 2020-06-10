@@ -2,7 +2,6 @@ package com.vpark.vparkservice.controller;
 
 import com.vpark.vparkservice.constants.IConstants;
 import com.vpark.vparkservice.dto.SpringSecurityUserDetails;
-import com.vpark.vparkservice.entity.User;
 import com.vpark.vparkservice.model.EsResponse;
 import com.vpark.vparkservice.model.JwtResponse;
 import com.vpark.vparkservice.repository.IUserRepository;
@@ -14,7 +13,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
@@ -34,8 +32,7 @@ public class LoginController implements ILoginController {
     @Autowired
     private JwtUserDetailsService jwtUserDetailsService;
 
-    @Autowired
-    private IUserRepository userRepository;
+   
 
     @Override
     public ResponseEntity<EsResponse<JwtResponse>> login(@RequestHeader String userName, @RequestHeader String password) throws Exception {

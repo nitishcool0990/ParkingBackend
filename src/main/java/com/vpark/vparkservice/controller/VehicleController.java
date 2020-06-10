@@ -13,14 +13,13 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
 import java.util.List;
 
 /**
  * Created by kalana.w on 5/22/2020.
  */
 @RestController
-public class VehicleController implements IVehicleController {
+public class VehicleController  implements IVehicleController {
 
     @Autowired
     private Environment ENV;
@@ -48,8 +47,8 @@ public class VehicleController implements IVehicleController {
     }
 
     @Override
-    public ResponseEntity<EsResponse<Vehicle>> createNewVehicle(@RequestBody Vehicle vehicle) {
-        return ResponseEntity.ok(this.vehicleService.createNewVehicle(vehicle));
+    public ResponseEntity<EsResponse<Vehicle>> createNewVehicle(@RequestBody Vehicle vehicle , long userId ) {
+        return ResponseEntity.ok(this.vehicleService.createNewVehicle(vehicle  , userId) );
     }
 
     @Override

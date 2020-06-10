@@ -1,9 +1,11 @@
 package com.vpark.vparkservice.config;
 
 import com.vpark.vparkservice.constants.IConstants;
+import com.vpark.vparkservice.controller.ServiceInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.Ordered;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -20,13 +22,17 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 
 import java.util.Collections;
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
-public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+public class WebSecurityConfig extends WebSecurityConfigurerAdapter implements WebMvcConfigurer {
 
     @Autowired
     private JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
@@ -36,6 +42,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
     private JwtRequestFilter jwtRequestFilter;
+    
+    @Autowired
+	private ServiceInterceptor  serviceInterceptor ;
 
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
@@ -90,4 +99,16 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         configurationSource.registerCorsConfiguration("/**", corsConfiguration);
         return configurationSource;
     }
+    
+    @Override
+	   public void addInterceptors(InterceptorRegistry registry) {
+	    registry.addInterceptor(serviceInterceptor ).order(Ordered.HIGHEST_PRECEDENCE)
+	    .addPathPatterns("/**")
+	    .excludePathPatterns("/sessions/**"  ,  "/users/" + IConstants.VERSION_1);
+	   }
+    
+    @Override
+	public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
+		argumentResolvers.add(new RequestAttributeMethodArgumentResolver());
+	}
 }
