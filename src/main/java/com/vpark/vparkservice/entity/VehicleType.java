@@ -23,6 +23,6 @@ public class VehicleType extends Savable{
 	
 	@Column(name = "IS_ACTIVE", nullable = false )
     @Enumerated(EnumType.STRING)
-    private  IConstants.Status isActive  = IConstants.Status.ACTIVE;
+    private  IConstants.Default isActive  = IConstants.Default.TRUE;
 
 }

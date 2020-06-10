@@ -16,8 +16,7 @@ import java.time.LocalDateTime;
 @Table(name = "PARKING_DETAILS")
 public class ParkingDetails extends Savable {
 
-    @Column(name = "VEHICLE_TYPE", nullable = false, length = 10)
-    @Enumerated(EnumType.STRING)
+    @Column(name = "VEHICLE_TYPE_ID", nullable = false, length = 10)
     private int vehicleTypeId;
 
     @Column(name = "HOURLY_RATE")

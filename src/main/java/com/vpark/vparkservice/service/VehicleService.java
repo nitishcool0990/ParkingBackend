@@ -27,7 +27,7 @@ public class VehicleService {
     public EsResponse<List<VehicleDto>> findAllVehicles(String vehicleNo, User user) {
         try {
             List<VehicleDto> list = this.vehicleRepository
-                    .findByVehicleNoLikeAndVehicleTypeAndAndUserOrderByModifiedDateDesc(Utility.queryLikeAny(vehicleNo) , user);
+                    .findByVehicleNoLikeAndUserOrderByModifiedDateDesc(Utility.queryLikeAny(vehicleNo) , user);
             return new EsResponse<>(IConstants.RESPONSE_STATUS_OK, list, this.ENV.getProperty("vehicle.search.success"));
         } catch (Exception e) {
             e.printStackTrace();
