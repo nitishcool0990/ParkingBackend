@@ -1,6 +1,5 @@
 package com.vpark.vparkservice.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.vpark.vparkservice.constants.IConstants;
 import lombok.Data;
@@ -25,7 +24,6 @@ public class Vehicle extends Savable {
     @Enumerated(EnumType.STRING)
     private IConstants.VehicleType vehicleType;
 
-    @JsonIgnore
     @ManyToOne(cascade = CascadeType.DETACH)
     @JoinColumn(name = "USER_ID", referencedColumnName = "ID", foreignKey = @ForeignKey(name = "FK_USER2VEHICLE"))
     private User user;

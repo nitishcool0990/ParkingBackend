@@ -15,4 +15,6 @@ import java.util.List;
 @Repository
 public interface IVehicleRepository extends JpaRepository<Vehicle, Long> {
     List<VehicleDto> findByVehicleNoLikeAndVehicleTypeAndAndUserOrderByModifiedDateDesc(String vehicleNo, IConstants.VehicleType vehicleType, User user);
+
+    List<VehicleDto> findByVehicleNoLikeAndUserOrderByModifiedDateDesc(String vehicleNo, User user);
 }
