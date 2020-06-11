@@ -2,17 +2,21 @@ package com.vpark.vparkservice.service;
 
 import com.vpark.vparkservice.constants.IConstants;
 import com.vpark.vparkservice.dto.VehicleDto;
+import com.vpark.vparkservice.dto.VehicleTypeDTO;
 import com.vpark.vparkservice.entity.User;
 import com.vpark.vparkservice.entity.Vehicle;
+import com.vpark.vparkservice.entity.VehicleType;
 import com.vpark.vparkservice.model.EsResponse;
 import com.vpark.vparkservice.repository.IVehicleRepository;
+import com.vpark.vparkservice.repository.IVehicleTypeRepository;
 import com.vpark.vparkservice.util.Utility;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Created by kalana.w on 5/22/2020.
@@ -21,8 +25,16 @@ import java.util.Optional;
 public class VehicleService {
     @Autowired
     private IVehicleRepository vehicleRepository;
+    
+    @Autowired
+    private IVehicleTypeRepository vehicleTypeRepository;
+    
     @Autowired
     private Environment ENV;
+    
+    @Autowired
+    private ModelMapper modelMapper;
+    
 
     public EsResponse<List<VehicleDto>> findAllVehicles(String vehicleNo, User user) {
         try {
@@ -36,7 +48,6 @@ public class VehicleService {
     }
 
    
-
     public EsResponse<Vehicle> findVehicleById(long id) {
         try {
             Optional<Vehicle> byId = this.vehicleRepository.findById(id);
@@ -60,6 +71,25 @@ public class VehicleService {
         }
     }
 
+    
+    public EsResponse<List<VehicleTypeDTO>> findAllVehicleType() {
+        try {
+        	List<VehicleType> vehicleTypelist = this.vehicleTypeRepository.findByVehicleActive();
+        	
+        	List<VehicleTypeDTO> vehicleTypeDtos = vehicleTypelist .stream()
+        			  .map(vehicleType -> modelMapper.map(vehicleType, VehicleTypeDTO.class))
+        			  .collect(Collectors.toList());
+        
+        	 return new EsResponse<>(IConstants.RESPONSE_STATUS_OK, vehicleTypeDtos, this.ENV.getProperty("vehicle.found"));
+      
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("vehicle.not.found"));
+        }
+		
+    }
+   
+    
     public EsResponse<Vehicle> updateVehicle(long id, Vehicle vehicle) {
         EsResponse<Vehicle> vehicleById = this.findVehicleById(id);
         if (vehicleById.getStatus() == IConstants.RESPONSE_STATUS_ERROR) {
@@ -73,6 +103,7 @@ public class VehicleService {
         }
     }
 
+    
     public EsResponse<?> deleteVehicle(long id) {
         EsResponse<Vehicle> vehicleById = this.findVehicleById(id);
         if (vehicleById.getStatus() == IConstants.RESPONSE_STATUS_ERROR) {

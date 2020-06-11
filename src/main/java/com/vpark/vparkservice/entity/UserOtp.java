@@ -11,7 +11,10 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.DynamicUpdate;
+
 @Entity
+@DynamicUpdate
 @Table(name="user_otp")
 public class UserOtp implements Serializable {
 	private static final long serialVersionUID = 1L;

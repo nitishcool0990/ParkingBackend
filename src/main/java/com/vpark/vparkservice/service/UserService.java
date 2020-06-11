@@ -96,10 +96,7 @@ public class UserService {
          		user.setPassword(this.bcryptEncoder.encode(user.getPassword()));
          		user.setId(userObj.getId());
          		BeanUtils.copyProperties(user, userObj);
-         		
-         	/*for(Vehicle vehicle: userObj.getVehicles()) {
-         		vehicle.setUser(userObj);
-         	}*/
+         	
 	            User userSaved = this.userRepository.save(userObj);
 	           
 	            return new EsResponse<>(IConstants.RESPONSE_STATUS_OK, userSaved, this.ENV.getProperty("user.registration.success"));
