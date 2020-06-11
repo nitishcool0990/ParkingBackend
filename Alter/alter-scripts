@@ -1,0 +1,15 @@
+# insert vehicle type 
+INSERT INTO `vpark`.`vehicle_type` (`id`,  created_date ,modified_date ,  `is_active`, `vehicle_name`) 
+VALUES ('1', now() , now() ,'true', 'CAR');
+
+INSERT INTO `vpark`.`vehicle_type` ( created_date ,modified_date ,  `is_active`, `vehicle_name`) 
+VALUES ( now() , now() ,'true', 'BIKE');
+
+INSERT INTO `vpark`.`vehicle_type` ( created_date ,modified_date ,  `is_active`, `vehicle_name`) 
+VALUES ( now() , now() ,'true', 'AUTO');
+
+INSERT INTO `vpark`.`vehicle_type` ( created_date ,modified_date ,  `is_active`, `vehicle_name`) 
+VALUES ( now() , now() ,'true', 'SCOOTY');
+
+INSERT INTO `vpark`.`vehicle_type` ( created_date ,modified_date ,  `is_active`, `vehicle_name`) 
+VALUES ( now() , now() ,'true', 'BUS');
