@@ -23,6 +23,13 @@ public class UserController  implements IUserController  {
     @Autowired
     private Environment ENV;
 
+    
+    @Override
+	public ResponseEntity<EsResponse<?>> userMobileRegistration(String mobileNo) {
+		 return ResponseEntity.ok(this.userService.userRegistration(mobileNo));
+	}
+    
+    
     @Override
     public ResponseEntity<EsResponse<?>> createNewUser(@RequestBody User user) {
         return ResponseEntity.ok(this.userService.createNewUser(user));
@@ -54,11 +61,11 @@ public class UserController  implements IUserController  {
     }
 
     @Override
-    public ResponseEntity<EsResponse<ProfileDto>> updateUserProfile(long id, UserProfile userProfile) {
-        if (id <= 0) {
+    public ResponseEntity<EsResponse<ProfileDto>> updateUserProfile(long userId, UserProfile userProfile) {
+        if (userId <= 0) {
             return ResponseEntity.badRequest().body(new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("invalid.id")));
         }
-        return ResponseEntity.ok(this.userService.updateUserProfile(id, userProfile));
+        return ResponseEntity.ok(this.userService.updateUserProfile(userId, userProfile));
     }
     
     @Override
@@ -66,9 +73,5 @@ public class UserController  implements IUserController  {
     	 return ResponseEntity.ok(this.userService.updateUserStatus(mobileNo,otp));
     }
 
-	@Override
-	public ResponseEntity<EsResponse<?>> verifyMobileNumber(String mobileNo) {
-		// TODO Auto-generated method stub
-		 return ResponseEntity.ok(this.userService.verifyMobileNumber(mobileNo));
-	}
+	
 }
