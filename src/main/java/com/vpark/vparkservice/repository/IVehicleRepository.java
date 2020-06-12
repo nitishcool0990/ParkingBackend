@@ -5,9 +5,11 @@ import com.vpark.vparkservice.dto.VehicleDto;
 import com.vpark.vparkservice.entity.User;
 import com.vpark.vparkservice.entity.Vehicle;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Created by kalana.w on 5/22/2020.
@@ -15,8 +17,10 @@ import java.util.List;
 @Repository
 public interface IVehicleRepository extends JpaRepository<Vehicle, Long> {
 
-    //List<VehicleDto> findByVehicleNoLikeAndVehicleTypeAndAndUserOrderByModifiedDateDesc(String vehicleNo,  User user);
 
     List<VehicleDto> findByVehicleNoLikeAndUserOrderByModifiedDateDesc(String vehicleNo, User user);
+
+    @Query("Select v from  Vehicle v where v.user.id = ?1" )
+	List<Vehicle> FindByUserId(long userId);
 
 }

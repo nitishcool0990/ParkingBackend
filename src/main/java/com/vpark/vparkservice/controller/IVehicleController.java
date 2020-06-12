@@ -18,24 +18,24 @@ import java.util.List;
 @RequestMapping("vehicles/")
 public interface IVehicleController {
 
-    @GetMapping(IConstants.VERSION_1)
+    @GetMapping(IConstants.VERSION_1 + "/all")
     ResponseEntity<EsResponse<List<VehicleDto>>> findAllVehicles(
             @RequestParam(required = false) String vehicleNo,
             @RequestParam(required = false) User user
     );
 
-    @GetMapping(IConstants.VERSION_1 + "/{id}")
-    ResponseEntity<EsResponse<Vehicle>> findVehicleById(@PathVariable long id);
+    @GetMapping(IConstants.VERSION_1 )
+    ResponseEntity<EsResponse<List<VehicleDto>>> findVehicleByUserId(@RequestAttribute("Id")  long userId);
     
     @GetMapping(IConstants.VERSION_1 + "/type")
     public ResponseEntity<EsResponse<List<VehicleTypeDTO>>> findAllVehicleType() ;
 
     @PostMapping(IConstants.VERSION_1)
-    ResponseEntity<EsResponse<Vehicle>> createNewVehicle(@RequestBody Vehicle vehicle  , @RequestAttribute("Id")  long userId);
+    ResponseEntity<EsResponse<Vehicle>> createNewVehicle(@RequestBody VehicleDto vehicleDto  , @RequestAttribute("Id")  long userId);
 
-    @PutMapping(IConstants.VERSION_1 + "/{id}")
-    ResponseEntity<EsResponse<?>> updateVehicle(@PathVariable long id, @RequestBody Vehicle vehicle);
+    @PutMapping(IConstants.VERSION_1 + "/update")
+    ResponseEntity<EsResponse<?>> updateVehicle(@RequestBody VehicleDto vehicleDto);
 
-    @DeleteMapping(IConstants.VERSION_1 + "/{id}")
+    @DeleteMapping(IConstants.VERSION_1 + "/{id}/delete")
     ResponseEntity<EsResponse<?>> deleteVehicle(@PathVariable long id);
 }

@@ -37,11 +37,11 @@ public class VehicleController  implements IVehicleController {
      }
 
     @Override
-    public ResponseEntity<EsResponse<Vehicle>> findVehicleById(@PathVariable long id) {
-        if (id <= 0) {
+    public ResponseEntity<EsResponse<List<VehicleDto>>> findVehicleByUserId( long userId) {
+        if (userId <= 0) {
             return ResponseEntity.badRequest().body(new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("invalid.id")));
         }
-        return ResponseEntity.ok(this.vehicleService.findVehicleById(id));
+        return ResponseEntity.ok(this.vehicleService.findVehicleByUserId(userId));
     }
     
     @Override
@@ -51,16 +51,16 @@ public class VehicleController  implements IVehicleController {
     }
 
     @Override
-    public ResponseEntity<EsResponse<Vehicle>> createNewVehicle(@RequestBody Vehicle vehicle , long userId ) {
-        return ResponseEntity.ok(this.vehicleService.createNewVehicle(vehicle  , userId) );
+    public ResponseEntity<EsResponse<Vehicle>> createNewVehicle(@RequestBody VehicleDto vehicleDto , long userId ) {
+        return ResponseEntity.ok(this.vehicleService.createNewVehicle(vehicleDto  , userId) );
     }
 
     @Override
-    public ResponseEntity<EsResponse<?>> updateVehicle(@PathVariable long id, @RequestBody Vehicle vehicle) {
-        if (id <= 0 || id != vehicle.getId()) {
+    public ResponseEntity<EsResponse<?>> updateVehicle( @RequestBody VehicleDto vehicleDto) {
+        if (vehicleDto.getId() <= 0) {
             return ResponseEntity.badRequest().body(new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("invalid.id")));
         }
-        return ResponseEntity.ok(this.vehicleService.updateVehicle(id, vehicle));
+        return ResponseEntity.ok(this.vehicleService.updateVehicle( vehicleDto));
 
     }
 
