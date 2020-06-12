@@ -47,16 +47,16 @@ public class ParkingLocation extends Savable {
     private IConstants.Status status = IConstants.Status.INACTIVE;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-    @JoinTable(name = "PARKING_LOC_DETAILS",
-            joinColumns = @JoinColumn(name = "PARK_LOC_ID", referencedColumnName = "ID", foreignKey = @ForeignKey(name = "FK_PAK_LOC2DETAILS")),
-            inverseJoinColumns = @JoinColumn(name = "DETAILS_ID", referencedColumnName = "ID", foreignKey = @ForeignKey(name = "FK_DETAILS2PAK_LOC")))
+    //@JoinTable(name = "PARKING_LOC_DETAILS",joinColumns =
+      @JoinColumn(name = "PARK_LOC_ID", referencedColumnName = "ID", foreignKey = @ForeignKey(name = "FK_PAK_LOC2DETAILS"))
+  // inverseJoinColumns = @JoinColumn(name = "DETAILS_ID", referencedColumnName = "ID", foreignKey = @ForeignKey(name = "FK_DETAILS2PAK_LOC")))
     private Set<ParkingDetails> parkingDetails = new HashSet<>();
 
     
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-    @JoinTable(name = "PARKING_LOC_REVIEWS",
-            joinColumns = @JoinColumn(name = "PARK_LOC_ID", referencedColumnName = "ID", foreignKey = @ForeignKey(name = "FK_PAK_LOC2REVIEW")),
-            inverseJoinColumns = @JoinColumn(name = "REVIEW_ID", referencedColumnName = "ID", foreignKey = @ForeignKey(name = "FK_REVIEW2PAK_LOC")))
+    ///@JoinTable(name = "PARKING_LOC_REVIEWS",  joinColumns =
+             @JoinColumn(name = "PARK_LOC_ID", referencedColumnName = "ID", foreignKey = @ForeignKey(name = "FK_PAK_LOC2REVIEW"))
+           //inverseJoinColumns = @JoinColumn(name = "REVIEW_ID", referencedColumnName = "ID", foreignKey = @ForeignKey(name = "FK_REVIEW2PAK_LOC")))
     private Set<ParkingReviews> parkingReviews = new HashSet<>();
     
     
