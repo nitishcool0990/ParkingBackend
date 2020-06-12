@@ -6,6 +6,8 @@ import lombok.Data;
 import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
+
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -33,8 +35,14 @@ public class ParkingLocation extends Savable {
 
     @Column(name = "LONGITUDE", nullable = false)
     private String longitude;
+    
+    @Column(name = "OPEN_TIME")
+    private LocalDateTime openTime;
 
-    @Column(name = "STATUS", nullable = false, length = 10)
+    @Column(name = "CLOSE_TIME")
+    private LocalDateTime closeTime;
+
+    @Column(name = "status", nullable = false, length = 10)
     @Enumerated(EnumType.STRING)
     private IConstants.Status status = IConstants.Status.INACTIVE;
 
@@ -44,11 +52,13 @@ public class ParkingLocation extends Savable {
             inverseJoinColumns = @JoinColumn(name = "DETAILS_ID", referencedColumnName = "ID", foreignKey = @ForeignKey(name = "FK_DETAILS2PAK_LOC")))
     private Set<ParkingDetails> parkingDetails = new HashSet<>();
 
+    
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     @JoinTable(name = "PARKING_LOC_REVIEWS",
             joinColumns = @JoinColumn(name = "PARK_LOC_ID", referencedColumnName = "ID", foreignKey = @ForeignKey(name = "FK_PAK_LOC2REVIEW")),
             inverseJoinColumns = @JoinColumn(name = "REVIEW_ID", referencedColumnName = "ID", foreignKey = @ForeignKey(name = "FK_REVIEW2PAK_LOC")))
     private Set<ParkingReviews> parkingReviews = new HashSet<>();
+    
     
    @ManyToOne(cascade = CascadeType.ALL,  fetch = FetchType.EAGER)
     @JoinColumn(name = "PARKING_TYPE_ID", referencedColumnName = "ID", foreignKey = @ForeignKey(name = "FK_PARK_LOC2"))

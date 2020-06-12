@@ -1,14 +1,14 @@
 package com.vpark.vparkservice.model;
 
 public class OTPResponse {
-	private String status="Failure";
+	private String Status="Failure";
 	private String Details="iuoiuou9lknoiunjoi";
 	
 	public String getStatus() {
-		return status;
+		return Status;
 	}
 	public void setStatus(String status) {
-		this.status = status;
+		this.Status = status;
 	}
 	public String getDetails() {
 		return Details;

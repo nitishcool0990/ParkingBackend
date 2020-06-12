@@ -25,11 +25,8 @@ public class ParkingDetails extends Savable {
     @Column(name = "MONTHLY_RATE")
     private double monthlyRate;
 
-    @Column(name = "OPEN_TIME")
-    private LocalDateTime openTime;
-
-    @Column(name = "CLOSE_TIME")
-    private LocalDateTime closeTime;
+    @Column(name = "capacity")
+    private String capacity;
 
     @Column(name = "USER_STATUS", nullable = false, length = 10)
     @Enumerated(EnumType.STRING)

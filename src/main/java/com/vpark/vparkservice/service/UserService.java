@@ -57,25 +57,27 @@ public class UserService {
     
     public EsResponse<?> userRegistration(String mobileNo) {
 		try {
-			User userObj = this.userRepository.findByMobileNo(mobileNo).orElseThrow(() -> new UsernameNotFoundException("User Not Found with mobileNo: " + mobileNo));
+			User userVo = this.userRepository.findByMobileNo(mobileNo).orElse(null);
 			
-			if (userObj == null || (userObj != null && userObj.getStatus().equals(IConstants.Status.INACTIVE))) {
+			if (userVo == null || (userVo != null && userVo.getStatus().equals(IConstants.Status.INACTIVE))) {
 				
-				User user = new User();
-				user.setMobileNo(mobileNo);
-				this.userRepository.save(user);
-				
+				if(userVo==null) {
+					 userVo = new User();
+					userVo.setMobileNo(mobileNo);
+		    		 this.userRepository.save(userVo);
+    			}
+						
 				String otp = OTPGenerateUtil.OTP(IConstants.OTP_LEN);
-				OTPResponse response = urlCaller.callGetURL(commonProperties.getOtpURL() + commonProperties.getOtpApiKey() + "/SMS/" + user.getMobileNo() + "/" + otp, -1, null);
+				OTPResponse response = urlCaller.callGetURL(commonProperties.getOtpURL() + commonProperties.getOtpApiKey() + "/SMS/" + userVo.getMobileNo() + "/" + otp, -1, null);
 				
 				if (response != null) {
-					UserOtp userOtpVo = userMapper.mapOTPResponseToOTPEntity(user, response, otp);
+					UserOtp userOtpVo = userMapper.mapOTPResponseToOTPEntity(userVo, response, otp);
 					userOTP.save(userOtpVo);
 				}
 				
 				return new EsResponse<>(IConstants.RESPONSE_STATUS_OK, this.ENV.getProperty("user.verifyMobile.success"));
 			} else {
-				if (userObj.getStatus().equals(IConstants.Status.ACTIVE) && userObj.getPassword().equals("park1234")) {
+				if (userVo.getStatus().equals(IConstants.Status.ACTIVE) && userVo.getPassword().equals("park1234")) {
 					return new EsResponse<>(IConstants.RESPONSE_OPEN_PROFILE, this.ENV.getProperty("user.profile.need.update"));
 				} else {
 					return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("user.found"));
