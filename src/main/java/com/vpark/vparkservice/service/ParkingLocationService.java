@@ -7,12 +7,9 @@ import com.vpark.vparkservice.entity.ParkingLocation;
 import com.vpark.vparkservice.entity.ParkingReviews;
 import com.vpark.vparkservice.model.EsResponse;
 import com.vpark.vparkservice.repository.IParkingLocationRepository;
-import com.vpark.vparkservice.repository.ParkingLocationLogicService;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -23,8 +20,10 @@ import java.util.stream.Collectors;
  */
 @Service
 public class ParkingLocationService {
+	
     @Autowired
     private IParkingLocationRepository parkingLocationRepository;
+    
     @Autowired
     private Environment ENV;
     

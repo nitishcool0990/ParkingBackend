@@ -3,7 +3,6 @@ package com.vpark.vparkservice.service;
 import com.vpark.vparkservice.constants.IConstants;
 import com.vpark.vparkservice.dto.VehicleDto;
 import com.vpark.vparkservice.dto.VehicleTypeDTO;
-import com.vpark.vparkservice.entity.ParkingLocation;
 import com.vpark.vparkservice.entity.User;
 import com.vpark.vparkservice.entity.Vehicle;
 import com.vpark.vparkservice.entity.VehicleType;
@@ -14,7 +13,6 @@ import com.vpark.vparkservice.util.Utility;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
@@ -109,11 +107,11 @@ public class VehicleService {
         			  .map(vehicleType -> modelMapper.map(vehicleType, VehicleTypeDTO.class))
         			  .collect(Collectors.toList());
         
-        	 return new EsResponse<>(IConstants.RESPONSE_STATUS_OK, vehicleTypeDtos, this.ENV.getProperty("vehicle.found"));
+        	 return new EsResponse<>(IConstants.RESPONSE_STATUS_OK, vehicleTypeDtos, this.ENV.getProperty("vehicle.type.found"));
       
         } catch (Exception e) {
             e.printStackTrace();
-            return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("vehicle.not.found"));
+            return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("vehicle.type.not.found"));
         }
 		
     }
