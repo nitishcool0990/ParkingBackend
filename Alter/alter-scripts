@@ -13,3 +13,10 @@ VALUES ( now() , now() ,'TRUE', 'SCOOTY');
 
 INSERT INTO `vpark`.`vehicle_type` ( created_date ,modified_date ,  `is_active`, `vehicle_name`) 
 VALUES ( now() , now() ,'TRUE', 'BUS');
+
+# Parking type
+INSERT INTO `vpark`.`parking_type` (created_date , modified_date , color, parking_type) 
+VALUES (now() , now() , 'Green', 'Free');
+
+INSERT INTO `vpark`.`parking_type` (created_date , modified_date , color, parking_type) 
+VALUES (now() , now() , 'Blue', 'Paid');

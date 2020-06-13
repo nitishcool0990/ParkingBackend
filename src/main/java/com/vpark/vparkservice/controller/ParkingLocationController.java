@@ -91,7 +91,8 @@ public class ParkingLocationController implements IParkingLocationController {
         if (id <= 0 || reviewId <= 0 || reviewId != parkingReview.getId()) {
             return ResponseEntity.badRequest().body(new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("invalid.id")));
         }
-        return ResponseEntity.ok(this.parkingLocationService.updateParkReview(id, reviewId, parkingReview));
+        //return ResponseEntity.ok(this.parkingLocationService.updateParkReview(id, reviewId, parkingReview));
+        return null;
     }
 
     @Override
@@ -99,7 +100,8 @@ public class ParkingLocationController implements IParkingLocationController {
         if (id <= 0 || reviewId <= 0) {
             return ResponseEntity.badRequest().body(new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("invalid.id")));
         }
-        return ResponseEntity.ok(this.parkingLocationService.deleteParkReview(id, reviewId));
+       // return ResponseEntity.ok(this.parkingLocationService.deleteParkReview(id, reviewId));
+        return null;
     }
 
     @Override
@@ -107,6 +109,7 @@ public class ParkingLocationController implements IParkingLocationController {
         if (id <= 0) {
             return ResponseEntity.badRequest().body(new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("invalid.id")));
         }
-        return ResponseEntity.ok(this.parkingLocationService.findAllReviews(id, userId));
+       // return ResponseEntity.ok(this.parkingLocationService.findAllReviews(id, userId));
+        return null;
     }
 }
