@@ -4,6 +4,8 @@ package com.vpark.vparkservice.dto;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import com.vpark.vparkservice.entity.Vehicle;
+
 import java.util.List;
 
 public class SpringSecurityUserDetails implements UserDetails {
@@ -21,16 +23,17 @@ public class SpringSecurityUserDetails implements UserDetails {
     private boolean accountNonLocked = true;
     private boolean credentialsNonExpired = true;
     private List<GrantedAuthority> authorities;
+    private List<Vehicle> vehicleList;
 
 
-    public SpringSecurityUserDetails(Long userId, String username, String password, List<GrantedAuthority> authorities) {
+    public SpringSecurityUserDetails(Long userId, String username, String password, List<GrantedAuthority> authorities,List<Vehicle> vehicleList) {
         super();
         this.userId = userId;
         this.username = username;
         this.password = password;
 
         this.authorities = authorities;
-
+        this.vehicleList =vehicleList;
     }
 
     public Long getUserId() {
@@ -104,6 +107,14 @@ public class SpringSecurityUserDetails implements UserDetails {
     public void setAuthorities(List<GrantedAuthority> authorities) {
         this.authorities = authorities;
     }
+
+	public List<Vehicle> getVehicleList() {
+		return vehicleList;
+	}
+
+	public void setVehicleList(List<Vehicle> vehicleList) {
+		this.vehicleList = vehicleList;
+	}
 
 
 }

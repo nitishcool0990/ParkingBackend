@@ -1,6 +1,7 @@
 package com.vpark.vparkservice.controller;
 
 import com.vpark.vparkservice.constants.IConstants;
+import com.vpark.vparkservice.dto.ParkingLocationDto;
 import com.vpark.vparkservice.entity.ParkingDetails;
 import com.vpark.vparkservice.entity.ParkingLocation;
 import com.vpark.vparkservice.entity.ParkingReviews;
@@ -21,8 +22,8 @@ public interface IParkingLocationController {
             @RequestParam(required = false) String parkRegion
     );
 
-    @GetMapping(IConstants.VERSION_1 + "/{id}")
-    ResponseEntity<EsResponse<ParkingLocation>> findLocationById(@PathVariable long id);
+    @PostMapping(value=IConstants.VERSION_1 + "/findLocByCoordinates",headers = IConstants.HEADER_VALUE)
+    ResponseEntity<EsResponse<ParkingLocationDto>> findLocationByCoordinates(@RequestParam("latitude") double  latitude,@RequestParam("longitude") double  longitude);
 
     @PostMapping(IConstants.VERSION_1)
     ResponseEntity<EsResponse<ParkingLocation>> createNewLocation(@RequestBody ParkingLocation parkingLocation);

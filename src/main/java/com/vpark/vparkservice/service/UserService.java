@@ -59,11 +59,13 @@ public class UserService {
     
     public EsResponse<?> verifyMobileNumber(String mobileNo) {
     	try {
-    		User userObj = this.userRepository.findByMobileNo(mobileNo).orElseThrow(() -> new UsernameNotFoundException("User Not Found with mobileNo: " + mobileNo));
-    		if(userObj==null || (userObj!=null && userObj.getStatus().equals(IConstants.Status.INACTIVE))) {
-    		User user = new User();
-    		user.setMobileNo(mobileNo);
-    		 this.userRepository.save(user);
+    		User user = this.userRepository.findByMobileNo(mobileNo).orElse(null);
+    		if(user==null || (user!=null && user.getStatus().equals(IConstants.Status.INACTIVE))) {
+    			if(user==null) {
+		    		user = new User();
+		    		user.setMobileNo(mobileNo);
+		    		 this.userRepository.save(user);
+    			}
     			String otp = OTPGenerateUtil.OTP(IConstants.OTP_LEN);
             	OTPResponse response =urlCaller.callGetURL(commonProperties.getOtpURL()+commonProperties.getOtpApiKey()+"/SMS/"+user.getMobileNo()+"/"+otp, -1, null);
     			//OTPResponse response = new OTPResponse();//to test
@@ -83,7 +85,7 @@ public class UserService {
             	
             	return new EsResponse<>(IConstants.RESPONSE_STATUS_OK, this.ENV.getProperty("user.verifyMobile.success"));
     		}else {
-    			if(userObj.getStatus().equals(IConstants.Status.ACTIVE) && userObj.getPassword().equals("park1234")) {
+    			if(user.getStatus().equals(IConstants.Status.ACTIVE) && user.getPassword().equals("park1234")) {
     				return new EsResponse<>(IConstants.RESPONSE_OPEN_PROFILE, this.ENV.getProperty("user.profile.need.update"));
     			}else {
     				return new EsResponse<>(IConstants.RESPONSE_STATUS_OK, this.ENV.getProperty("user.found"));

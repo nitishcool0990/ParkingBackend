@@ -1,11 +1,14 @@
 package com.vpark.vparkservice.service;
 
 import com.vpark.vparkservice.constants.IConstants;
+import com.vpark.vparkservice.dto.ParkingLocationDto;
 import com.vpark.vparkservice.entity.ParkingDetails;
 import com.vpark.vparkservice.entity.ParkingLocation;
 import com.vpark.vparkservice.entity.ParkingReviews;
 import com.vpark.vparkservice.model.EsResponse;
 import com.vpark.vparkservice.repository.IParkingLocationRepository;
+import com.vpark.vparkservice.repository.ParkingLocationLogicService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
@@ -24,6 +27,7 @@ public class ParkingLocationService {
     private IParkingLocationRepository parkingLocationRepository;
     @Autowired
     private Environment ENV;
+    
 
     public EsResponse<List<ParkingLocation>> findAllLocations(String region) {
         try {
@@ -185,6 +189,28 @@ public class ParkingLocationService {
             parkingReviews = parkingReviews.stream().filter(pr -> pr.getUserId() == userId).collect(Collectors.toSet());
         }
         return new EsResponse<>(IConstants.RESPONSE_STATUS_OK, parkingReviews, this.ENV.getProperty("parking.review.search.success"));
+    }
+    
+    public EsResponse<ParkingLocationDto> findLocationByCooridates(double  latitude,double  longitude) {
+    	try {
+    		 List<Object[]> closestParkingList = parkingLocationRepository.getClosestParkingArea("KM",latitude, longitude,2, 20);
+    		 if(closestParkingList!=null && closestParkingList.size()>0) {
+	    		 ParkingLocationDto dto = new ParkingLocationDto();
+	    		 for(Object[] obj:closestParkingList) {
+	    			 dto.setLatitude(obj[0]);
+	    			 dto.setLongitude(obj[1]);
+	    			 dto.setParkingName(obj[2].toString());
+	    			 dto.setDistance(obj[3].toString());
+	    		 }
+	    		  return new EsResponse<>(IConstants.RESPONSE_STATUS_OK,dto,  this.ENV.getProperty("parking.location.found"));
+    		 }else {
+    			 return new EsResponse<>(IConstants.RESPONSE_STATUS_OK,  this.ENV.getProperty("parking.location.not.found"));
+    		 }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("exception.internalerror"));
+        }
+    	
     }
 
 }

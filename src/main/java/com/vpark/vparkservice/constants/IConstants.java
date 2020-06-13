@@ -7,6 +7,7 @@ public interface IConstants {
     int RESPONSE_STATUS_OK = 1;
     int RESPONSE_STATUS_ERROR = -1;
     int RESPONSE_OPEN_PROFILE=2;
+    int RESPONSE_ADD_VEHICLE=3;
 
     String VERSION_1 = "v1";
     public static final int OTP_LEN=4;
@@ -18,6 +19,8 @@ public interface IConstants {
 	public static final String CONTENT_TYPE = "Content-Type";
 	public static final String CONTENT_VALUE = "application/json";
 	public static final String SHA_256 = "SHA-256";
+	public static final String HEADER_VALUE = "Accept=application/json";
+
 	
 
 

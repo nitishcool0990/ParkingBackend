@@ -19,6 +19,7 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
 //import com.google.gson.Gson;
 import com.vpark.vparkservice.constants.IConstants;
 import com.vpark.vparkservice.entity.OtpApiErrorLogs;
@@ -37,7 +38,8 @@ public class URLCaller {
 	
 
 	private static final String USER_AGENT = "Mozilla/5.0";	
-	//Gson gson = new Gson();
+	
+	Gson gson = new Gson();
 		
 	public OTPResponse callGetURL(String url, int userId, String token) {
 		OTPResponse otpResponse = null;
@@ -72,8 +74,8 @@ public class URLCaller {
 				System.out.println("Response:" + response.toString());
 				ObjectMapper mapper = new ObjectMapper();
 				mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-				otpResponse = mapper.readValue(response.toString(), OTPResponse.class);
-
+				//otpResponse = mapper.readValue(response.toString(), OTPResponse.class);
+				otpResponse = gson.fromJson(response.toString(), OTPResponse.class);
 				// System.out.println(mystat.getRespData().getFlopSeen());
 
 			} else {

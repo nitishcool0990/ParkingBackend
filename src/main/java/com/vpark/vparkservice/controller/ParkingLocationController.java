@@ -1,6 +1,7 @@
 package com.vpark.vparkservice.controller;
 
 import com.vpark.vparkservice.constants.IConstants;
+import com.vpark.vparkservice.dto.ParkingLocationDto;
 import com.vpark.vparkservice.entity.ParkingDetails;
 import com.vpark.vparkservice.entity.ParkingLocation;
 import com.vpark.vparkservice.entity.ParkingReviews;
@@ -35,11 +36,8 @@ public class ParkingLocationController implements IParkingLocationController {
     }
 
     @Override
-    public ResponseEntity<EsResponse<ParkingLocation>> findLocationById(@PathVariable long id) {
-        if (id <= 0) {
-            return ResponseEntity.badRequest().body(new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("invalid.id")));
-        }
-        return ResponseEntity.ok(this.parkingLocationService.findLocationById(id));
+    public ResponseEntity<EsResponse<ParkingLocationDto>> findLocationByCoordinates(@RequestParam("latitude") double  latitude,@RequestParam("longitude") double  longitude) {
+        return ResponseEntity.ok(this.parkingLocationService.findLocationByCooridates(latitude, longitude));
     }
 
     @Override

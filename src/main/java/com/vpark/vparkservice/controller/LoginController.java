@@ -39,7 +39,12 @@ public class LoginController implements ILoginController {
         authenticate(userName, password);
         final SpringSecurityUserDetails userDetails = this.jwtUserDetailsService.getUserDetails(userName);
         final String token = this.jwtTokenUtil.generateToken(userDetails);
-        return ResponseEntity.ok(new EsResponse<>(IConstants.RESPONSE_STATUS_OK, new JwtResponse(token), "authentication success"));
+        if(userDetails.getVehicleList()!=null && !userDetails.getVehicleList().isEmpty() && userDetails.getVehicleList().size()>0) {
+        	  return ResponseEntity.ok(new EsResponse<>(IConstants.RESPONSE_STATUS_OK, new JwtResponse(token), "authentication success"));
+        }else {
+        
+        	return ResponseEntity.ok(new EsResponse<>(IConstants.RESPONSE_ADD_VEHICLE, new JwtResponse(token), "authentication success"));
+        }
     }
 
     private void authenticate(String username, String password) throws Exception {

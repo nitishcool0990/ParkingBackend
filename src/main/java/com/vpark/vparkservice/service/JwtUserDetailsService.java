@@ -35,10 +35,10 @@ public class JwtUserDetailsService implements UserDetailsService {
     public SpringSecurityUserDetails getUserDetails(String username) throws UsernameNotFoundException{
     	
     	 com.vpark.vparkservice.entity.User user = this.userRepository.findByMobileNo(username).orElseThrow(() -> new UsernameNotFoundException("User Not Found with username: " + username));
-
+    	 
          List<GrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority(user.getUserType().name()));
 
-         return new SpringSecurityUserDetails( user.getId() ,  username, user.getPassword()  , authorities ) ;
+         return new SpringSecurityUserDetails( user.getId() ,  username, user.getPassword()  , authorities,user.getVehicles() ) ;
        
     }
 }
