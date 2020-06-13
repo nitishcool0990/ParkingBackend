@@ -5,8 +5,9 @@ import com.vpark.vparkservice.constants.IConstants;
 import lombok.Data;
 import org.hibernate.annotations.DynamicUpdate;
 import javax.persistence.*;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
+
 
 /**
  * Created by kalana.w on 5/17/2020.
@@ -43,26 +44,19 @@ public class ParkingLocation extends Savable {
     @Enumerated(EnumType.STRING)
     private IConstants.Status status = IConstants.Status.INACTIVE;
     
-    @ManyToOne(cascade = CascadeType.DETACH)
+    @ManyToOne(cascade = CascadeType.DETACH )
     @JoinColumn(name = "USER_ID", referencedColumnName = "ID", foreignKey = @ForeignKey(name = "FK_PAR_LOC2USER"))
     private User user; 
 
-   @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-   @JoinColumn(name = "PARK_LOC_ID", referencedColumnName = "ID", foreignKey = @ForeignKey(name = "FK_PAK_LOC2DETAILS"))
-    private Set<ParkingDetails> parkingDetails = new HashSet<>();
+   
+    @OneToMany(  cascade = CascadeType.ALL, orphanRemoval = true  )
+   //@JoinColumn(name = "PARK_LOC_ID", referencedColumnName = "ID")
+    private List<ParkingDetails> parkingDetails = new ArrayList<ParkingDetails>();
 
     
-  /*  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-    ///@JoinTable(name = "PARKING_LOC_REVIEWS",  joinColumns =
-             @JoinColumn(name = "PARK_LOC_ID", referencedColumnName = "ID", foreignKey = @ForeignKey(name = "FK_PAK_LOC2REVIEW"))
-           //inverseJoinColumns = @JoinColumn(name = "REVIEW_ID", referencedColumnName = "ID", foreignKey = @ForeignKey(name = "FK_REVIEW2PAK_LOC")))
-    private Set<ParkingReviews> parkingReviews = new HashSet<>();*/
-    
-    
- 
     @ManyToOne(cascade = CascadeType.DETACH)
     @JoinColumn(name = "PARKING_TYPE_ID", referencedColumnName = "ID", foreignKey = @ForeignKey(name = "FK_PARK_LOC2TYPE"))
-    private ParkingType  parkingTypeId ;
+    private ParkingType  parkingType ;
     
     
 }

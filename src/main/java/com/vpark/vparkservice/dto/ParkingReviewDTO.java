@@ -1,6 +1,5 @@
 package com.vpark.vparkservice.dto;
 
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -8,10 +7,11 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ParkingLocationDto {
+public class ParkingReviewDTO {
 
-	private Object  latitude;
-	private Object  longitude;
-	private String parkingName;
-	private String distance;
+	private long reviewId ;
+	private int rating ;
+	private String comment ;
+	private long parkingLocId ;
+	private String reviewrName ;
 }

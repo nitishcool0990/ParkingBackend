@@ -14,8 +14,9 @@ import javax.persistence.*;
 @Table(name = "PARKING_DETAILS")
 public class ParkingDetails extends Savable {
 
-    @Column(name = "VEHICLE_TYPE_ID", nullable = false, length = 10)
-    private int vehicleTypeId;
+	@ManyToOne
+    @JoinColumn(name = "VEHICLE_TYPE_ID")
+    private VehicleType vehicleType;
 
     @Column(name = "HOURLY_RATE")
     private double hourlyRate;
@@ -24,15 +25,14 @@ public class ParkingDetails extends Savable {
     private double monthlyRate;
 
     @Column(name = "CAPACITY")
-    private String capacity;
+    private Integer capacity;
 
     @Column(name = "STATUS", nullable = false, length = 10)
     @Enumerated(EnumType.STRING)
     private IConstants.Status status = IConstants.Status.INACTIVE;
     
-   
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JoinColumn(name = "PARK_LOC_ID", referencedColumnName = "ID", foreignKey = @ForeignKey(name = "FK_REVIEW2PARK_LOC"))
-     private ParkingLocation parkingLocId ;
+    @ManyToOne( cascade = CascadeType.ALL )
+    @JoinColumn(name = "PARK_LOC_ID", referencedColumnName = "ID", foreignKey = @ForeignKey(name = "FK_DETAILS2PARK_LOC"))
+     private ParkingLocation parkingLocation;
 
 }

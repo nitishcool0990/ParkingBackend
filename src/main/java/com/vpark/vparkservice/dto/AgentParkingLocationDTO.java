@@ -1,9 +1,6 @@
 package com.vpark.vparkservice.dto;
 
 import java.util.List;
-
-import com.vpark.vparkservice.entity.ParkingDetails;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,7 +8,9 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class AgentparkingLocationDTO {
+public class AgentParkingLocationDTO {
+	
+	 private long  parkingLocid ;
 	
 	private String parkName ;
 	
@@ -29,6 +28,6 @@ public class AgentparkingLocationDTO {
 	
 	private long parkingTypeId ;
 	
-	private List<ParkingDetails> parkingDetails ;
+	private List<ParkingDetailsDTO> parkingDetailsDtos ;
 
 }
