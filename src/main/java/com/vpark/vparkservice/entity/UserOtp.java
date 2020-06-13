@@ -3,42 +3,43 @@
 package com.vpark.vparkservice.entity;
 
 import java.io.Serializable;
-import java.sql.Timestamp;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import javax.persistence.Version;
+
+import org.hibernate.annotations.DynamicUpdate;
 
 @Entity
+@DynamicUpdate
 @Table(name="user_otp")
 public class UserOtp implements Serializable {
-
-  
-
-    /**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 	@Id
     @Column(unique=true, nullable=false, precision=19)
     private long id;
+	
     @Column(name="mobile_no", nullable=false)
     private String mobileNo;
+    
     @Column(name = "otp",nullable=false)
     private String otp;
+    
     @Column(name="validate_time", nullable=false)
     private Date validateTime;
+    
     @Column(nullable=false, length=20)
     private String status;
+    
     @Column(nullable=false, length=50)
     private String details;
+    
     @Column(name="modified_on", nullable=false)
     private Date modifiedOn;
+    
     @Column(name="linux_modified_on", nullable=false, precision=10)
     private long linuxModifiedOn;
 

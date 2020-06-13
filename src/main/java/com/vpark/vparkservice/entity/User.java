@@ -24,7 +24,7 @@ public class User extends Savable {
     @Column(name = "MOBILE_NO", unique = true, nullable = false)
     private String mobileNo;
 
-    @Column(name = "PASSWORD", nullable = false)
+    @Column(name = "PASSWORD", nullable = false   )
     private String password="park1234";
 
     @Column(name = "LAST_LOGIN_DATE")

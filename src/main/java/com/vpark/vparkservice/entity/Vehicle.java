@@ -22,13 +22,13 @@ public class Vehicle extends Savable {
     @JoinColumn(name = "VEHICLE_TYPE_ID", referencedColumnName = "ID", foreignKey = @ForeignKey(name = "FK_VEHICLETYPE2VEHICLE"))
     private VehicleType vehicleType;
 
-
     //@JsonIgnore
     @ManyToOne(cascade = CascadeType.DETACH)
     @JoinColumn(name = "USER_ID", referencedColumnName = "ID", foreignKey = @ForeignKey(name = "FK_USER2VEHICLE"))
     private User user;
     
     @Column(name = "IS_DEFAULT", nullable = false)
+    @Enumerated(EnumType.STRING)
     private IConstants.Default isDefault  = IConstants.Default.FALSE;
     
 }

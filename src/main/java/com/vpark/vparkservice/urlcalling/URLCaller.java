@@ -38,7 +38,6 @@ public class URLCaller {
 	
 
 	private static final String USER_AGENT = "Mozilla/5.0";	
-	
 	Gson gson = new Gson();
 		
 	public OTPResponse callGetURL(String url, int userId, String token) {
@@ -74,7 +73,7 @@ public class URLCaller {
 				System.out.println("Response:" + response.toString());
 				ObjectMapper mapper = new ObjectMapper();
 				mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-				//otpResponse = mapper.readValue(response.toString(), OTPResponse.class);
+				///otpResponse = mapper.readValue(response.toString(), OTPResponse.class);
 				otpResponse = gson.fromJson(response.toString(), OTPResponse.class);
 				// System.out.println(mystat.getRespData().getFlopSeen());
 
