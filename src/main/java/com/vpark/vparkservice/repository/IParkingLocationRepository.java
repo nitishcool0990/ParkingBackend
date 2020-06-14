@@ -1,6 +1,8 @@
 package com.vpark.vparkservice.repository;
 
 import com.vpark.vparkservice.entity.ParkingLocation;
+import com.vpark.vparkservice.entity.Vehicle;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -16,6 +18,9 @@ public interface IParkingLocationRepository extends JpaRepository<ParkingLocatio
     
     @Query(value = "CALL `vPark`.`closest_parking`(:units,:latitude, :longitude, :distance, :limit);", nativeQuery = true)
     List<Object[]> getClosestParkingArea(String units,double  latitude,double  longitude, int distance,int limit  );
+    
+    @Query("Select pl from  ParkingLocation pl where pl.user.id = ?1" )
+ 	List<ParkingLocation> FindByUserId(long userId);
     
 
 }

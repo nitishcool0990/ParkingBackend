@@ -7,9 +7,8 @@ import com.vpark.vparkservice.entity.Vehicle;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
-
 import java.util.List;
-import java.util.Optional;
+
 
 /**
  * Created by kalana.w on 5/22/2020.

@@ -1,13 +1,16 @@
 package com.vpark.vparkservice.service;
 
 import com.vpark.vparkservice.constants.IConstants;
+import com.vpark.vparkservice.dto.ParkingDetailsDTO;
 import com.vpark.vparkservice.dto.ParkingLocationDto;
+import com.vpark.vparkservice.dto.ParkingReviewDTO;
 import com.vpark.vparkservice.entity.ParkingDetails;
 import com.vpark.vparkservice.entity.ParkingLocation;
 import com.vpark.vparkservice.entity.ParkingReviews;
+import com.vpark.vparkservice.entity.User;
 import com.vpark.vparkservice.model.EsResponse;
 import com.vpark.vparkservice.repository.IParkingLocationRepository;
-import com.vpark.vparkservice.repository.ParkingLocationLogicService;
+import com.vpark.vparkservice.repository.IParkingReviewsRepository;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +28,7 @@ import java.util.stream.Collectors;
  */
 @Service
 public class ParkingLocationService {
+	
     @Autowired
     private IParkingLocationRepository parkingLocationRepository;
     
@@ -32,22 +36,14 @@ public class ParkingLocationService {
     private Environment ENV;
     
     @Autowired
-    private ModelMapper modelMapper;
+	 private ModelMapper modelMapper;
+    
+    @Autowired
+    private  IParkingReviewsRepository   parkingReviewsRepository ;
     
 
-    public EsResponse<List<ParkingLocation>> findAllLocations(String region) {
-        try {
-            if (region == null || region.trim().isEmpty()) {
-                return new EsResponse<>(IConstants.RESPONSE_STATUS_OK, this.parkingLocationRepository.findAll(), this.ENV.getProperty("parking.location.search.success"));
-            }
-            return new EsResponse<>(IConstants.RESPONSE_STATUS_OK, this.parkingLocationRepository.findAllByParkRegion(region), this.ENV.getProperty("parking.location.search.success"));
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("parking.location.search.failed"));
-        }
-    }
 
-    public EsResponse<ParkingLocation> findLocationById(long id) {
+    public EsResponse<ParkingLocation> findLocationDetailsById(long id) {
         try {
             Optional<ParkingLocation> byId = this.parkingLocationRepository.findById(id);
             return byId.map(vehicle -> new EsResponse<>(IConstants.RESPONSE_STATUS_OK, vehicle, this.ENV.getProperty("parking.location.found")))
@@ -58,56 +54,22 @@ public class ParkingLocationService {
         }
     }
 
-    public EsResponse<ParkingLocation> createNewLocation(ParkingLocation parkingLocation) {
-        try {
-            return new EsResponse<>(IConstants.RESPONSE_STATUS_OK, this.parkingLocationRepository.save(parkingLocation), this.ENV.getProperty("parking.location.creation.success"));
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("parking.location.creation.failed"));
-        }
-    }
-
-    public EsResponse<ParkingLocation> updateLocation(long id, ParkingLocation parkingLocation) {
-        EsResponse<ParkingLocation> locationById = this.findLocationById(id);
-        if (locationById.getStatus() == IConstants.RESPONSE_STATUS_ERROR) {
-            return locationById;
-        }
-        try {
-            return new EsResponse<>(IConstants.RESPONSE_STATUS_OK, this.parkingLocationRepository.save(parkingLocation), this.ENV.getProperty("parking.location.update.success"));
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("parking.location.update.failed"));
-        }
-    }
-
-    public EsResponse<?> deleteVehicle(long id) {
-        EsResponse<ParkingLocation> locationById = this.findLocationById(id);
-        if (locationById.getStatus() == IConstants.RESPONSE_STATUS_ERROR) {
-            return locationById;
-        }
-        try {
-            this.parkingLocationRepository.deleteById(id);
-            return new EsResponse<>(IConstants.RESPONSE_STATUS_OK, this.ENV.getProperty("parking.location.delete.success"));
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("parking.location.delete.failed"));
-        }
-    }
-
+    
+   
     public EsResponse<?> patchLocationDetails(long id, ParkingDetails parkingDetail) {
-        EsResponse<ParkingLocation> locationById = this.findLocationById(id);
+        EsResponse<ParkingLocation> locationById = this.findLocationDetailsById(id);
         if (locationById.getStatus() == IConstants.RESPONSE_STATUS_ERROR) {
             return locationById;
         }
         try {
             ParkingLocation location = locationById.getData();
-            Set<ParkingDetails> parkingDetails = location.getParkingDetails();
-            Optional<ParkingDetails> pDetails = parkingDetails.stream().filter(pd -> pd.getId() == parkingDetail.getId()).findFirst();
-            pDetails.ifPresent(parkingDetails1 -> {
-                parkingDetails.remove(parkingDetails1);
-                parkingDetails.add(parkingDetail);
-            });
-            location.setParkingDetails(parkingDetails);
+            //Set<ParkingDetails> parkingDetails = location.getParkingDetails();
+           // Optional<ParkingDetails> pDetails = parkingDetails.stream().filter(pd -> pd.getId() == parkingDetail.getId()).findFirst();
+           // pDetails.ifPresent(parkingDetails1 -> {
+               // parkingDetails.remove(parkingDetails1);
+                //parkingDetails.add(parkingDetail);
+           // });
+           // location.setParkingDetails(parkingDetails);
             ParkingLocation save = this.parkingLocationRepository.save(location);
             return new EsResponse<>(IConstants.RESPONSE_STATUS_OK, save, this.ENV.getProperty("parking.location.update.success"));
         } catch (Exception e) {
@@ -116,24 +78,18 @@ public class ParkingLocationService {
         }
     }
 
-    public EsResponse<?> findAllLocationDetails(long id) {
-        EsResponse<ParkingLocation> locationById = this.findLocationById(id);
-        if (locationById.getStatus() == IConstants.RESPONSE_STATUS_ERROR) {
-            return locationById;
-        }
-        return new EsResponse<>(IConstants.RESPONSE_STATUS_OK, locationById.getData().getParkingDetails(), this.ENV.getProperty("parking.review.search.success"));
-    }
+   
 
     public EsResponse<?> patchParkReviews(long id, ParkingReviews parkingReview) {
-        EsResponse<ParkingLocation> locationById = this.findLocationById(id);
+        EsResponse<ParkingLocation> locationById = this.findLocationDetailsById(id);
         if (locationById.getStatus() == IConstants.RESPONSE_STATUS_ERROR) {
             return locationById;
         }
         try {
             ParkingLocation location = locationById.getData();
-            Set<ParkingReviews> parkingReviews = location.getParkingReviews();
-            parkingReviews.add(parkingReview);
-            location.setParkingReviews(parkingReviews);
+            //Set<ParkingReviews> parkingReviews = location.getParkingReviews();
+           // parkingReviews.add(parkingReview);
+            //location.setParkingReviews(parkingReviews);
             ParkingLocation save = this.parkingLocationRepository.save(location);
             return new EsResponse<>(IConstants.RESPONSE_STATUS_OK, save, this.ENV.getProperty("parking.review.save.success"));
         } catch (Exception e) {
@@ -142,60 +98,41 @@ public class ParkingLocationService {
         }
     }
 
-    public EsResponse<?> updateParkReview(long id, long reviewId, ParkingReviews parkingReview) {
-        EsResponse<ParkingLocation> locationById = this.findLocationById(id);
-        if (locationById.getStatus() == IConstants.RESPONSE_STATUS_ERROR) {
-            return locationById;
-        }
+    
+    
+    public EsResponse<?> addParkReview(  long userId ,  ParkingReviewDTO parkingReviewDto) {
         try {
-            ParkingLocation location = locationById.getData();
-            Set<ParkingReviews> parkingReviews = location.getParkingReviews();
-            ParkingReviews existReview = parkingReviews.stream().filter(pr -> pr.getId() == reviewId).findFirst().orElse(null);
-            if (existReview == null) {
-                return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("parking.review.not.found"));
-            }
-            parkingReviews.remove(existReview);
-            parkingReviews.add(parkingReview);
-            ParkingLocation save = this.parkingLocationRepository.save(location);
-            return new EsResponse<>(IConstants.RESPONSE_STATUS_OK, save, this.ENV.getProperty("parking.review.update.success"));
+        	ParkingReviews  parkingReviewsVo = modelMapper.map(parkingReviewDto, ParkingReviews.class) ;
+        	
+        	User user = new User() ;
+        	user.setId(userId);
+        	parkingReviewsVo.setUser(user);
+        	   
+        	this.parkingReviewsRepository.save(parkingReviewsVo);
+       
+            return new EsResponse<>(IConstants.RESPONSE_STATUS_OK , this.ENV.getProperty("parking.review.save.success"));
+            
         } catch (Exception e) {
             e.printStackTrace();
-            return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("parking.review.update.failed"));
+            return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("parking.review.save.failed"));
         }
     }
 
-    public EsResponse<?> deleteParkReview(long id, long reviewId) {
-        EsResponse<ParkingLocation> locationById = this.findLocationById(id);
-        if (locationById.getStatus() == IConstants.RESPONSE_STATUS_ERROR) {
-            return locationById;
-        }
-        try {
-            ParkingLocation location = locationById.getData();
-            Set<ParkingReviews> parkingReviews = location.getParkingReviews();
-            ParkingReviews existReview = parkingReviews.stream().filter(pr -> pr.getId() == reviewId).findFirst().orElse(null);
-            if (existReview == null) {
-                return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("parking.review.not.found"));
-            }
-            parkingReviews.remove(existReview);
-            ParkingLocation save = this.parkingLocationRepository.save(location);
-            return new EsResponse<>(IConstants.RESPONSE_STATUS_OK, save, this.ENV.getProperty("parking.review.delete.success"));
+    
+    public EsResponse<?> deleteParkReview( long reviewId) {
+       try{
+        Optional<ParkingReviews> parkingReviewVo = this.parkingReviewsRepository.findById(reviewId);
+
+    	if(null != parkingReviewVo)
+               this.parkingReviewsRepository.deleteById(reviewId);
+    		  
+            return new EsResponse<>(IConstants.RESPONSE_STATUS_OK , this.ENV.getProperty("parking.review.delete.success"));
         } catch (Exception e) {
             e.printStackTrace();
             return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("parking.review.delete.failed"));
         }
     }
 
-    public EsResponse<?> findAllReviews(long id, long userId) {
-        EsResponse<ParkingLocation> locationById = this.findLocationById(id);
-        if (locationById.getStatus() == IConstants.RESPONSE_STATUS_ERROR) {
-            return locationById;
-        }
-        Set<ParkingReviews> parkingReviews = locationById.getData().getParkingReviews();
-        if (userId > 0) {
-            parkingReviews = parkingReviews.stream().filter(pr -> pr.getUserId() == userId).collect(Collectors.toSet());
-        }
-        return new EsResponse<>(IConstants.RESPONSE_STATUS_OK, parkingReviews, this.ENV.getProperty("parking.review.search.success"));
-    }
     
     public EsResponse<List<ParkingLocationDto>> findLocationByCooridates(double  latitude,double  longitude,int  vehicleTypeId) {
     	try {
@@ -211,7 +148,30 @@ public class ParkingLocationService {
             e.printStackTrace();
             return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("exception.internalerror"));
         }
+}
+    public EsResponse<List<ParkingReviewDTO>> findAllReviews( long locId) {
+       try{
+    	List<ParkingReviews > parkingReviewsVos  = this.parkingReviewsRepository.findAllByLocationId(locId);
     	
+    	   List<ParkingReviewDTO> ParkingReviewDtos = parkingReviewsVos.stream()
+    			  .map((parkingReviewsVo) -> {
+    				  ParkingReviewDTO  parkReviewDto =  modelMapper.map(parkingReviewsVo , ParkingReviewDTO.class);
+    				  parkReviewDto.setReviewId(parkingReviewsVo.getId());
+    				  parkReviewDto.setReviewrName(parkingReviewsVo.getUser().getUserProfile().getFirstName());
+    
+    				return parkReviewDto ;
+    			  })
+    			  .collect(Collectors.toList());
+       
+        return new EsResponse<>(IConstants.RESPONSE_STATUS_OK, ParkingReviewDtos , this.ENV.getProperty("parking.review.search.success"));
+       }catch (Exception e) {
+           e.printStackTrace();
+           return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("parking.review.search.failed"));
+       }
     }
+    
+    
+    
+    
 
 }
