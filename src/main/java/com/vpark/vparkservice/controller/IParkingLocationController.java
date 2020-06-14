@@ -23,7 +23,7 @@ public interface IParkingLocationController {
     );
 
     @PostMapping(value=IConstants.VERSION_1 + "/findLocByCoordinates",headers = IConstants.HEADER_VALUE)
-    ResponseEntity<EsResponse<ParkingLocationDto>> findLocationByCoordinates(@RequestParam("latitude") double  latitude,@RequestParam("longitude") double  longitude);
+    ResponseEntity<EsResponse<List<ParkingLocationDto>>> findLocationByCoordinates(@RequestParam("latitude") double  latitude,@RequestParam("longitude") double  longitude,@RequestParam("vehicleTypeId") int  vehicleTypeId);
 
     @PostMapping(IConstants.VERSION_1)
     ResponseEntity<EsResponse<ParkingLocation>> createNewLocation(@RequestBody ParkingLocation parkingLocation);

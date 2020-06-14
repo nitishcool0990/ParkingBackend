@@ -36,8 +36,8 @@ public class ParkingLocationController implements IParkingLocationController {
     }
 
     @Override
-    public ResponseEntity<EsResponse<ParkingLocationDto>> findLocationByCoordinates(@RequestParam("latitude") double  latitude,@RequestParam("longitude") double  longitude) {
-        return ResponseEntity.ok(this.parkingLocationService.findLocationByCooridates(latitude, longitude));
+    public ResponseEntity<EsResponse<List<ParkingLocationDto>>> findLocationByCoordinates(@RequestParam("latitude") double  latitude,@RequestParam("longitude") double  longitude,@RequestParam("vehicleTypeId") int  vehicleTypeId) {
+        return ResponseEntity.ok(this.parkingLocationService.findLocationByCooridates(latitude, longitude,vehicleTypeId));
     }
 
     @Override

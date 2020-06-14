@@ -9,10 +9,12 @@ import com.vpark.vparkservice.model.EsResponse;
 import com.vpark.vparkservice.repository.IParkingLocationRepository;
 import com.vpark.vparkservice.repository.ParkingLocationLogicService;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -25,8 +27,12 @@ import java.util.stream.Collectors;
 public class ParkingLocationService {
     @Autowired
     private IParkingLocationRepository parkingLocationRepository;
+    
     @Autowired
     private Environment ENV;
+    
+    @Autowired
+    private ModelMapper modelMapper;
     
 
     public EsResponse<List<ParkingLocation>> findAllLocations(String region) {
@@ -191,18 +197,13 @@ public class ParkingLocationService {
         return new EsResponse<>(IConstants.RESPONSE_STATUS_OK, parkingReviews, this.ENV.getProperty("parking.review.search.success"));
     }
     
-    public EsResponse<ParkingLocationDto> findLocationByCooridates(double  latitude,double  longitude) {
+    public EsResponse<List<ParkingLocationDto>> findLocationByCooridates(double  latitude,double  longitude,int  vehicleTypeId) {
     	try {
     		 List<Object[]> closestParkingList = parkingLocationRepository.getClosestParkingArea("KM",latitude, longitude,2, 20);
     		 if(closestParkingList!=null && closestParkingList.size()>0) {
-	    		 ParkingLocationDto dto = new ParkingLocationDto();
-	    		 for(Object[] obj:closestParkingList) {
-	    			 dto.setLatitude(obj[0]);
-	    			 dto.setLongitude(obj[1]);
-	    			 dto.setParkingName(obj[2].toString());
-	    			 dto.setDistance(obj[3].toString());
-	    		 }
-	    		  return new EsResponse<>(IConstants.RESPONSE_STATUS_OK,dto,  this.ENV.getProperty("parking.location.found"));
+	    		 List<ParkingLocationDto> list = closestParkingList.stream()
+	    				 .map(objectArray->new ParkingLocationDto(objectArray[0],objectArray[1],objectArray[2].toString(),objectArray[3].toString())).collect(Collectors.toList());
+	    		  return new EsResponse<>(IConstants.RESPONSE_STATUS_OK,list,  this.ENV.getProperty("parking.location.found"));
     		 }else {
     			 return new EsResponse<>(IConstants.RESPONSE_STATUS_OK,  this.ENV.getProperty("parking.location.not.found"));
     		 }
