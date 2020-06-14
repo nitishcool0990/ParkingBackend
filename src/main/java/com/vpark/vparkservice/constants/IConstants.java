@@ -29,7 +29,7 @@ public interface IConstants {
     }
 
     enum UserType {
-        USER, SUPER_USER, ADMIN
+        USER, AGENT, ADMIN
     }
     
     enum Default {

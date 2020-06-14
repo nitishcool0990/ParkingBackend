@@ -1,8 +1,8 @@
 package com.vpark.vparkservice.model;
 
 public class OTPResponse {
-	private String Status;
-	private String Details;
+	private String Status="Failure";
+	private String Details="testing";
 	
 	public String getStatus() {
 		return Status;

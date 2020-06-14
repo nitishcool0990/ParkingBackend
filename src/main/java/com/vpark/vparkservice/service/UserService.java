@@ -59,16 +59,22 @@ public class UserService {
 		try {
 			User userVo = this.userRepository.findByMobileNo(mobileNo).orElse(null);
 			
-			if (userVo == null || (userVo != null && userVo.getStatus().equals(IConstants.Status.INACTIVE))) {
+			if (userVo == null || (userVo != null && userVo.getStatus().equals(IConstants.Status.INACTIVE)) || (userVo != null && userVo.getStatus().equals(IConstants.Status.ACTIVE) && !userVo.getPassword().equals("park1234"))) {
 				
 				if(userVo==null) {
 					 userVo = new User();
 					userVo.setMobileNo(mobileNo);
 		    		 this.userRepository.save(userVo);
     			}
-						
-				String otp = OTPGenerateUtil.OTP(IConstants.OTP_LEN);
-				OTPResponse response = urlCaller.callGetURL(commonProperties.getOtpURL() + commonProperties.getOtpApiKey() + "/SMS/" + userVo.getMobileNo() + "/" + otp, -1, null);
+				String otp ="1234";
+				OTPResponse response =null;
+				if(commonProperties.isBuildForTest()) {
+					response = new OTPResponse();
+				}else {
+					 otp = OTPGenerateUtil.OTP(IConstants.OTP_LEN);
+					 response = urlCaller.callGetURL(commonProperties.getOtpURL() + commonProperties.getOtpApiKey() + "/SMS/" + userVo.getMobileNo() + "/" + otp, -1, null);
+				}				
+				
 				
 				if (response != null) {
 					UserOtp userOtpVo = userMapper.mapOTPResponseToOTPEntity(userVo, response, otp);
@@ -97,11 +103,12 @@ public class UserService {
          	if(userObj!=null) {
          		user.setPassword(this.bcryptEncoder.encode(user.getPassword()));
          		user.setId(userObj.getId());
+         		  user.setStatus(IConstants.Status.ACTIVE);
          		BeanUtils.copyProperties(user, userObj);
          	
 	            User userSaved = this.userRepository.save(userObj);
 	           
-	            return new EsResponse<>(IConstants.RESPONSE_STATUS_OK, userSaved, this.ENV.getProperty("user.registration.success"));
+	            return new EsResponse<>(IConstants.RESPONSE_STATUS_OK,  this.ENV.getProperty("user.registration.success"));
          }else {
         	 return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("user.registration.fail"));
          }

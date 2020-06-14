@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -133,10 +134,12 @@ public class ParkingLocationService {
     
     public EsResponse<List<ParkingLocationDto>> findLocationByCooridates(double  latitude,double  longitude,int  vehicleTypeId) {
     	try {
-    		 List<Object[]> closestParkingList = parkingLocationRepository.getClosestParkingArea("KM",latitude, longitude,2, 20);
+    		 List<Object[]> closestParkingList = parkingLocationRepository.getClosestParkingArea("KM",latitude, longitude,2, 20,vehicleTypeId);
+    		
+    		 
     		 if(closestParkingList!=null && closestParkingList.size()>0) {
 	    		 List<ParkingLocationDto> list = closestParkingList.stream()
-	    				 .map(objectArray->new ParkingLocationDto(objectArray[0],objectArray[1],objectArray[2].toString(),objectArray[3].toString())).collect(Collectors.toList());
+	    				 .map(objectArray->new ParkingLocationDto((BigInteger)objectArray[0], objectArray[1], objectArray[2], (double)objectArray[3], objectArray[4].toString(), (double)objectArray[5], (double)objectArray[6])).collect(Collectors.toList());
 	    		  return new EsResponse<>(IConstants.RESPONSE_STATUS_OK,list,  this.ENV.getProperty("parking.location.found"));
     		 }else {
     			 return new EsResponse<>(IConstants.RESPONSE_STATUS_OK,  this.ENV.getProperty("parking.location.not.found"));

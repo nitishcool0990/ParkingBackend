@@ -13,8 +13,8 @@ import java.util.List;
 public interface IParkingLocationRepository extends JpaRepository<ParkingLocation, Long> {
     List<ParkingLocation> findAllByParkRegion(String region);
     
-    @Query(value = "CALL `vPark`.`closest_parking`(:units,:latitude, :longitude, :distance, :limit);", nativeQuery = true)
-    List<Object[]> getClosestParkingArea(String units,double  latitude,double  longitude, int distance,int limit  );
+    @Query(value = "CALL `vPark`.`closest_parking`(:units,:latitude, :longitude, :distance, :limit,:vehicleTypeId);", nativeQuery = true)
+    List<Object[]> getClosestParkingArea(String units,double  latitude,double  longitude, int distance,int limit ,int vehicleTypeId );
     
     @Query("Select pl from  ParkingLocation pl where pl.user.id = ?1" )
  	List<ParkingLocation> FindByUserId(long userId);

@@ -9,6 +9,7 @@ public class CommonProperties {
 	
 	private String otpURL;
 	private String otpApiKey;
+	private boolean isBuildForTest;
 	
 	public String getOtpURL() {
 		return otpURL;
@@ -21,6 +22,12 @@ public class CommonProperties {
 	}
 	public void setOtpApiKey(String otpApiKey) {
 		this.otpApiKey = otpApiKey;
+	}
+	public boolean isBuildForTest() {
+		return isBuildForTest;
+	}
+	public void setIsBuildForTest(boolean isBuildForTest) {
+		this.isBuildForTest = isBuildForTest;
 	}
 	
 	
