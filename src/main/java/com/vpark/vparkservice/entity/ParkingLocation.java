@@ -50,13 +50,19 @@ public class ParkingLocation extends Savable {
 
    
     @OneToMany(  cascade = CascadeType.ALL, orphanRemoval = true  )
-   //@JoinColumn(name = "PARK_LOC_ID", referencedColumnName = "ID")
     private List<ParkingDetails> parkingDetails = new ArrayList<ParkingDetails>();
 
     
     @ManyToOne(cascade = CascadeType.DETACH)
     @JoinColumn(name = "PARKING_TYPE_ID", referencedColumnName = "ID", foreignKey = @ForeignKey(name = "FK_PARK_LOC2TYPE"))
     private ParkingType  parkingType ;
+    
+    
+    @Column(name = "DESCRIPTION")
+    private String description;
+    
+    @Column(name = "RATING")
+    private double rating;
     
     
 }

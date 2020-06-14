@@ -31,8 +31,11 @@ public class ParkingDetails extends Savable {
     @Enumerated(EnumType.STRING)
     private IConstants.Status status = IConstants.Status.INACTIVE;
     
-    @ManyToOne( cascade = CascadeType.ALL )
+    @ManyToOne( cascade = CascadeType.DETACH )
     @JoinColumn(name = "PARK_LOC_ID", referencedColumnName = "ID", foreignKey = @ForeignKey(name = "FK_DETAILS2PARK_LOC"))
      private ParkingLocation parkingLocation;
+    
+    @Column(name = "BOOKING_RATE")
+    private double bookingRate  = 10 ;
 
 }

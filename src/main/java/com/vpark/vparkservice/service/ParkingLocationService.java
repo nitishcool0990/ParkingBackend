@@ -1,7 +1,6 @@
 package com.vpark.vparkservice.service;
 
 import com.vpark.vparkservice.constants.IConstants;
-import com.vpark.vparkservice.dto.ParkingDetailsDTO;
 import com.vpark.vparkservice.dto.ParkingLocationDto;
 import com.vpark.vparkservice.dto.ParkingReviewDTO;
 import com.vpark.vparkservice.entity.ParkingDetails;
@@ -11,7 +10,6 @@ import com.vpark.vparkservice.entity.User;
 import com.vpark.vparkservice.model.EsResponse;
 import com.vpark.vparkservice.repository.IParkingLocationRepository;
 import com.vpark.vparkservice.repository.IParkingReviewsRepository;
-
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
@@ -20,7 +18,6 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 /**

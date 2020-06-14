@@ -1,12 +1,9 @@
 package com.vpark.vparkservice.repository;
 
 import com.vpark.vparkservice.entity.ParkingLocation;
-import com.vpark.vparkservice.entity.Vehicle;
-
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
-
 import java.util.List;
 
 /**
