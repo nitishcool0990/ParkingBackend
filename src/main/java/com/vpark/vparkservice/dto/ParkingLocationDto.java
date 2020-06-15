@@ -17,14 +17,19 @@ public class ParkingLocationDto {
 	
 	  
 	private BigInteger parkingId;
+	private Long bookingParkId;
 	private Object  latitude;
 	private Object  longitude;
 	private double distance;
 	private String color;
 	private double hourlyRate;
 	private double monthlyRate;
-	private Integer rating;
+	private Double rating;
 	private String describe;
+	private String parkingName;
+	private String openTime;
+	private String closeTime;
+	
 	
 	public ParkingLocationDto(BigInteger parkingId, Object latitude, Object longitude, double distance, String color,
 			double hourlyRate, double monthlyRate) {
@@ -37,6 +42,20 @@ public class ParkingLocationDto {
 		this.hourlyRate = hourlyRate;
 		this.monthlyRate = monthlyRate;
 	}
+
+	public ParkingLocationDto(Long bookingParkId, double hourlyRate, double monthlyRate,
+			Double rating, String describe,String parkingName,String openTime,String closeTime) {
+		this.bookingParkId = bookingParkId;
+		this.hourlyRate = hourlyRate;
+		this.monthlyRate = monthlyRate;
+		this.rating = rating;
+		this.describe = describe;
+		this.parkingName=parkingName;
+		this.openTime=openTime;
+		this.closeTime=closeTime;
+	}
+	
+	
 	
 	
 	
