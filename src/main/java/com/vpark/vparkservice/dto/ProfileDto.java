@@ -21,6 +21,10 @@ public class ProfileDto {
     
     private String lastName;
     
+    private String mobileNo;
+    
     private String email;
+    
+    private String userRole ;
 
 }

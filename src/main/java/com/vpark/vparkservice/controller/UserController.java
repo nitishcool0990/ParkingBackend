@@ -29,21 +29,17 @@ public class UserController  implements IUserController  {
 		 return ResponseEntity.ok(this.userService.userRegistration(mobileNo));
 	}
     
+    @Override
+    public ResponseEntity<EsResponse<User>> otpVaildation(@PathVariable String mobileNo,@PathVariable String otp){
+    	 return ResponseEntity.ok(this.userService.updateUserStatus(mobileNo,otp));
+    }
     
     @Override
     public ResponseEntity<EsResponse<?>> createNewUser(@RequestBody User user) {
         return ResponseEntity.ok(this.userService.createNewUser(user));
     }
 
-    @Override
-    public ResponseEntity<EsResponse<User>> findUserById( long userId ) {
-    	
-        if (userId <= 0) {
-            return ResponseEntity.badRequest().body(new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("invalid.id")));
-        }
-        return ResponseEntity.ok(this.userService.findUserById(userId));
-    }
-
+  
     @Override
     public ResponseEntity<EsResponse<ProfileDto>> findUserProfile(long userId) {
         if (userId <= 0) {
@@ -51,27 +47,27 @@ public class UserController  implements IUserController  {
         }
         return ResponseEntity.ok(this.userService.findUserProfile(userId));
     }
-
+    
+    
     @Override
-    public ResponseEntity<EsResponse<User>> updateUser(long userId, User user) {
-        if (userId <= 0 || userId != user.getId()) {
-            return ResponseEntity.badRequest().body(new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("invalid.id")));
-        }
-        return ResponseEntity.ok(this.userService.updateUser(userId, user));
-    }
-
-    @Override
-    public ResponseEntity<EsResponse<ProfileDto>> updateUserProfile(long userId, UserProfile userProfile) {
+    public ResponseEntity<EsResponse<?>> updateUserProfile(long userId, UserProfile userProfile) {
         if (userId <= 0) {
             return ResponseEntity.badRequest().body(new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("invalid.id")));
         }
         return ResponseEntity.ok(this.userService.updateUserProfile(userId, userProfile));
     }
     
+
     @Override
-    public ResponseEntity<EsResponse<User>> otpVaildation(@PathVariable String mobileNo,@PathVariable String otp){
-    	 return ResponseEntity.ok(this.userService.updateUserStatus(mobileNo,otp));
+    public ResponseEntity<EsResponse<?>> createUserPassword(long userId, User user) {
+        if (userId <= 0 || userId != user.getId()) {
+            return ResponseEntity.badRequest().body(new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("invalid.id")));
+        }
+    return null;
     }
+
+  
+ 
 
 	
 }
