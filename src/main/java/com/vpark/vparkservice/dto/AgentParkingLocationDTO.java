@@ -28,6 +28,10 @@ public class AgentParkingLocationDTO {
 	
 	private long parkingTypeId ;
 	
+	private String description ;
+	
 	private List<ParkingDetailsDTO> parkingDetailsDtos ;
+	
+	private byte[] image ;
 
 }

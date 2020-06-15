@@ -71,7 +71,7 @@ public class FavouriteParkingLocService {
 					.map((favParkingVo) -> {
 				FavouriteParkingDTO FavoriteParkingDto = modelMapper.map(favParkingVo, FavouriteParkingDTO.class);
 				FavoriteParkingDto.setCloseTime(favParkingVo.getParkingLocation().getCloseTime());
-				FavoriteParkingDto.setOpentime(favParkingVo.getParkingLocation().getOpenTime());
+				FavoriteParkingDto.setOpenTime(favParkingVo.getParkingLocation().getOpenTime());
 				FavoriteParkingDto.setParkingName(favParkingVo.getParkingLocation().getParkName());
 				FavoriteParkingDto.setLocId(favParkingVo.getParkingLocation().getId());
 

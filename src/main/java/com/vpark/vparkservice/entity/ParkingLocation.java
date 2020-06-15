@@ -62,7 +62,12 @@ public class ParkingLocation extends Savable {
     private String description;
     
     @Column(name = "RATING")
-    private double rating;
+    private double rating = 0;
+    
+    @Lob
+    @Column(name  = "photo")
+    private byte[] photo; 
+    
     
     
 }

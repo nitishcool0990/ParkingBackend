@@ -8,6 +8,9 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
+
 import com.vpark.vparkservice.constants.IConstants;
 import com.vpark.vparkservice.dto.AgentParkingLocationDTO;
 import com.vpark.vparkservice.dto.ParkingDetailsDTO;
@@ -43,8 +46,8 @@ public class AgentParkingLocService  {
 	  @Autowired
 	  private IParkingDetailsRepository parkingDetailsRepository ;
 	  
-	    
-	 public EsResponse<ParkingLocation> createNewLocation(AgentParkingLocationDTO parkingLocationDto  , long userId) {
+	  
+	 public EsResponse<ParkingLocation> createNewLocation( MultipartFile[]  parkingImages , AgentParkingLocationDTO parkingLocationDto  ,   long userId) {
 	        try {
 	        	ParkingLocation parkingLocVo  = modelMapper.map(parkingLocationDto, ParkingLocation.class) ;
 	        	parkingLocMapper.mapAgentParkingLocToVo(parkingLocationDto, parkingLocVo);
@@ -53,6 +56,10 @@ public class AgentParkingLocService  {
 	        	user.setId(userId);
 	        	parkingLocVo.setUser(user);
 	        	
+	        	for (MultipartFile image  : parkingImages ){
+	        		byte[] photoBytes   = image.getBytes();
+	        		parkingLocVo.setPhoto(photoBytes);
+	        	}
 	        	this.parkingLocationRepository.save(parkingLocVo);
 	
 	            return new EsResponse<>(IConstants.RESPONSE_STATUS_OK  , this.ENV.getProperty("parking.location.creation.success"));
@@ -61,7 +68,7 @@ public class AgentParkingLocService  {
 	            e.printStackTrace();
 	            return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("parking.location.creation.failed"));
 	        }
-	    }
+	  }
 	 
 	 
 	 public EsResponse<List<AgentParkingLocationDTO>> findAllParkingLocationByUserId(long userId) {
@@ -72,6 +79,7 @@ public class AgentParkingLocService  {
 	      			  .map((parkingLocVo) -> {
 	      				AgentParkingLocationDTO  parkLocDto =  modelMapper.map(parkingLocVo , AgentParkingLocationDTO.class);
 	      				parkLocDto.setParkingLocid(parkingLocVo.getId());
+	      				parkLocDto.setImage(parkingLocVo.getPhoto());
 	      				return parkLocDto ;
 	      			  })
 	      			  .collect(Collectors.toList());
