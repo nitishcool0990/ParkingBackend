@@ -12,7 +12,7 @@ public class FavouriteParkingDTO {
 	private long id ;
 	private long locId ;
 	private String parkingName ;
-	private String opentime;
+	private String openTime;
 	private String closeTime ;
 	private double bookingCharges ;
 	

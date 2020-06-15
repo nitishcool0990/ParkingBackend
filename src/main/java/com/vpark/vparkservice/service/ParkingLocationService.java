@@ -14,9 +14,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
-
 import java.math.BigInteger;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -100,6 +98,19 @@ public class ParkingLocationService {
     
     public EsResponse<?> addParkReview(  long userId ,  ParkingReviewDTO parkingReviewDto) {
         try {
+        	
+        	List<ParkingReviews > parkingReviewsVos  =  this.parkingReviewsRepository.findAllByLocationId(parkingReviewDto.getParkingLocId());
+        	Integer sum = parkingReviewsVos.stream().map(parkingReviewsVo ->  parkingReviewsVo.getRating()   ).reduce(0, Integer::sum) ; 
+        	
+        	 sum = sum  +parkingReviewDto.getRating();
+        	double avgRating = sum / (parkingReviewsVos.size() + 1);
+        	
+        	Optional<ParkingLocation>  parkLocVo  = this.parkingLocationRepository.findById(parkingReviewDto.getParkingLocId());
+        	parkLocVo.ifPresent(parkLocVo1 ->{ 
+        		parkLocVo1.setRating(avgRating);
+        		this.parkingLocationRepository.save(parkLocVo1);
+        		});
+        
         	ParkingReviews  parkingReviewsVo = modelMapper.map(parkingReviewDto, ParkingReviews.class) ;
         	
         	User user = new User() ;
@@ -107,7 +118,8 @@ public class ParkingLocationService {
         	parkingReviewsVo.setUser(user);
         	   
         	this.parkingReviewsRepository.save(parkingReviewsVo);
-       
+        	
+      
             return new EsResponse<>(IConstants.RESPONSE_STATUS_OK , this.ENV.getProperty("parking.review.save.success"));
             
         } catch (Exception e) {
@@ -136,7 +148,6 @@ public class ParkingLocationService {
     	try {
     		 List<Object[]> closestParkingList = parkingLocationRepository.getClosestParkingArea("KM",latitude, longitude,2, 20,vehicleTypeId);
     		
-    		 
     		 if(closestParkingList!=null && closestParkingList.size()>0) {
 	    		 List<ParkingLocationDto> list = closestParkingList.stream()
 	    				 .map(objectArray->new ParkingLocationDto((BigInteger)objectArray[0], objectArray[1], objectArray[2], (double)objectArray[3], objectArray[4].toString(), (double)objectArray[5], (double)objectArray[6])).collect(Collectors.toList());
@@ -149,6 +160,9 @@ public class ParkingLocationService {
             return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("exception.internalerror"));
         }
 }
+    
+    
+    
     public EsResponse<List<ParkingReviewDTO>> findAllReviews( long locId) {
        try{
     	List<ParkingReviews > parkingReviewsVos  = this.parkingReviewsRepository.findAllByLocationId(locId);
@@ -158,6 +172,7 @@ public class ParkingLocationService {
     				  ParkingReviewDTO  parkReviewDto =  modelMapper.map(parkingReviewsVo , ParkingReviewDTO.class);
     				  parkReviewDto.setReviewId(parkingReviewsVo.getId());
     				  parkReviewDto.setReviewrName(parkingReviewsVo.getUser().getUserProfile().getFirstName());
+    				  parkReviewDto.setCreateDate(parkingReviewsVo.getCreatedDate());
     
     				return parkReviewDto ;
     			  })
