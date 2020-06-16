@@ -15,7 +15,12 @@ import java.util.List;
 public interface IParkingLocationRepository extends JpaRepository<ParkingLocation, Long> {
     List<ParkingLocation> findAllByParkRegion(String region);
     
-    @Query(value = "SELECT pl.id,latitude,longitude, ROUND((CASE ?1 WHEN 'miles' THEN 3959 ELSE 6371 END * ACOS( COS( RADIANS(?2) ) * COS( RADIANS(latitude) ) * COS( RADIANS(longitude) - RADIANS(?3)) + SIN(RADIANS(?2)) * SIN( RADIANS(latitude)))  ), 3) AS distance,pt.color,pd.hourly_rate,pd.monthly_rate FROM parking_locations pl LEFT JOIN parking_type pt ON pl.parking_type_id = pt.id LEFT JOIN `parking_details` pd ON pl.id= pd.park_loc_id WHERE vehicle_type_id = ?6 HAVING distance <= ?4 ORDER BY distance ASC   LIMIT ?5", nativeQuery = true)
+    @Query(value = "SELECT pl.id,latitude,longitude, ROUND((CASE ?1 WHEN 'miles' THEN 3959 ELSE 6371 END * ACOS( COS( RADIANS(?2) ) * COS( RADIANS(latitude) ) * COS( RADIANS(longitude) - RADIANS(?3)) + SIN(RADIANS(?2)) * SIN( RADIANS(latitude)))  ), 3) AS distance,"
+    		+ "  pt.color,pd.hourly_rate,pd.monthly_rate "
+    		+ "  FROM parking_locations pl "
+    		+ " LEFT JOIN parking_type pt ON pl.parking_type_id = pt.id "
+    		+ " LEFT JOIN `parking_details` pd ON pl.id= pd.park_loc_id "
+    		+ " WHERE vehicle_type_id = ?6 HAVING distance <= ?4 ORDER BY distance ASC   LIMIT ?5", nativeQuery = true)
     List<Object[]> getClosestParkingArea(String units,double  latitude,double  longitude, int distance,int limit ,int vehicleTypeId );
     
     @Query("Select pl from  ParkingLocation pl where pl.user.id = ?1" )

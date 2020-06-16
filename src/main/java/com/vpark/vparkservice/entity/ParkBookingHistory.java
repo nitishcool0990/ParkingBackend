@@ -40,7 +40,7 @@ public class ParkBookingHistory extends Savable{
 	private String inTime ;
 	
 	@Column(name = "OUT_TIME")
-	private String out_Time ;
+	private String outTime ;
 	
 	@Column(name = "remarks")
 	private String remarks ;

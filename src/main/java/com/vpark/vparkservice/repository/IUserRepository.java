@@ -13,7 +13,7 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface IUserRepository extends JpaRepository<User, Long> {
-   User findByMobileNo(String mobileNo);
+       User findByMobileNo(String mobileNo);
    
    Optional<User> findUserByMobileNo(String mobileNo );
 }

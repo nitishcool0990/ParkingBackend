@@ -9,7 +9,6 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import com.vpark.vparkservice.constants.IConstants;
 import com.vpark.vparkservice.dto.FavouriteParkingDTO;
-import com.vpark.vparkservice.dto.ParkingReviewDTO;
 import com.vpark.vparkservice.entity.FavouriteParking;
 import com.vpark.vparkservice.entity.ParkingLocation;
 import com.vpark.vparkservice.entity.User;

@@ -36,6 +36,7 @@ public class VehicleService {
     private ModelMapper modelMapper;
     
 
+    
     public EsResponse<List<VehicleDto>> findAllVehicles(String vehicleNo, User user) {
         try {
             List<VehicleDto> list = this.vehicleRepository
@@ -70,6 +71,12 @@ public class VehicleService {
 
     public EsResponse<Vehicle> createNewVehicle(VehicleDto vehicleDto , long userId ) {
         try {
+        	List<Vehicle> vehicleList =this.vehicleRepository.findAllVehicleNumber();
+        	
+        	for (Vehicle vehicle  : vehicleList) {
+        		if(vehicle.getVehicleNo().equals(vehicleDto.getVehicleNo()))
+        		   return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("vehicle.number.duplicate")); 
+           }
         	
         	if(vehicleDto.getIsDefault().equalsIgnoreCase( "TRUE"))
 			{  
@@ -81,10 +88,6 @@ public class VehicleService {
 			}
         	Vehicle vehicleVo = modelMapper.map(vehicleDto , Vehicle.class);
         
-        	VehicleType vehicleTypeVo = new VehicleType () ;
-        	vehicleTypeVo.setId(vehicleDto.getVehicleTypeId());
-        	vehicleVo.setVehicleType(vehicleTypeVo);
-        	
         	User user = new User() ;
         	user.setId(userId);
         	vehicleVo.setUser(user);
@@ -117,12 +120,25 @@ public class VehicleService {
     }
    
     
-    public EsResponse<?> updateVehicle( VehicleDto vehicleDto) {
+    public EsResponse<?> updateVehicle( VehicleDto vehicleDto , long userId ) {
         try {
+        	List<Vehicle> vehicleList = this.vehicleRepository.findAllVehicleNumber();
         	
-        	Optional<Vehicle> vehicleVofetch = this.vehicleRepository.findById(vehicleDto.getId()) ;
+        	for (Vehicle vehicle  : vehicleList) {
+        		if(vehicle.getVehicleNo().equals(vehicleDto.getVehicleNo())  && vehicle.getId() != vehicleDto.getId() )
+        		   return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("vehicle.number.duplicate")); 
+           }
+        	
+        	if(vehicleDto.getIsDefault().equalsIgnoreCase( "TRUE")){
+        		this.vehicleRepository.updateVehicleDefaultValueByUserId(userId  ,  IConstants.Default.FALSE);
+        	}
+        	
         	Vehicle vehicleVo = modelMapper.map(vehicleDto , Vehicle.class);
-        	//vehicleVo.setUser(vehicleVofetch.of(user).);
+        	
+        	User user = new User() ;
+        	user.setId(userId);
+        	vehicleVo.setUser(user);
+        	
         	this.vehicleRepository.save(vehicleVo) ;
    
             return new EsResponse<>(IConstants.RESPONSE_STATUS_OK , this.ENV.getProperty("vehicle.update.success"));

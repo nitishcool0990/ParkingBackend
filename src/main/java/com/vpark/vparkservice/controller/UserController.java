@@ -2,9 +2,11 @@ package com.vpark.vparkservice.controller;
 
 import com.vpark.vparkservice.constants.IConstants;
 import com.vpark.vparkservice.dto.ProfileDto;
+import com.vpark.vparkservice.dto.UserAccountDTO;
 import com.vpark.vparkservice.entity.User;
 import com.vpark.vparkservice.entity.UserProfile;
 import com.vpark.vparkservice.model.EsResponse;
+import com.vpark.vparkservice.model.RequestAttribute;
 import com.vpark.vparkservice.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
@@ -48,6 +50,13 @@ public class UserController  implements IUserController  {
         return ResponseEntity.ok(this.userService.findUserProfile(userId));
     }
     
+    
+    public ResponseEntity<EsResponse<UserAccountDTO>> findUserWallet( long userId){
+    	 if (userId <= 0) {
+             return ResponseEntity.badRequest().body(new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("invalid.id")));
+         }
+         return ResponseEntity.ok(this.userService.findUserWallet(userId));
+    }
     
     @Override
     public ResponseEntity<EsResponse<?>> updateUserProfile(long userId, UserProfile userProfile) {

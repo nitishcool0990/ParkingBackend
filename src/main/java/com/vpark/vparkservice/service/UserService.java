@@ -2,14 +2,17 @@ package com.vpark.vparkservice.service;
 
 import com.vpark.vparkservice.constants.IConstants;
 import com.vpark.vparkservice.dto.ProfileDto;
+import com.vpark.vparkservice.dto.UserAccountDTO;
 import com.vpark.vparkservice.entity.User;
 import com.vpark.vparkservice.entity.UserOtp;
 import com.vpark.vparkservice.entity.UserProfile;
+import com.vpark.vparkservice.entity.UserWallet;
 import com.vpark.vparkservice.mapper.UserMapper;
 import com.vpark.vparkservice.model.EsResponse;
 import com.vpark.vparkservice.model.OTPResponse;
 import com.vpark.vparkservice.repository.IUserOtp;
 import com.vpark.vparkservice.repository.IUserRepository;
+import com.vpark.vparkservice.repository.IUserWalletRepository;
 import com.vpark.vparkservice.urlcalling.URLCaller;
 import com.vpark.vparkservice.util.CommonProperties;
 import com.vpark.vparkservice.util.OTPGenerateUtil;
@@ -52,6 +55,9 @@ public class UserService {
     
     @Autowired
     private UserMapper userMapper ;
+    
+    @Autowired
+    private IUserWalletRepository   userWalletRepository ;
     
     Date date =new Date();
     
@@ -160,8 +166,32 @@ public class UserService {
 			return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("user.not.found"));
 		}
 	}
+	
+	
+	public EsResponse<UserAccountDTO> findUserWallet(long userId) {
+		try {
+			UserAccountDTO userAccDto  = new UserAccountDTO() ;
+			Optional<UserWallet> userWalletVo = this.userWalletRepository.findByUserId(userId);
+			 
+
+			if (userWalletVo.isPresent()) {
+				UserWallet userWallet = userWalletVo.get();
+				double amt  =  userWallet.getDeposit() + userWallet.getBonus()+userWallet.getReal() ;
+				userAccDto.setTotalAmt(amt);
+			}
+			else
+				userAccDto.setTotalAmt(0);
+
+			return new EsResponse<>(IConstants.RESPONSE_STATUS_OK, userAccDto, this.ENV.getProperty("user.found"));
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("user.not.found"));
+		}
+	}
 
   
+	
 
    
 	public EsResponse<ProfileDto> updateUserProfile(long id, UserProfile userProfile) {
