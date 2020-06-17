@@ -24,7 +24,7 @@ public class JwtUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        com.vpark.vparkservice.entity.User user = this.userRepository.findByMobileNo(username).orElseThrow(() -> new UsernameNotFoundException("User Not Found with username: " + username));
+        com.vpark.vparkservice.entity.User user = this.userRepository.findUserByMobileNo(username).orElseThrow(() -> new UsernameNotFoundException("User Not Found with username: " + username));
 
         List<GrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority(user.getUserType().name()));
 
@@ -34,7 +34,7 @@ public class JwtUserDetailsService implements UserDetailsService {
     
     public SpringSecurityUserDetails getUserDetails(String username) throws UsernameNotFoundException{
     	
-    	 com.vpark.vparkservice.entity.User user = this.userRepository.findByMobileNo(username).orElseThrow(() -> new UsernameNotFoundException("User Not Found with username: " + username));
+    	 com.vpark.vparkservice.entity.User user = this.userRepository.findUserByMobileNo(username).orElseThrow(() -> new UsernameNotFoundException("User Not Found with username: " + username));
     	 
          List<GrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority(user.getUserType().name()));
 

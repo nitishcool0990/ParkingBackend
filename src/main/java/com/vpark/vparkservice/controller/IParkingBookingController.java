@@ -9,15 +9,16 @@ import javax.websocket.server.PathParam;
 
 import org.springframework.data.redis.core.TimeToLive;
 import org.springframework.format.annotation.DateTimeFormat;
+import java.util.List;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.vpark.vparkservice.constants.IConstants;
+import com.vpark.vparkservice.dto.MyParkingHistoryDTO;
 import com.vpark.vparkservice.dto.ParkingLocationDto;
 import com.vpark.vparkservice.dto.PaymentDTO;
 import com.vpark.vparkservice.model.EsResponse;
@@ -39,6 +40,9 @@ public interface IParkingBookingController {
 	 @PostMapping(value=IConstants.VERSION_1 + "/doneBooking")
 	 ResponseEntity<EsResponse<ParkingLocationDto>> doneBooking(@RequestParam("parkingId") long  parkingId,@RequestAttribute("Id") long id,@RequestParam("amount") double amount,@RequestParam("forBook") boolean forBook );
 
+	 
+	 @GetMapping(value=IConstants.VERSION_1+"/myParking")
+	    ResponseEntity<EsResponse<List<MyParkingHistoryDTO>>> getUserParkingHistory(@RequestAttribute("Id")  long userId);
 
 
 }

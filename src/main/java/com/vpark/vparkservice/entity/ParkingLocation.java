@@ -62,7 +62,7 @@ public class ParkingLocation extends Savable {
     private String description;
     
     @Column(name = "RATING")
-    private double rating = 0;
+    private double rating = 5;
     
     @Lob
     @Column(name  = "photo")

@@ -9,48 +9,36 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import org.hibernate.annotations.DynamicUpdate;
+
 import com.vpark.vparkservice.constants.IConstants;
+
 import lombok.Data;
 
 @Data
 @Entity
 @DynamicUpdate
-@Table(name = "PARK_BOOKING_HISTORY")
-public class ParkBookingHistory extends Savable{
-	
+@Table(name = "AGENT_TRANSACTION_HISTORY")
+public class AgentTransHistory extends Savable{
+
 	
 	@ManyToOne(cascade = CascadeType.DETACH)
-	@JoinColumn(name = "USER_ID")
+	@JoinColumn(name = "USER_ID", referencedColumnName = "ID")
 	private User user;
-	
-	@ManyToOne(cascade = CascadeType.DETACH)
-	@JoinColumn(name = "PARKING_DETAILS_ID")
-	private ParkingDetails  parkingDetails ;
-	
-	@Column(name = "BOOKING_TYPE")
-	private String bookingType ;
 	
 	@Column(name = "AMT")
 	private double amt ;
 	
 	@Column(name = "CR_DR")
-	private String cr_dr ;
+	private String crdr ;
 	
-	@Column(name = "IN_TIME")
-	private String inTime ;
+	@Column(name = "CHIP_TYPE")
+	private String chipType ;
 	
-	@Column(name = "OUT_TIME")
-	private String outTime ;
-	
-	@Column(name = "remarks")
-	private String remarks ;
+	@Column(name = "REMARKS")
+     private String remarks ;
 	
 	@Column(name = "status", nullable = false, length = 10)
-	@Enumerated(EnumType.STRING)
-	private IConstants.ParkingStatus status = IConstants.ParkingStatus.RUNNING;
-
+    @Enumerated(EnumType.STRING)
+    private IConstants.TransStatus status = IConstants.TransStatus.APPROVED;
 	
-	
-
-
 }

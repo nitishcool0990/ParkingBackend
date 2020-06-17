@@ -65,4 +65,19 @@ public class AgentParkingLocController implements  IAgentParkingLocController {
 		 public ResponseEntity<EsResponse<List<ParkingTypeDTO>>> findAllParkingType(){
 	    	   return ResponseEntity.ok(this.agentParkingService.findAllParkingType());
 	    }
+
+
+		@Override
+		public ResponseEntity<EsResponse<?>> updateParkingLocation(@RequestParam(value="images") MultipartFile[]  images ,  @RequestParam(value="parkingLoc") String parkingLoc  ,long userId) {
+			  if (userId<= 0) {
+		            return ResponseEntity.badRequest().body(new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("invalid.id")));
+		        }
+			  AgentParkingLocationDTO  parkingLocationDto = null;
+		    	if(null != parkingLoc){
+					Gson gson=new Gson();
+					parkingLocationDto = gson.fromJson(parkingLoc, AgentParkingLocationDTO.class);
+				}
+		        return ResponseEntity.ok(this.agentParkingService.updateParkingLocation(images , parkingLocationDto , userId ));
+			
+		}
 }
