@@ -57,6 +57,12 @@ public class ParkingLocationDto {
 		this.bookingRate = bookingRate;
 	}
 	
+	public ParkingLocationDto(Long bookingParkId, Object latitude, Object longitude) {
+		this.bookingParkId = bookingParkId;
+		this.latitude = latitude;
+		this.longitude = longitude;
+	}
+	
 	
 	
 	

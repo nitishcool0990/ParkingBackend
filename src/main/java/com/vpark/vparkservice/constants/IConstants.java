@@ -8,6 +8,7 @@ public interface IConstants {
     int RESPONSE_STATUS_ERROR = -1;
     int RESPONSE_OPEN_PROFILE=2;
     int RESPONSE_ADD_VEHICLE=3;
+    int RESPONSE_ADD_PAYMENT=4;
 
     String VERSION_1 = "v1";
     public static final int OTP_LEN=4;
