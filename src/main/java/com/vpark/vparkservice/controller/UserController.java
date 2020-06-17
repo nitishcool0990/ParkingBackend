@@ -6,7 +6,6 @@ import com.vpark.vparkservice.dto.UserAccountDTO;
 import com.vpark.vparkservice.entity.User;
 import com.vpark.vparkservice.entity.UserProfile;
 import com.vpark.vparkservice.model.EsResponse;
-import com.vpark.vparkservice.model.RequestAttribute;
 import com.vpark.vparkservice.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;

@@ -182,11 +182,11 @@ public class UserService {
 			else
 				userAccDto.setTotalAmt(0);
 
-			return new EsResponse<>(IConstants.RESPONSE_STATUS_OK, userAccDto, this.ENV.getProperty("user.found"));
+			return new EsResponse<>(IConstants.RESPONSE_STATUS_OK, userAccDto, this.ENV.getProperty("user.wallet.found"));
 
 		} catch (Exception e) {
 			e.printStackTrace();
-			return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("user.not.found"));
+			return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("user.wallet.not.found"));
 		}
 	}
 

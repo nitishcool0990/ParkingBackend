@@ -47,6 +47,7 @@ public class AgentParkingLocService  {
 	  private IParkingDetailsRepository parkingDetailsRepository ;
 	  
 	  
+	  
 	 public EsResponse<ParkingLocation> createNewLocation( MultipartFile[]  parkingImages , AgentParkingLocationDTO parkingLocationDto  ,   long userId) {
 	        try {
 	        	ParkingLocation parkingLocVo  = modelMapper.map(parkingLocationDto, ParkingLocation.class) ;
@@ -69,6 +70,7 @@ public class AgentParkingLocService  {
 	            return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("parking.location.creation.failed"));
 	        }
 	  }
+	 
 	 
 	 
 	 public EsResponse<List<AgentParkingLocationDTO>> findAllParkingLocationByUserId(long userId) {
@@ -115,6 +117,7 @@ public class AgentParkingLocService  {
 	 }
 	 
 	 
+	 
 	public EsResponse<?> deleteParkingLocation(long locId) {
 		try {
 			Optional<ParkingLocation> parkingLocVo = this.parkingLocationRepository.findById(locId);
@@ -130,6 +133,50 @@ public class AgentParkingLocService  {
 		}
 	}
 	 
+	
+	
+	
+	public EsResponse<?> updateParkingLocation( MultipartFile[]  parkingImages , AgentParkingLocationDTO parkingLocationDto  ,   long userId) {
+        try {
+        	
+        	Optional<ParkingLocation> parkingLocVo = this.parkingLocationRepository.findById(parkingLocationDto.getParkingLocid());
+        	if(parkingLocVo.isPresent()){
+        	ParkingLocation updateParkingLocVo  = modelMapper.map(parkingLocationDto, ParkingLocation.class) ;
+        	
+        	if(null !=parkingLocationDto.getParkingDetailsDtos() && parkingLocationDto.getParkingDetailsDtos().size()>0 )
+        	    parkingLocMapper.mapAgentParkingLocToVo(parkingLocationDto, updateParkingLocVo);
+        	else{
+        		ParkingType parkingTypeVo = new ParkingType() ;
+            	parkingTypeVo.setId(parkingLocationDto.getParkingTypeId());
+            	updateParkingLocVo.setParkingType(parkingTypeVo);
+        	}
+        	
+        	User user = new User() ;
+        	user.setId(userId);
+        	updateParkingLocVo.setUser(user);
+        	
+        	for (MultipartFile image  : parkingImages ){
+        		byte[] photoBytes   = image.getBytes();
+        		updateParkingLocVo.setPhoto(photoBytes);
+        	}
+        	updateParkingLocVo.setId(parkingLocationDto.getParkingLocid());
+        	
+        	this.parkingLocationRepository.save(updateParkingLocVo);
+        	
+        	 return new EsResponse<>(IConstants.RESPONSE_STATUS_OK  , this.ENV.getProperty("parking.location.update.success"));
+        	
+        	}
+
+        	 return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR  , this.ENV.getProperty("parking.location.not.found")); 
+      
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("parking.location.update.failed"));
+        }
+  }
+ 
+	
+	
 	  
 	 public EsResponse<List<ParkingTypeDTO>> findAllParkingType() {
 	     try{
@@ -144,6 +191,6 @@ public class AgentParkingLocService  {
 	    } catch (Exception e) {
 	        e.printStackTrace();
 	        return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("parking.type.not.found"));
-	    }
+	       }
 	    }
 }
