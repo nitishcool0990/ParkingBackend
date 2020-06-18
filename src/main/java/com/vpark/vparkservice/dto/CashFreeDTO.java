@@ -23,4 +23,5 @@ public class CashFreeDTO {
       private String card_cvv ;
       private String card_expiryMonth ;
       private String  card_expiryYear ;
+      private long parkingId;
 }

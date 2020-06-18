@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.vpark.vparkservice.dto.CashFreeDTO;
 import com.vpark.vparkservice.dto.MyParkingHistoryDTO;
 import com.vpark.vparkservice.dto.ParkingLocationDto;
 import com.vpark.vparkservice.dto.PaymentDTO;
@@ -39,9 +40,9 @@ public class ParkingBookingController implements IParkingBookingController {
 	}
 
 	@Override
-	public ResponseEntity<EsResponse<PaymentDTO>> addBookingAmount(long parkingId, long userId, double amount) {
+	public ResponseEntity<EsResponse<PaymentDTO>> addBookingAmount(CashFreeDTO cashFreeDto, long userId) {
 		// TODO Auto-generated method stub
-		return  ResponseEntity.ok(this.parkingBookingService.addBookingAmount(parkingId,userId,amount,1234566,"string"));
+		return  ResponseEntity.ok(this.parkingBookingService.addBookingAmount(cashFreeDto,userId));
 	}
 
 	@Override

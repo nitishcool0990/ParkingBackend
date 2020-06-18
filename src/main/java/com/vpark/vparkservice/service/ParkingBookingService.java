@@ -6,7 +6,7 @@ import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
-
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
@@ -19,16 +19,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import com.vpark.vparkservice.constants.IConstants;
+import com.vpark.vparkservice.dto.CashFreeDTO;
 import com.vpark.vparkservice.dto.MyParkingHistoryDTO;
 import com.vpark.vparkservice.dto.ParkingLocationDto;
 import com.vpark.vparkservice.dto.PaymentDTO;
 import com.vpark.vparkservice.dto.PaymetGateWayDTO;
 import com.vpark.vparkservice.entity.ParkingLocation;
+import com.vpark.vparkservice.entity.User;
 import com.vpark.vparkservice.entity.UserWallet;
+import com.vpark.vparkservice.entity.CashFreeTransHistory;
 import com.vpark.vparkservice.entity.ParkBookingHistory;
 import com.vpark.vparkservice.model.EsResponse;
+import com.vpark.vparkservice.repository.ICashFreeTransHistory;
 import com.vpark.vparkservice.repository.IParkBookingHistoryRepository;
 import com.vpark.vparkservice.repository.IParkingLocationRepository;
+import com.vpark.vparkservice.repository.IUserRepository;
 import com.vpark.vparkservice.repository.IUserWalletRepository;
 
 import lombok.Synchronized;
@@ -51,6 +56,12 @@ public class ParkingBookingService {
 	 
 	 @Autowired
 	 private IParkBookingHistoryRepository   ParkBookingHistoryRepository ;
+	 
+	 @Autowired
+	 private IUserRepository userRepo;
+	 
+	 @Autowired
+	 private ICashFreeTransHistory cashFreeRepo;
 	    
 	
 	public EsResponse<ParkingLocationDto> getParkingInfo(long parkingId, long vehicleTypeId) {
@@ -165,15 +176,22 @@ public class ParkingBookingService {
 	
 	@Synchronized
 	@Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
-	public EsResponse<PaymentDTO> addBookingAmount(long parkingId, long userId, double amount,long transactionId,String details) {
+	public EsResponse<PaymentDTO> addBookingAmount(CashFreeDTO cashFreeDto, long userId) {
 		try {
 		UserWallet userWallet = this.userWalletRepo.findByUserId(userId).orElse(null);
-		if(userWallet!=null && amount>0) {
-			userWallet.setDeposit(userWallet.getDeposit()+amount);
+		CashFreeTransHistory history = new CashFreeTransHistory();
+		BeanUtils.copyProperties(cashFreeDto, history);
+		User user = this.userRepo.findById(userId).orElse(null);
+		if(user!=null)
+			history.setUser(user);
+		this.cashFreeRepo.save(history);
+
+		if(userWallet!=null && cashFreeDto.getOrderAmount()>0) {
+			userWallet.setDeposit(userWallet.getDeposit()+cashFreeDto.getOrderAmount());
 			this.userWalletRepo.save(userWallet);
 			 return new EsResponse<>(IConstants.RESPONSE_ADD_PAYMENT, this.ENV.getProperty("payment.booking.added"));
 		}else {
-			System.out.println("either userWallet is null or amount is equal or less zero "+amount);
+			System.out.println("either userWallet is null or amount is equal or less zero "+cashFreeDto.getOrderAmount());
 			  return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("exception.internalerror"));
 		}
 		}catch(Exception e) {
