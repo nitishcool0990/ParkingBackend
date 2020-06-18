@@ -1,10 +1,8 @@
 package com.vpark.vparkservice.entity;
 
-import javax.persistence.CascadeType;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import org.hibernate.annotations.DynamicUpdate;
 import lombok.Data;
@@ -15,9 +13,9 @@ import lombok.Data;
 @Table(name = "CASHFREE_TRANSACTION_HISTORY")
 public class CashFreeTransHistory extends Savable {
 
-	@ManyToOne(cascade = CascadeType.DETACH)
-	@JoinColumn(name = "USER_ID", referencedColumnName = "ID")
-	private User user;
+	
+	@Column(name = "USER_ID")
+	private long userId;
 	
 	@Column(name = "ORDER_ID")
 	private long orderId; 

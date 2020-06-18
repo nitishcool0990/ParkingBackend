@@ -10,6 +10,6 @@ import com.vpark.vparkservice.entity.ParkBookingHistory;
 @Repository
 public interface IParkBookingHistoryRepository  extends JpaRepository<ParkBookingHistory, Long>{
 
-	@Query("select pbh from ParkBookingHistory pbh where user.id = ?1" )
+	@Query("select pbh from ParkBookingHistory pbh where userId = ?1" )
 	List<ParkBookingHistory>  findByUserId(long userId) ;
 }
