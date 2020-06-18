@@ -19,10 +19,9 @@ import lombok.Data;
 @Table(name = "PARKING_TRANSACTION_HISTORY")
 public class ParkTransHistory extends Savable{
 
-	
-	@ManyToOne(cascade = CascadeType.DETACH)
-	@JoinColumn(name = "USER_ID", referencedColumnName = "ID")
-	private User user;
+
+	@Column(name = "USER_ID")
+	private long user;
 	
 	@Column(name = "AMT")
 	private double amt ;

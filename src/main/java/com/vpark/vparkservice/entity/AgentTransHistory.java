@@ -1,15 +1,12 @@
 package com.vpark.vparkservice.entity;
 
-import javax.persistence.CascadeType;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import org.hibernate.annotations.DynamicUpdate;
-
 import com.vpark.vparkservice.constants.IConstants;
 
 import lombok.Data;
@@ -20,10 +17,9 @@ import lombok.Data;
 @Table(name = "AGENT_TRANSACTION_HISTORY")
 public class AgentTransHistory extends Savable{
 
-	
-	@ManyToOne(cascade = CascadeType.DETACH)
-	@JoinColumn(name = "USER_ID", referencedColumnName = "ID")
-	private User user;
+
+	@Column(name = "USER_ID")
+	private long user;
 	
 	@Column(name = "AMT")
 	private double amt ;

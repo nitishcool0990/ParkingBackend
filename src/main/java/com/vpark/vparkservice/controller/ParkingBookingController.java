@@ -1,14 +1,10 @@
 package com.vpark.vparkservice.controller;
 
-import java.math.BigInteger;
-import java.time.LocalDateTime;
+
 import java.time.LocalTime;
-
 import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.vpark.vparkservice.dto.CashFreeDTO;
@@ -28,7 +24,6 @@ public class ParkingBookingController implements IParkingBookingController {
 
 	@Override
 	public ResponseEntity<EsResponse<ParkingLocationDto>> getParkingInfo(long parkingId, long vehicleTypeId) {
-		// TODO Auto-generated method stub
 		return ResponseEntity.ok(this.parkingBookingService.getParkingInfo(parkingId,vehicleTypeId));
 	}
 	
@@ -43,11 +38,12 @@ public class ParkingBookingController implements IParkingBookingController {
 	public ResponseEntity<EsResponse<PaymentDTO>> addBookingAmount(CashFreeDTO cashFreeDto, long userId) {
 		// TODO Auto-generated method stub
 		return  ResponseEntity.ok(this.parkingBookingService.addBookingAmount(cashFreeDto,userId));
+
 	}
 
 	@Override
 	public ResponseEntity<EsResponse<ParkingLocationDto>> doneBooking(long parkingId, long userId, double amount,boolean forBook) {
-		// TODO Auto-generated method stub
+	
 		return ResponseEntity.ok(this.parkingBookingService.doneBooking(parkingId,userId,amount,forBook));
 	}
 	@Override

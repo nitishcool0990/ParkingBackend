@@ -64,6 +64,13 @@ public class ParkingLocation extends Savable {
     @Column(name = "RATING")
     private double rating = 5;
     
+    @Column(name = "ADVANCE_BOOKING_HR")
+    private String advanceBookingHr;
+    
+    
+    @Column(name = "BOOKING_CANCEL_HR")
+    private String BookingCacelHr;
+    
     @Lob
     @Column(name  = "photo")
     private byte[] photo; 
