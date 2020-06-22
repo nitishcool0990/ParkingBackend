@@ -1,14 +1,10 @@
 package com.vpark.vparkservice.dto;
 
 
-import java.math.BigDecimal;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import java.math.BigInteger;
 
 @Data
@@ -30,6 +26,9 @@ public class ParkingLocationDto {
 	private String openTime;
 	private String closeTime;
 	private String bookingRate;
+	private double canceBookingHr ;
+	private double advanceBookingHr ;
+	private byte[] image ;
 	
 	
 	public ParkingLocationDto(BigInteger parkingId, Object latitude, Object longitude, double distance, String color,
@@ -44,8 +43,8 @@ public class ParkingLocationDto {
 		this.monthlyRate = monthlyRate;
 	}
 
-	public ParkingLocationDto(Long bookingParkId, double hourlyRate, double monthlyRate,
-			Double rating, String describe,String parkingName,String openTime,String closeTime,String bookingRate) {
+	public ParkingLocationDto(Long bookingParkId, double hourlyRate, double monthlyRate, Double rating, String describe,String parkingName,
+			 String openTime,String closeTime,String bookingRate , double cancelBookingHr , double advanceBookingHr , byte[] image ) {
 		this.bookingParkId = bookingParkId;
 		this.hourlyRate = hourlyRate;
 		this.monthlyRate = monthlyRate;
@@ -55,6 +54,9 @@ public class ParkingLocationDto {
 		this.openTime=openTime;
 		this.closeTime=closeTime;
 		this.bookingRate = bookingRate;
+		this.advanceBookingHr = advanceBookingHr;
+		this.canceBookingHr = cancelBookingHr ;
+		this.image = image;
 	}
 	
 	public ParkingLocationDto(Long bookingParkId, Object latitude, Object longitude) {

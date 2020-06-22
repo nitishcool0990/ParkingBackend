@@ -26,6 +26,9 @@ public class ParkingDetails extends Savable {
 
     @Column(name = "CAPACITY")
     private Integer capacity;
+    
+    @Column(name = "NIGHT_CHARGES")
+    private double nightCharges;
 
     @Column(name = "STATUS", nullable = false, length = 10)
     @Enumerated(EnumType.STRING)

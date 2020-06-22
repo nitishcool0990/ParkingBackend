@@ -69,7 +69,7 @@ public class ParkingLocation extends Savable {
     
     
     @Column(name = "BOOKING_CANCEL_HR")
-    private String BookingCacelHr;
+    private String bookingCancelHr;
     
     @Lob
     @Column(name  = "photo")
