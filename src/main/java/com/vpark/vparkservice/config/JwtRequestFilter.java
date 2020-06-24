@@ -15,6 +15,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Enumeration;
+import java.util.Map;
 
 @Component
 public class JwtRequestFilter extends OncePerRequestFilter {
@@ -42,6 +44,29 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             }
         } else {
             logger.warn("JWT Token does not begin with Bearer String");
+        }
+        
+        if(jwtToken==null) {
+        	String referrer = request.getHeader("referer");
+        	if(referrer!=null && referrer.contains("cashfree")) {
+        		Map<String, String[]> map =request.getParameterMap();
+                for (Map.Entry<String,String[]> entry : map.entrySet())  
+                    System.out.println("Key = " + entry.getKey() + 
+                                     ", Value = " + entry.getValue()); 
+
+        		request.getInputStream();
+        		request.getRequestURI();
+        		request.getAttributeNames();
+        		
+        		Enumeration<?> requestParamNames = request.getParameterNames();
+                while (requestParamNames.hasMoreElements()) {
+                    String requestParamName = (String) requestParamNames.nextElement();
+                    String requestParamValue = request.getParameter(requestParamName);
+                    System.out.println("requestParamName "+requestParamName +"  requestParamValue "+requestParamValue);
+                    //typesafeRequestMap.put(requestParamName, requestParamValue);
+                }
+        	}
+        	
         }
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {

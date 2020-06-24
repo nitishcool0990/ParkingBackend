@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 public class CashFreeDTO {
 	 
       private long orderId; 
+      private long parkingId;
       private double orderAmount ;
       private String orderNote ;
       private String source ;
@@ -23,5 +24,7 @@ public class CashFreeDTO {
       private String card_cvv ;
       private String card_expiryMonth ;
       private String  card_expiryYear ;
-      private long parkingId;
+     
+      
+      
 }

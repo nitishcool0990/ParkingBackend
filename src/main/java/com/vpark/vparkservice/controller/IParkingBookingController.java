@@ -28,10 +28,10 @@ public interface IParkingBookingController {
 	    ResponseEntity<EsResponse<PaymentDTO>> initBooking(@RequestParam("parkingId") long  parkingId,@RequestAttribute("Id") long id,@RequestParam("amount") double amount,@RequestParam("fromTime")  String  fromDate,@RequestParam("toTime") String  toDate  );
 	 
 	 @PostMapping(value=IConstants.VERSION_1 + "/addAmount")
-	 ResponseEntity<EsResponse<PaymentDTO>> addBookingAmount(@RequestBody CashFreeDTO cashFreeDto,@RequestAttribute("Id") long id);
+	 ResponseEntity<EsResponse<PaymentDTO>> addBookingAmount(@RequestBody CashFreeDTO cashFreeDto,@RequestAttribute("Id")  long id);
 
 	 @PostMapping(value=IConstants.VERSION_1 + "/doneBooking")
-	 ResponseEntity<EsResponse<ParkingLocationDto>> doneBooking(@RequestParam("parkingId") long  parkingId,@RequestAttribute("Id") long id,@RequestParam("amount") double amount,@RequestParam("forBook") boolean forBook );
+	 ResponseEntity<EsResponse<ParkingLocationDto>> doneBooking(@RequestParam("parkingId") long  parkingId,@RequestAttribute("Id") long id,@RequestParam("amount") double amount,@RequestParam("vehicleId") long  vehicleId);
 
 	 
 	 @GetMapping(value=IConstants.VERSION_1+"/myParking")

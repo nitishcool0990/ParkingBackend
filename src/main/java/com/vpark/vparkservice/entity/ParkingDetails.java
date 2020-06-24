@@ -37,5 +37,8 @@ public class ParkingDetails extends Savable {
     
     @Column(name = "BOOKING_RATE")
     private double bookingRate  = 10 ;
+    
+    @Column(name = "AGENT_PERCENTAGE")
+    private double agentPercentage  = 10 ;
 
 }

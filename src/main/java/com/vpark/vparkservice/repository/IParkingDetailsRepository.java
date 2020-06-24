@@ -3,6 +3,7 @@ package com.vpark.vparkservice.repository;
 import com.vpark.vparkservice.entity.ParkingDetails;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -16,4 +17,7 @@ public interface IParkingDetailsRepository extends JpaRepository<ParkingDetails,
 	
 	@Query("Select pd from ParkingDetails pd where pd.parkingLocation.id = ?1" )
 	List <ParkingDetails>findByparkingLocationId(long locationId) ;
+	
+	@Query("Select pd from ParkingDetails pd where pd.parkingLocation.id = ?1 and pd.vehicleType.id = ?2" )
+	Optional<ParkingDetails> findBylocationIdAndVehicleId(long parkingLOCId,long vehicleId);
 }

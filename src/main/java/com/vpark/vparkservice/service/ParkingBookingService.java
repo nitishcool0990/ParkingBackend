@@ -27,11 +27,17 @@ import com.vpark.vparkservice.dto.PaymetGateWayDTO;
 import com.vpark.vparkservice.entity.ParkingLocation;
 import com.vpark.vparkservice.entity.User;
 import com.vpark.vparkservice.entity.UserWallet;
+import com.vpark.vparkservice.entity.AgentTransHistory;
 import com.vpark.vparkservice.entity.CashFreeTransHistory;
 import com.vpark.vparkservice.entity.ParkBookingHistory;
+import com.vpark.vparkservice.entity.ParkTransHistory;
+import com.vpark.vparkservice.entity.ParkingDetails;
 import com.vpark.vparkservice.model.EsResponse;
+import com.vpark.vparkservice.repository.IAgentTransHistoryRepository;
 import com.vpark.vparkservice.repository.ICashFreeTransHistory;
 import com.vpark.vparkservice.repository.IParkBookingHistoryRepository;
+import com.vpark.vparkservice.repository.IParkTransHistoryRepository;
+import com.vpark.vparkservice.repository.IParkingDetailsRepository;
 import com.vpark.vparkservice.repository.IParkingLocationRepository;
 import com.vpark.vparkservice.repository.IUserRepository;
 import com.vpark.vparkservice.repository.IUserWalletRepository;
@@ -62,6 +68,15 @@ public class ParkingBookingService {
 	 
 	 @Autowired
 	 private ICashFreeTransHistory cashFreeRepo;
+	 
+	 @Autowired
+	 private IParkingDetailsRepository parkingDetailsRepository;
+	 
+	 @Autowired
+	 private IAgentTransHistoryRepository agentTransactionRepo;
+	 
+	 @Autowired
+	 private IParkTransHistoryRepository parkingTransRepo;
 	    
 	
 	public EsResponse<ParkingLocationDto> getParkingInfo(long parkingId, long vehicleTypeId) {
@@ -181,9 +196,7 @@ public class ParkingBookingService {
 		UserWallet userWallet = this.userWalletRepo.findByUserId(userId).orElse(null);
 		CashFreeTransHistory history = new CashFreeTransHistory();
 		BeanUtils.copyProperties(cashFreeDto, history);
-		User user = this.userRepo.findById(userId).orElse(null);
-		if(user!=null)
-			history.setUser(user);
+			history.setUserId(userId); //if it is -1 than user kill the app before cashfree give response to client
 		this.cashFreeRepo.save(history);
 
 		if(userWallet!=null && cashFreeDto.getOrderAmount()>0) {
@@ -203,7 +216,7 @@ public class ParkingBookingService {
 	
 	@Synchronized
 	@Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
-	public EsResponse<ParkingLocationDto> doneBooking(long parkingId, long userId, double amount,boolean forBook) {
+	public EsResponse<ParkingLocationDto> doneBooking(long parkingId, long userId, double amount,long vehicleId) {
 		try{
 			UserWallet userWallet = this.userWalletRepo.findByUserId(userId).orElse(null);
 			if(userWallet!=null && amount>0) {
@@ -230,22 +243,39 @@ public class ParkingBookingService {
 					}
 					if(saveFlag) {
 					
-						ParkingLocation location = this.parkingLocationRepository.findById(parkingId).orElse(null);
-						if(location!=null) {
+						ParkingDetails parkingDetails = this.parkingDetailsRepository.findBylocationIdAndVehicleId(parkingId, vehicleId).orElse(null);
+						if(parkingDetails!=null) {
 							userWallet.setModifiedDate( LocalDateTime.now());
 							this.userWalletRepo.save(userWallet);
-							if(forBook) { //to cut amount and provide to Agent 
-								
-							}else {
-								
-							}
+							UserWallet agentWallet = this.userWalletRepo.findByUserId(parkingDetails.getParkingLocation().getUser().getId()).orElse(null);
+							double percentageAmt = amount/parkingDetails.getAgentPercentage();
+							agentWallet.setReal(agentWallet.getReal()+percentageAmt);
+							this.userWalletRepo.save(agentWallet);
+							//to cut amount and provide to Agent 
+							AgentTransHistory agentHistory = new AgentTransHistory();
+							agentHistory.setAmt(percentageAmt);
+							agentHistory.setChipType("real");
+							agentHistory.setCrdr("cr");
+							agentHistory.setRemarks("User Book Parking spot");
+							agentHistory.setStatus(IConstants.TransStatus.APPROVED);
+							agentHistory.setUser(userId);
+							this.agentTransactionRepo.save(agentHistory);
 							
+							ParkTransHistory parkTrans = new ParkTransHistory();
+							parkTrans.setAmt(amount);
+							parkTrans.setChipType("real");
+							parkTrans.setCrdr("dr");
+							parkTrans.setRemarks("Parking booking");
+							parkTrans.setStatus(IConstants.TransStatus.APPROVED);
+							parkTrans.setUser(userId);
+							this.parkingTransRepo.save(parkTrans);
 							
-							ParkingLocationDto sendLoc= new ParkingLocationDto(parkingId, location.getLatitude(), location.getLongitude());
+							ParkingLocationDto sendLoc= new ParkingLocationDto(parkingId, parkingDetails.getParkingLocation().getLatitude(), parkingDetails.getParkingLocation().getLongitude());
 							 return new EsResponse<>(IConstants.RESPONSE_ADD_PAYMENT,sendLoc, this.ENV.getProperty("bookins.success"));
 						}else {
 							System.out.println("Location is null or save flaf is false "+saveFlag);
-							  return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("exception.internalerror"));
+							throw new Exception();
+							//  return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("exception.internal.error"));
 						}
 					}else {
 						System.out.println("User doesn't have sufficient amount");
@@ -259,7 +289,7 @@ public class ParkingBookingService {
 			}
 		}catch(Exception e) {
 			e.printStackTrace();
-			  return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("exception.internalerror"));
+			  return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("exception.internal.error"));
 		}
 		
 		return null;
