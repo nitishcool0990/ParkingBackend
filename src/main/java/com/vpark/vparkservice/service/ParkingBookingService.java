@@ -86,7 +86,7 @@ public class ParkingBookingService {
 			if (!objList.isEmpty()) {
 				Object[] obj = objList.get(0);
 				parkingLocDTO = new ParkingLocationDto((Long) obj[0], (double) obj[6], (double) obj[7], (double) obj[5],
-						obj[4].toString(), obj[1].toString(), obj[2].toString(), obj[3].toString(), obj[8].toString());
+						obj[4].toString(), obj[1].toString(), obj[2].toString(), obj[3].toString(), obj[8].toString()  ,  (double)  obj[9] , (double)  obj[10] , (byte[]) obj[11]);
 				return new EsResponse<>(IConstants.RESPONSE_STATUS_OK, parkingLocDTO , this.ENV.getProperty("booking.parking.details"));
 			} else {
 				return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR , this.ENV.getProperty("exception.internalerror"));
