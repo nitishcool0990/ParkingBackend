@@ -3,24 +3,24 @@ package com.vpark.vparkservice.service;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
-
 import com.vpark.vparkservice.constants.IConstants;
 import com.vpark.vparkservice.dto.AgentParkingLocationDTO;
 import com.vpark.vparkservice.dto.ParkingDetailsDTO;
 import com.vpark.vparkservice.dto.ParkingTypeDTO;
+import com.vpark.vparkservice.entity.ParkBookingHistory;
 import com.vpark.vparkservice.entity.ParkingDetails;
 import com.vpark.vparkservice.entity.ParkingLocation;
 import com.vpark.vparkservice.entity.ParkingType;
 import com.vpark.vparkservice.entity.User;
 import com.vpark.vparkservice.mapper.ParkingLocMapper;
 import com.vpark.vparkservice.model.EsResponse;
+import com.vpark.vparkservice.repository.IParkBookingHistoryRepository;
 import com.vpark.vparkservice.repository.IParkingDetailsRepository;
 import com.vpark.vparkservice.repository.IParkingLocationRepository;
 import com.vpark.vparkservice.repository.IParkingTypeRepository;
@@ -45,6 +45,9 @@ public class AgentParkingLocService  {
 	  
 	  @Autowired
 	  private IParkingDetailsRepository parkingDetailsRepository ;
+	  
+	  @Autowired
+		 private IParkBookingHistoryRepository   parkBookingHistoryRepository ;
 	  
 	  
 	  
@@ -115,6 +118,29 @@ public class AgentParkingLocService  {
 	            return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("parking.location.not.found"));
 	        }
 	 }
+	 
+	 
+	/* public EsResponse<List<ParkingDetailsDTO>> findParkingStatusById(long locId ){
+		 try {
+			 List<ParkBookingHistory> parkBookingHistoryVos     = this.parkBookingHistoryRepository.findByParkingLocationId(locId);
+	  
+	        	
+	        	List<ParkingDetailsDTO> parkingDetailsDtos = parkBookingHistoryVos.stream()
+	      			  .map((parkBookingHistoryVo) -> {
+	      				ParkingDetailsDTO  parkDetailsDto =  modelMapper.map(parkBookingHistoryVo , ParkingDetailsDTO.class);
+	      				parkDetailsDto.setVehicleName(ParkingDetailsVo.getVehicleType().getVehicleName());
+	      				
+	      				return parkDetailsDto ;
+	      			  })
+	      			  .collect(Collectors.toList());
+	       
+	            return  new EsResponse<>(IConstants.RESPONSE_STATUS_OK, parkingDetailsDtos , this.ENV.getProperty("parking.location.found"));
+	                  
+	        } catch (Exception e) {
+	            e.printStackTrace();
+	            return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("parking.location.not.found"));
+	        }
+	 }*/
 	 
 	 
 	 

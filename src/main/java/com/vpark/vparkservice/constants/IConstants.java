@@ -38,7 +38,7 @@ public interface IConstants {
     }
     
     enum ParkingStatus{
-    	RUNNING  , CANCEL , COMPLETED 
+    	RUNNING  , CANCEL , PARKED , COMPLETED 
     }
     
     enum TransStatus{
