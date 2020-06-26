@@ -29,6 +29,10 @@ public class ParkingReviews extends Savable {
     @Column(name = "COMMENT")
     private String comment;
     
+    @Column(name = "REPLY")
+    private String reply;
+    
+    
     @ManyToOne
    @JoinColumn(name = "PARK_LOC_ID", referencedColumnName = "ID", foreignKey = @ForeignKey(name = "FK_REVIEW2PARK_LOC"))
     private ParkingLocation parkingLocId ;
