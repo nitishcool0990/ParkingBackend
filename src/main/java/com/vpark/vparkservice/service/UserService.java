@@ -132,9 +132,12 @@ public class UserService {
 				user.setPassword(this.bcryptEncoder.encode(user.getPassword()));
 				user.setId(userObj.getId());
 				user.setStatus(IConstants.Status.ACTIVE);
+				UserWallet userWalletVo = new UserWallet ();
+				userWalletVo.setUser(userObj);
 				BeanUtils.copyProperties(user, userObj);
 
 				this.userRepository.save(userObj);
+				this.userWalletRepository.save(userWalletVo);
 
 				return new EsResponse<>(IConstants.RESPONSE_STATUS_OK ,this.ENV.getProperty("user.profile.creation.success"));
 			} else {
