@@ -12,4 +12,9 @@ public interface IParkBookingHistoryRepository  extends JpaRepository<ParkBookin
 
 	@Query("select pbh from ParkBookingHistory pbh where userId = ?1" )
 	List<ParkBookingHistory>  findByUserId(long userId) ;
+	
+	@Query("select pbh from ParkBookingHistory pbh where parkingLocationId = ?1" )
+	List<ParkBookingHistory>  findByParkingLocationId(long parkingLocId) ;
+	
+	
 }

@@ -45,6 +45,15 @@ public class AgentParkingLocController implements  IAgentParkingLocController {
 		}
    
 		
+		@Override
+		public ResponseEntity<EsResponse<List<ParkingDetailsDTO>>> findParkingStatusById(long id) {
+			 if ( id < 0) {
+		            return ResponseEntity.badRequest().body(new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("invalid.id")));
+		        }
+		        return ResponseEntity.ok(this.agentParkingService.findParkingDetailsById( id ));
+			
+		}
+		
 	public ResponseEntity<EsResponse<List<ParkingDetailsDTO>>> findParkingDetailsById(@PathVariable long id ){
 		 if ( id < 0) {
 	            return ResponseEntity.badRequest().body(new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("invalid.id")));
@@ -80,4 +89,7 @@ public class AgentParkingLocController implements  IAgentParkingLocController {
 		        return ResponseEntity.ok(this.agentParkingService.updateParkingLocation(images , parkingLocationDto , userId ));
 			
 		}
+
+
+		
 }

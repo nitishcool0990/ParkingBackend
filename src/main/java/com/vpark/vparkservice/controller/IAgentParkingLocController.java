@@ -31,6 +31,9 @@ public interface IAgentParkingLocController {
 	 
 	 @GetMapping(IConstants.VERSION_1 +"/details/{id}")
 	 ResponseEntity<EsResponse<List<ParkingDetailsDTO>>> findParkingDetailsById(@PathVariable long id  );
+	 
+	 @GetMapping(IConstants.VERSION_1 +"/parkingstatus/{id}")
+	 ResponseEntity<EsResponse<List<ParkingDetailsDTO>>> findParkingStatusById(@PathVariable long id  );
 
 	 @DeleteMapping(IConstants.VERSION_1 + "/delete/{id}")
 	 ResponseEntity<EsResponse<?>> deleteLocation(@PathVariable long id);

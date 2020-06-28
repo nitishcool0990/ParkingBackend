@@ -17,8 +17,8 @@ public class CashFreeTransHistory extends Savable {
 	@Column(name = "USER_ID")
 	private long userId;
 	
-	@Column(name = "PARKING_ID")
-	private long parkingId;
+	@Column(name = "PARKING_DETAILS_ID")
+	private long parkingDetailsId;
 	
 	@Column(name = "ORDER_ID")
 	private long orderId; 
