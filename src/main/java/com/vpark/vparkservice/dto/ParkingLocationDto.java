@@ -26,8 +26,8 @@ public class ParkingLocationDto {
 	private String openTime;
 	private String closeTime;
 	private String bookingRate;
-	private double canceBookingHr ;
-	private double advanceBookingHr ;
+	private Double canceBookingHr ;
+	private Double advanceBookingHr ;
 	private byte[] image ;
 	
 	
@@ -44,7 +44,7 @@ public class ParkingLocationDto {
 	}
 
 	public ParkingLocationDto(Long bookingParkId, double hourlyRate, double monthlyRate, Double rating, String describe,String parkingName,
-			 String openTime,String closeTime,String bookingRate , double cancelBookingHr , double advanceBookingHr , byte[] image ) {
+			 String openTime,String closeTime,String bookingRate , double cancelBookingHr , double advanceBookingHr  ,  byte[] image) {
 		this.bookingParkId = bookingParkId;
 		this.hourlyRate = hourlyRate;
 		this.monthlyRate = monthlyRate;

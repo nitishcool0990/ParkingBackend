@@ -27,11 +27,11 @@ public class ParkingBookingController implements IParkingBookingController {
 		return ResponseEntity.ok(this.parkingBookingService.getParkingInfo(parkingId,vehicleTypeId));
 	}
 	
-	public  ResponseEntity<EsResponse<PaymentDTO>> initBooking( long  parkingId, long userId,double amount,String  fromDate,String  toDate){
+	public  ResponseEntity<EsResponse<PaymentDTO>> initBooking( long  parkingLocId, long userId,double amount,String  fromDate,String  toDate){
 		LocalTime fromTime = LocalTime.of(Integer.parseInt(fromDate.split(":")[0]),Integer.parseInt(fromDate.split(":")[1]));
 		LocalTime toTime =  LocalTime.of(Integer.parseInt(toDate.split(":")[0]),Integer.parseInt(toDate.split(":")[1]));
 	
-		return ResponseEntity.ok(this.parkingBookingService.initBooking(parkingId,userId,amount,fromTime,toTime));
+		return ResponseEntity.ok(this.parkingBookingService.initBooking(parkingLocId, userId ,  amount , fromTime , toTime));
 	}
 
 	@Override
@@ -42,10 +42,12 @@ public class ParkingBookingController implements IParkingBookingController {
 	}
 
 	@Override
-	public ResponseEntity<EsResponse<ParkingLocationDto>> doneBooking(long parkingId, long userId, double amount, long  vehicleId,String  inTime,String  outTime) {
+	public ResponseEntity<EsResponse<ParkingLocationDto>> doneBooking(long parkingLocId, long userId, double amount, long  vehicleTypeId , String  inTime,String  outTime) {
 	
-		return ResponseEntity.ok(this.parkingBookingService.doneBooking(parkingId,userId,amount,vehicleId,inTime,outTime));
+		return ResponseEntity.ok(this.parkingBookingService.doneBooking(parkingLocId , userId , amount , vehicleTypeId , inTime , outTime));
 	}
+	
+	
 	@Override
 	public ResponseEntity<EsResponse<List<MyParkingHistoryDTO>>> getUserParkingHistory(@RequestAttribute("Id")  long userId){
 		return ResponseEntity.ok(this.parkingBookingService.getUserParkingHistory(userId));

@@ -18,17 +18,17 @@ public class MyParkingHistoryDTO {
 	
 	private String parkName ;
 	
-	private String Status;
+	private String status;
 	
 	private String amt ;
 	
-	private String InTime ;
+	private String inTime ;
 	
-	private String OutTime ;
-	
-	private String totalHours;
+	private String outTime ;
 	
 	private String vehicleType ;
+	
+	private String vehicleNo ;
 	
 	private LocalDateTime bookingDate; 
 	

@@ -1,23 +1,18 @@
 package com.vpark.vparkservice.service;
 
-import java.math.BigInteger;
+
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.stream.Collectors;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
-import org.springframework.stereotype.Service;
 import com.vpark.vparkservice.constants.IConstants;
 import com.vpark.vparkservice.dto.CashFreeDTO;
 import com.vpark.vparkservice.dto.MyParkingHistoryDTO;
@@ -25,8 +20,8 @@ import com.vpark.vparkservice.dto.ParkingLocationDto;
 import com.vpark.vparkservice.dto.PaymentDTO;
 import com.vpark.vparkservice.dto.PaymetGateWayDTO;
 import com.vpark.vparkservice.entity.ParkingLocation;
-import com.vpark.vparkservice.entity.User;
 import com.vpark.vparkservice.entity.UserWallet;
+import com.vpark.vparkservice.mapper.ParkBookingMapper;
 import com.vpark.vparkservice.entity.AgentTransHistory;
 import com.vpark.vparkservice.entity.CashFreeTransHistory;
 import com.vpark.vparkservice.entity.ParkBookingHistory;
@@ -41,7 +36,6 @@ import com.vpark.vparkservice.repository.IParkingDetailsRepository;
 import com.vpark.vparkservice.repository.IParkingLocationRepository;
 import com.vpark.vparkservice.repository.IUserRepository;
 import com.vpark.vparkservice.repository.IUserWalletRepository;
-
 import lombok.Synchronized;
 
 
@@ -61,7 +55,7 @@ public class ParkingBookingService {
 	 private ModelMapper modelMapper;
 	 
 	 @Autowired
-	 private IParkBookingHistoryRepository   ParkBookingHistoryRepository ;
+	 private IParkBookingHistoryRepository   parkBookingHistoryRepository ;
 	 
 	 @Autowired
 	 private IUserRepository userRepo;
@@ -77,8 +71,12 @@ public class ParkingBookingService {
 	 
 	 @Autowired
 	 private IParkTransHistoryRepository parkingTransRepo;
+	 
+	 @Autowired
+	 private ParkBookingMapper  parkBookingMapper ;
 	    
 	
+	 
 	public EsResponse<ParkingLocationDto> getParkingInfo(long parkingId, long vehicleTypeId) {
 		try {
 			List<Object[]> objList = parkingLocationRepository.getParkingInfo(parkingId, vehicleTypeId);
@@ -89,7 +87,7 @@ public class ParkingBookingService {
 						obj[4].toString(), obj[1].toString(), obj[2].toString(), obj[3].toString(), obj[8].toString()  ,  (double)  obj[9] , (double)  obj[10] , (byte[]) obj[11]);
 				return new EsResponse<>(IConstants.RESPONSE_STATUS_OK, parkingLocDTO , this.ENV.getProperty("booking.parking.details"));
 			} else {
-				return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR , this.ENV.getProperty("exception.internalerror"));
+				return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR , this.ENV.getProperty("exception.internal.error"));
 			 }
 
 		} catch (Exception e) {
@@ -102,12 +100,20 @@ public class ParkingBookingService {
 	
 	public EsResponse<	List<MyParkingHistoryDTO> > getUserParkingHistory(long userId){
 		try{
-			List<ParkBookingHistory>  parkBookingHistVos = ParkBookingHistoryRepository.findByUserId(userId);
+			List<Object[ ]>  parkBookingHistoryVos = this.parkBookingHistoryRepository.findParkingHistoryByUserId(userId);
 			
-			List<MyParkingHistoryDTO> myParkingHistoryDtos    = parkBookingHistVos.stream()
-					 .map((parkHistoryVo) ->{
-				MyParkingHistoryDTO  myParkingHistoryDto  = modelMapper.map(parkHistoryVo , MyParkingHistoryDTO.class) ;
-				                                        myParkingHistoryDto.setBookingDate(parkHistoryVo.getCreatedDate()) ;
+			List<MyParkingHistoryDTO> myParkingHistoryDtos    = parkBookingHistoryVos.stream().map(Object  ->{
+						 
+				MyParkingHistoryDTO  myParkingHistoryDto  = new MyParkingHistoryDTO() ;
+				 myParkingHistoryDto.setId((Long)Object[0]);
+				myParkingHistoryDto.setInTime(Object[1].toString());
+				myParkingHistoryDto.setOutTime(Object[2].toString());
+				myParkingHistoryDto.setStatus(Object[3].toString());
+				myParkingHistoryDto.setAmt(Object[4].toString());
+				myParkingHistoryDto.setParkName(Object[5].toString());
+				myParkingHistoryDto.setVehicleNo(Object[6].toString());
+				myParkingHistoryDto.setVehicleType(Object[7].toString());
+				myParkingHistoryDto.setBookingDate((LocalDateTime) Object[8]) ;
 				                                        
 				return myParkingHistoryDto;
 				
@@ -119,15 +125,16 @@ public class ParkingBookingService {
 			e.printStackTrace();
 			return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR , this.ENV.getProperty("exception.internal.error"));
 		   }
-	
 	}
 	
-	public EsResponse<PaymentDTO> initBooking( long  parkingId, long userId,double amount,LocalTime  fromDate,LocalTime  toDate){
+	
+	
+	public EsResponse<PaymentDTO> initBooking( long  parkingLocId, long userId, double amount , LocalTime  fromDate  , LocalTime  toDate){
 		try {
 			
 			UserWallet userWallet = this.userWalletRepo.findByUserId(userId).orElse(null);
 			if(userWallet!=null) {
-				ParkingLocation location = this.parkingLocationRepository.findById(parkingId).orElse(null);
+				ParkingLocation location = this.parkingLocationRepository.findById(parkingLocId).orElse(null);
 				
 				LocalTime fromLOCDateTime = LocalTime.of(Integer.parseInt(location.getOpenTime().split(":")[0]),Integer.parseInt(location.getOpenTime().split(":")[1]));
 				LocalTime toLOCDateTime =  LocalTime.of(Integer.parseInt(location.getCloseTime().split(":")[0]),Integer.parseInt(location.getCloseTime().split(":")[1]));
@@ -157,7 +164,7 @@ public class ParkingBookingService {
 				if(hours<0|| minutes <0) {
 					  return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("booking.time.old"));
 				}else {
-					if((hours>=1 && minutes>0)  ) {
+					if((hours>= location.getAdvanceBookingHr() && minutes>0)  ) {
 						 return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("booking.not.allowed"));
 					}
 				}
@@ -166,12 +173,12 @@ public class ParkingBookingService {
 				PaymetGateWayDTO paymentGateWayDTO=null;
 				if(userWallet.getDeposit()+userWallet.getReal()+userWallet.getBonus()>=amount) {
 					paymentGateWayDTO=new PaymetGateWayDTO("Wallet", userWallet.getDeposit()+userWallet.getReal()+userWallet.getBonus());
-					paymentDto.setParkingId(parkingId);
+					paymentDto.setParkingLocId(parkingLocId );
 					paymentDto.setPayableAmt(amount);
 					paymentDto.getPaymentGateWay().add(paymentGateWayDTO);
 				}else {
 					 paymentGateWayDTO=new PaymetGateWayDTO("Wallet", userWallet.getDeposit()+userWallet.getReal()+userWallet.getBonus());
-					paymentDto.setParkingId(parkingId);
+					paymentDto.setParkingLocId(parkingLocId );
 					paymentDto.setPayableAmt(amount);
 					paymentDto.getPaymentGateWay().add(paymentGateWayDTO);
 					
@@ -185,9 +192,11 @@ public class ParkingBookingService {
 			}
 		}catch(Exception e) {
 			e.printStackTrace();
-			  return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("exception.internalerror"));
+			  return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("exception.internal.error"));
 		}
 	}
+	
+	
 	
 	@Synchronized
 	@Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
@@ -205,107 +214,91 @@ public class ParkingBookingService {
 			 return new EsResponse<>(IConstants.RESPONSE_ADD_PAYMENT, this.ENV.getProperty("payment.booking.added"));
 		}else {
 			System.out.println("either userWallet is null or amount is equal or less zero "+cashFreeDto.getOrderAmount());
-			  return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("exception.internalerror"));
+			  return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("exception.internal.error"));
 		}
-		}catch(Exception e) {
-			e.printStackTrace();
-			  return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("exception.internalerror"));
-		}
-		
-	}
-	
-	@Synchronized
-	@Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
-	public EsResponse<ParkingLocationDto> doneBooking(long parkingId, long userId, double amount,long vehicleId,String inTime,String outTime) {
-		try{
-			UserWallet userWallet = this.userWalletRepo.findByUserId(userId).orElse(null);
-			if(userWallet!=null && amount>0) {
-				if(userWallet.getDeposit()+userWallet.getReal()+userWallet.getBonus()>=amount) {
-					boolean saveFlag=true;
-					if(userWallet.getDeposit()>=amount) {
-						userWallet.setDeposit(userWallet.getDeposit()-amount);
-					}else {
-						double remainingAmount = amount-userWallet.getDeposit();
-						userWallet.setDeposit(0);
-						if(userWallet.getReal()>=remainingAmount) {
-							userWallet.setReal(userWallet.getReal()-remainingAmount);
-						}else {
-							remainingAmount = remainingAmount-userWallet.getReal();
-							userWallet.setReal(0);
-							if(userWallet.getBonus()>=remainingAmount) {
-								userWallet.setBonus(userWallet.getBonus()-remainingAmount);
-							}else {//this code never be executed because value is already check on top 
-								saveFlag=false;
-								System.out.println("User doesn't have sufficient amount");
-								return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("booking.insufficient.amount"));
-							}
-						}
-					}
-					if(saveFlag) {
-					
-						ParkingDetails parkingDetails = this.parkingDetailsRepository.findBylocationIdAndVehicleId(parkingId, vehicleId).orElse(null);
-						if(parkingDetails!=null) {
-							userWallet.setModifiedDate( LocalDateTime.now());
-							this.userWalletRepo.save(userWallet);
-							UserWallet agentWallet = this.userWalletRepo.findByUserId(parkingDetails.getParkingLocation().getUser().getId()).orElse(null);
-							double percentageAmt = amount/parkingDetails.getAgentPercentage();
-							agentWallet.setReal(agentWallet.getReal()+percentageAmt);
-							this.userWalletRepo.save(agentWallet);
-							//to cut amount and provide to Agent 
-							AgentTransHistory agentHistory = new AgentTransHistory();
-							agentHistory.setAmt(percentageAmt);
-							agentHistory.setChipType("real");
-							agentHistory.setCrdr("cr");
-							agentHistory.setRemarks("User Book Parking spot");
-							agentHistory.setStatus(IConstants.TransStatus.APPROVED);
-							agentHistory.setUser(userId);
-							this.agentTransactionRepo.save(agentHistory);
-							
-							ParkTransHistory parkTrans = new ParkTransHistory();
-							parkTrans.setAmt(amount);
-							parkTrans.setChipType("real");
-							parkTrans.setCrdr("dr");
-							parkTrans.setRemarks("Parking booking");
-							parkTrans.setStatus(IConstants.TransStatus.APPROVED);
-							parkTrans.setUser(userId);
-							this.parkingTransRepo.save(parkTrans);
-							
-							ParkBookingHistory bookingHistory =new ParkBookingHistory();
-							bookingHistory.setAmt(amount);
-							bookingHistory.setBookingType(parkingDetails.getParkingLocation().getParkingType().getParkingType());
-							bookingHistory.setCr_dr("DR");
-							bookingHistory.setInTime(inTime);
-							bookingHistory.setOutTime(outTime);
-							bookingHistory.setParkingDetailsId(parkingDetails.getId());
-							bookingHistory.setRemarks("Booking for Parking");
-							bookingHistory.setStatus(IConstants.ParkingStatus.RUNNING);
-							bookingHistory.setUserId(userId);
-							ParkBookingHistoryRepository.save(bookingHistory);
-							ParkingLocationDto sendLoc= new ParkingLocationDto(parkingId, parkingDetails.getParkingLocation().getLatitude(), parkingDetails.getParkingLocation().getLongitude());
-							 return new EsResponse<>(IConstants.RESPONSE_ADD_PAYMENT,sendLoc, this.ENV.getProperty("bookins.success"));
-						}else {
-							System.out.println("Location is null or save flaf is false "+saveFlag);
-							throw new Exception("Location is null or save flaf is false");
-							//  return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("exception.internal.error"));
-						}
-					}else {
-						System.out.println("User doesn't have sufficient amount");
-						return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("booking.insufficient.amount"));
-					}
-				}else {
-					System.out.println("user doesn't have sufficient amount to book ");
-					System.out.println("User have deposit amount "+userWallet.getDeposit()+" bonus amount "+userWallet.getBonus() +" real amount "+userWallet.getReal());
-					return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("booking.insufficient.amount"));
-				}
-			}
 		}catch(Exception e) {
 			e.printStackTrace();
 			  return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("exception.internal.error"));
 		}
 		
-		return null;
-		
 	}
+	
+	
+	@Synchronized
+	@Transactional(readOnly = false,   propagation = Propagation.REQUIRES_NEW)
+	public EsResponse<ParkingLocationDto> doneBooking(long parkingLocId , long userId , double amount, long vehicleTypeId , 	String inTime, String outTime) {
+		try {
+			UserWallet userWallet = this.userWalletRepo.findByUserId(userId).orElse(null);
+			if (userWallet != null && amount > 0) {
+				if (userWallet.getDeposit() + userWallet.getReal() + userWallet.getBonus() >= amount) {
+					boolean saveFlag = true;
+					if (userWallet.getDeposit() >= amount) {
+						userWallet.setDeposit(userWallet.getDeposit() - amount);
+					} 
+					else {
+						double remainingAmount = amount - userWallet.getDeposit();
+						userWallet.setDeposit(0);
+						if (userWallet.getReal() >= remainingAmount) {
+							userWallet.setReal(userWallet.getReal() - remainingAmount);
+						} else {
+							remainingAmount = remainingAmount - userWallet.getReal();
+							userWallet.setReal(0);
+							if (userWallet.getBonus() >= remainingAmount) {
+								userWallet.setBonus(userWallet.getBonus() - remainingAmount);
+							} 
+						}
+					}
+		       if (saveFlag) {
+
+		        ParkingDetails parkingDetails = this.parkingDetailsRepository.findBylocationIdAndVehicleId(parkingLocId, vehicleTypeId).orElse(null);
+						if (parkingDetails != null) {
+							this.userWalletRepo.save(userWallet);
+							UserWallet agentWallet = this.userWalletRepo.findByUserId(parkingDetails.getParkingLocation().getUser().getId()).orElse(null);
+							double percentageAmt = amount / parkingDetails.getAgentPercentage();
+							agentWallet.setReal(agentWallet.getReal() + percentageAmt);
+							this.userWalletRepo.save(agentWallet);
+
+							// to cut amount and provide to Agent
+							AgentTransHistory agentHistoryVo = parkBookingMapper.createAgentHitsoryVo(percentageAmt , userId);
+							this.agentTransactionRepo.save(agentHistoryVo);
+
+							ParkTransHistory parkTransVo = parkBookingMapper.createParkingHitsoryVo(amount, userId);
+							this.parkingTransRepo.save(parkTransVo);
+
+							ParkBookingHistory bookingHistoryVo = parkBookingMapper.createParkingBookingHitsoryVo(parkingDetails, amount, userId, inTime, outTime);
+							this.parkBookingHistoryRepository.save(bookingHistoryVo);
+
+							ParkingLocationDto sendLoc = new ParkingLocationDto(parkingLocId, parkingDetails.getParkingLocation().getLatitude(),
+									                                  parkingDetails.getParkingLocation().getLongitude());
+
+							return new EsResponse<>(IConstants.RESPONSE_ADD_PAYMENT, sendLoc , this.ENV.getProperty("bookins.success"));
+						} else {
+							System.out.println("Location is null or save flag is false " + saveFlag);
+							// throw new Exception("Location is null or save  flag is false");
+							return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR , this.ENV.getProperty("exception.internal.error"));
+						}
+					} else {
+						System.out.println("User doesn't have sufficient amount");
+						return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR , this.ENV.getProperty("booking.insufficient.amount"));
+					}
+				} else {
+					System.out.println("user doesn't have sufficient amount to book ");
+					System.out.println("User have deposit amount " + userWallet.getDeposit() + " bonus amount "
+							                           + userWallet.getBonus() + " real amount " + userWallet.getReal());
+					return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR , this.ENV.getProperty("booking.insufficient.amount"));
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("exception.internal.error"));
+		}
+
+		return null;
+
+	}
+	
+	
+	
 	
 	public static void main(String[] args) {
 		LocalTime fromDateTime = LocalTime.of(18, 00);

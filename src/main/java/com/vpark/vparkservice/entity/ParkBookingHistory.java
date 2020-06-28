@@ -27,8 +27,8 @@ public class ParkBookingHistory extends Savable{
 	@Column(name = "PARKING_DETAILS_ID")
 	private long  parkingDetailsId ;
 	
-	@Column(name = "VEHICLE_DETAILS_ID")
-	private long  vehicleDetailsId ;
+	@Column(name = "VEHICLE_ID")
+	private long  vehicleId ;
 	
 	@Column(name = "BOOKING_TYPE")
 	private String bookingType ;

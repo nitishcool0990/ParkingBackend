@@ -28,9 +28,6 @@ public class FavouriteParkingLocService {
 	 @Autowired
 	 private  IFavouriteParkingRepository  favParkingRepository ;
 	 
-	 @Autowired
-	 private IParkingLocationRepository parkingLocationRepository;
-	 
 	 
 	 public  EsResponse<?> addFavouriteParkingLocation(long locId , long userId ){
 		 try{
@@ -77,10 +74,10 @@ public class FavouriteParkingLocService {
 				return FavoriteParkingDto;
 			}).collect(Collectors.toList());
 
-			return new EsResponse<>(IConstants.RESPONSE_STATUS_OK, FavoriteParkingDtos,this.ENV.getProperty("parking.review.search.success"));
+			return new EsResponse<>(IConstants.RESPONSE_STATUS_OK, FavoriteParkingDtos,this.ENV.getProperty("parking.fav.search.success"));
 		}catch (Exception e) {
 		    e.printStackTrace();
-		    return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("parking.review.search.failed"));
+		    return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("parking.fav.search.failed"));
 		       }
 	 }
 	 

@@ -65,11 +65,11 @@ public class ParkingLocation extends Savable {
     private double rating = 5;
     
     @Column(name = "ADVANCE_BOOKING_HR")
-    private String advanceBookingHr;
+    private double advanceBookingHr;
     
     
     @Column(name = "BOOKING_CANCEL_HR")
-    private String bookingCancelHr;
+    private double bookingCancelHr;
     
     @Lob
     @Column(name  = "photo")

@@ -20,13 +20,13 @@ public class UserWallet extends Savable {
 	private User user;
 	
 	@Column(name = "DEPOSIT_AMT")
-	private double deposit ;
+	private double deposit =0;
 	
 	@Column(name = "REAL_AMT")
-	private double real ;
+	private double real =0;
 	
 	@Column(name = "BONUS_AMT")
-	private double bonus ;
+	private double bonus =0;
 	
 
 	
