@@ -216,7 +216,7 @@ public class ParkingBookingService {
 	
 	@Synchronized
 	@Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
-	public EsResponse<ParkingLocationDto> doneBooking(long parkingId, long userId, double amount,long vehicleId) {
+	public EsResponse<ParkingLocationDto> doneBooking(long parkingId, long userId, double amount,long vehicleId,String inTime,String outTime) {
 		try{
 			UserWallet userWallet = this.userWalletRepo.findByUserId(userId).orElse(null);
 			if(userWallet!=null && amount>0) {
@@ -270,11 +270,22 @@ public class ParkingBookingService {
 							parkTrans.setUser(userId);
 							this.parkingTransRepo.save(parkTrans);
 							
+							ParkBookingHistory bookingHistory =new ParkBookingHistory();
+							bookingHistory.setAmt(amount);
+							bookingHistory.setBookingType(parkingDetails.getParkingLocation().getParkingType().getParkingType());
+							bookingHistory.setCr_dr("DR");
+							bookingHistory.setInTime(inTime);
+							bookingHistory.setOutTime(outTime);
+							bookingHistory.setParkingDetailsId(parkingDetails.getId());
+							bookingHistory.setRemarks("Booking for Parking");
+							bookingHistory.setStatus(IConstants.ParkingStatus.RUNNING);
+							bookingHistory.setUserId(userId);
+							ParkBookingHistoryRepository.save(bookingHistory);
 							ParkingLocationDto sendLoc= new ParkingLocationDto(parkingId, parkingDetails.getParkingLocation().getLatitude(), parkingDetails.getParkingLocation().getLongitude());
 							 return new EsResponse<>(IConstants.RESPONSE_ADD_PAYMENT,sendLoc, this.ENV.getProperty("bookins.success"));
 						}else {
 							System.out.println("Location is null or save flaf is false "+saveFlag);
-							throw new Exception();
+							throw new Exception("Location is null or save flaf is false");
 							//  return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("exception.internal.error"));
 						}
 					}else {

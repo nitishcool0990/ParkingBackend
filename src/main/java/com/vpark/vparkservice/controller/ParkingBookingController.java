@@ -42,9 +42,9 @@ public class ParkingBookingController implements IParkingBookingController {
 	}
 
 	@Override
-	public ResponseEntity<EsResponse<ParkingLocationDto>> doneBooking(long parkingId, long userId, double amount, long  vehicleId) {
+	public ResponseEntity<EsResponse<ParkingLocationDto>> doneBooking(long parkingId, long userId, double amount, long  vehicleId,String  inTime,String  outTime) {
 	
-		return ResponseEntity.ok(this.parkingBookingService.doneBooking(parkingId,userId,amount,vehicleId));
+		return ResponseEntity.ok(this.parkingBookingService.doneBooking(parkingId,userId,amount,vehicleId,inTime,outTime));
 	}
 	@Override
 	public ResponseEntity<EsResponse<List<MyParkingHistoryDTO>>> getUserParkingHistory(@RequestAttribute("Id")  long userId){

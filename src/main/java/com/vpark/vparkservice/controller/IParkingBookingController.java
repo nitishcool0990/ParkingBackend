@@ -31,7 +31,7 @@ public interface IParkingBookingController {
 	 ResponseEntity<EsResponse<PaymentDTO>> addBookingAmount(@RequestBody CashFreeDTO cashFreeDto,@RequestAttribute("Id")  long id);
 
 	 @PostMapping(value=IConstants.VERSION_1 + "/doneBooking")
-	 ResponseEntity<EsResponse<ParkingLocationDto>> doneBooking(@RequestParam("parkingId") long  parkingId,@RequestAttribute("Id") long id,@RequestParam("amount") double amount,@RequestParam("vehicleId") long  vehicleId);
+	 ResponseEntity<EsResponse<ParkingLocationDto>> doneBooking(@RequestParam("parkingId") long  parkingId,@RequestAttribute("Id") long id,@RequestParam("amount") double amount,@RequestParam("vehicleId") long  vehicleId,@RequestParam("inTime") String  inTime,@RequestParam("outTime") String  outTime);
 
 	 
 	 @GetMapping(value=IConstants.VERSION_1+"/myParking")
