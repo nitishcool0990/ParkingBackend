@@ -33,8 +33,14 @@ public class ParkBookingHistory extends Savable{
 	@Column(name = "BOOKING_TYPE")
 	private String bookingType ;
 	
-	@Column(name = "AMT")
-	private double amt ;
+	@Column(name = "BONUS_AMT")
+	private double bonusAmt ;
+	
+	@Column(name = "REAL_AMT")
+	private double realAmt ;
+	
+	@Column(name = "DEPOSIT_AMT")
+	private double depositAmt ;
 	
 	@Column(name = "CR_DR")
 	private String cr_dr ;

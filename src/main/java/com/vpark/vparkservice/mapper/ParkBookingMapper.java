@@ -25,13 +25,13 @@ public class ParkBookingMapper {
 		
 	}
 	
-    public ParkTransHistory createParkingHitsoryVo( double amount  , long userId ){
+    public ParkTransHistory createParkingHitsoryVo( double amount  , long userId,String crDR,String remarks ){
 		
     	ParkTransHistory parkTrans = new ParkTransHistory();
 		parkTrans.setAmt(amount);
 		parkTrans.setChipType("real");
-		parkTrans.setCrdr("dr");
-		parkTrans.setRemarks("Parking booking");
+		parkTrans.setCrdr(crDR);
+		parkTrans.setRemarks(remarks);
 		parkTrans.setStatus(IConstants.TransStatus.APPROVED);
 		parkTrans.setUser(userId);
 		
@@ -40,10 +40,12 @@ public class ParkBookingMapper {
 	}
     
     
-	public ParkBookingHistory createParkingBookingHitsoryVo(ParkingDetails parkingDetails , double amount, long userId  , String inTime,String outTime) {
+	public ParkBookingHistory createParkingBookingHitsoryVo(ParkingDetails parkingDetails , double depositAmt,double realAmt,double bonusAmt, long userId  , String inTime,String outTime) {
 
 		ParkBookingHistory bookingHistory = new ParkBookingHistory();
-		bookingHistory.setAmt(amount);
+		bookingHistory.setDepositAmt(depositAmt);
+		bookingHistory.setRealAmt(realAmt);
+		bookingHistory.setBonusAmt(bonusAmt);
 		bookingHistory.setBookingType(parkingDetails.getParkingLocation().getParkingType().getParkingType());
 		bookingHistory.setCr_dr("DR");
 		bookingHistory.setInTime(inTime);

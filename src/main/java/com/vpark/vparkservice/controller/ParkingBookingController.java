@@ -5,6 +5,7 @@ import java.time.LocalTime;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.vpark.vparkservice.dto.CashFreeDTO;
@@ -51,6 +52,12 @@ public class ParkingBookingController implements IParkingBookingController {
 	@Override
 	public ResponseEntity<EsResponse<List<MyParkingHistoryDTO>>> getUserParkingHistory(@RequestAttribute("Id")  long userId){
 		return ResponseEntity.ok(this.parkingBookingService.getUserParkingHistory(userId));
+	}
+	
+	@Override
+	public ResponseEntity<EsResponse<PaymentDTO>> cancelBookingAmount(@RequestParam("parkBookHistId") long  parkBookId,@RequestAttribute("Id")  long userId,double  latitude, double  longitude){
+		return ResponseEntity.ok(this.parkingBookingService.cancelBookingAmount(parkBookId, userId,latitude,longitude));
+		
 	}
 
 

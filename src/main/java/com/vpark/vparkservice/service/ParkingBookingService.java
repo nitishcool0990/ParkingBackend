@@ -11,6 +11,8 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestParam;
+
 import java.util.stream.Collectors;
 import org.modelmapper.ModelMapper;
 import com.vpark.vparkservice.constants.IConstants;
@@ -28,6 +30,7 @@ import com.vpark.vparkservice.entity.ParkBookingHistory;
 import com.vpark.vparkservice.entity.ParkTransHistory;
 import com.vpark.vparkservice.entity.ParkingDetails;
 import com.vpark.vparkservice.model.EsResponse;
+import com.vpark.vparkservice.model.RequestAttribute;
 import com.vpark.vparkservice.repository.IAgentTransHistoryRepository;
 import com.vpark.vparkservice.repository.ICashFreeTransHistory;
 import com.vpark.vparkservice.repository.IParkBookingHistoryRepository;
@@ -36,6 +39,8 @@ import com.vpark.vparkservice.repository.IParkingDetailsRepository;
 import com.vpark.vparkservice.repository.IParkingLocationRepository;
 import com.vpark.vparkservice.repository.IUserRepository;
 import com.vpark.vparkservice.repository.IUserWalletRepository;
+import com.vpark.vparkservice.test.GFGTest;
+
 import lombok.Synchronized;
 
 
@@ -230,21 +235,27 @@ public class ParkingBookingService {
 		try {
 			UserWallet userWallet = this.userWalletRepo.findByUserId(userId).orElse(null);
 			if (userWallet != null && amount > 0) {
+				double depositAmt=0,realAmt=0,bonusAmt=0;
 				if (userWallet.getDeposit() + userWallet.getReal() + userWallet.getBonus() >= amount) {
 					boolean saveFlag = true;
 					if (userWallet.getDeposit() >= amount) {
-						userWallet.setDeposit(userWallet.getDeposit() - amount);
+						depositAmt = userWallet.getDeposit() - amount;
+						userWallet.setDeposit(depositAmt);
 					} 
 					else {
+						depositAmt = userWallet.getDeposit();
 						double remainingAmount = amount - userWallet.getDeposit();
 						userWallet.setDeposit(0);
 						if (userWallet.getReal() >= remainingAmount) {
-							userWallet.setReal(userWallet.getReal() - remainingAmount);
+							realAmt = userWallet.getReal() - remainingAmount;
+							userWallet.setReal(realAmt);
 						} else {
+							realAmt = userWallet.getReal();
 							remainingAmount = remainingAmount - userWallet.getReal();
 							userWallet.setReal(0);
 							if (userWallet.getBonus() >= remainingAmount) {
-								userWallet.setBonus(userWallet.getBonus() - remainingAmount);
+								bonusAmt = userWallet.getBonus() - remainingAmount;
+								userWallet.setBonus(bonusAmt);
 							} 
 						}
 					}
@@ -262,10 +273,10 @@ public class ParkingBookingService {
 							AgentTransHistory agentHistoryVo = parkBookingMapper.createAgentHitsoryVo(percentageAmt , userId);
 							this.agentTransactionRepo.save(agentHistoryVo);
 
-							ParkTransHistory parkTransVo = parkBookingMapper.createParkingHitsoryVo(amount, userId);
+							ParkTransHistory parkTransVo = parkBookingMapper.createParkingHitsoryVo(amount, userId,"DR","Parking Booked");
 							this.parkingTransRepo.save(parkTransVo);
 
-							ParkBookingHistory bookingHistoryVo = parkBookingMapper.createParkingBookingHitsoryVo(parkingDetails, amount, userId, inTime, outTime);
+							ParkBookingHistory bookingHistoryVo = parkBookingMapper.createParkingBookingHitsoryVo(parkingDetails, depositAmt,realAmt,bonusAmt, userId, inTime, outTime);
 							this.parkBookingHistoryRepository.save(bookingHistoryVo);
 
 							ParkingLocationDto sendLoc = new ParkingLocationDto(parkingLocId, parkingDetails.getParkingLocation().getLatitude(),
@@ -295,6 +306,49 @@ public class ParkingBookingService {
 
 		return null;
 
+	}
+	
+	@Transactional(readOnly = false,   propagation = Propagation.REQUIRES_NEW)
+	public EsResponse<PaymentDTO> cancelBookingAmount( long  parkBookId, long userId,double  latitude, double  longitude){
+		try {
+			ParkBookingHistory parkingHistory =  parkBookingHistoryRepository.findByParkingBookingIdAndUserId(parkBookId,userId).orElse(null);
+			
+			
+			if(parkingHistory!=null) {
+				
+				ParkingLocation location =this.parkingLocationRepository.findByParkingLocId(parkingHistory.getParkingLocationId()).orElse(null);
+				
+				double distance =GFGTest.distance(Double.parseDouble(location.getLatitude()), latitude, Double.parseDouble(location.getLongitude()), longitude);
+				
+				System.out.println("distance "+distance);
+				
+				if(distance>0.100) {
+					UserWallet userWallet = this.userWalletRepo.findByUserId(userId).orElse(null);
+					if(userWallet!=null) {
+						ParkTransHistory parkTransVo = parkBookingMapper.createParkingHitsoryVo(parkingHistory.getBonusAmt()+parkingHistory.getDepositAmt()+parkingHistory.getRealAmt(), userId,"CR","Parking Cancelled");
+						
+						userWallet.setBonus(userWallet.getBonus()+parkingHistory.getBonusAmt());
+						userWallet.setDeposit(userWallet.getDeposit()+parkingHistory.getDepositAmt());
+						userWallet.setReal(userWallet.getReal()+parkingHistory.getRealAmt());
+						parkingHistory.setStatus(IConstants.ParkingStatus.CANCEL);
+						this.parkBookingHistoryRepository.save(parkingHistory);
+						this.userWalletRepo.save(userWallet);
+						this.parkingTransRepo.save(parkTransVo);
+						return new EsResponse<>(IConstants.RESPONSE_STATUS_OK, this.ENV.getProperty("booking.cancel.success"));
+					}
+				}else {
+					return new EsResponse<>(IConstants.RESPONSE_STATUS_OK, this.ENV.getProperty("booking.cancel.notpossible"));
+				}
+				
+			}else{
+				return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("booking.cancel.noexists"));
+			}
+		}catch (Exception e) {
+			e.printStackTrace();
+			return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("exception.internal.error"));
+		}
+		return null;
+		
 	}
 	
 	

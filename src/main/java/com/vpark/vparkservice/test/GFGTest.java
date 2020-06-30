@@ -5,7 +5,7 @@ package com.vpark.vparkservice.test;
 import java.util.*; 
 import java.lang.*; 
 
-class GFG { 
+public class GFGTest { 
 
 	public static double distance(double lat1, 
 					double lat2, double lon1, 
