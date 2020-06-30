@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class BookedVehicleDetailsDTO {
 
+	public long vehicleTypeId ;
 	public String vehicleName ;
 	public String vehicleNo ;
 	public String mobileNo ;

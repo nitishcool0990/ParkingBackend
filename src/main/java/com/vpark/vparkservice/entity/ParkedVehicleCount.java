@@ -9,8 +9,8 @@ import lombok.Data;
 @Data
 @Entity
 @DynamicUpdate
-@Table(name = "PARKING_DETAILS_COUNT")
-public class ParkingDetailsCount extends Savable{
+@Table(name = "PARKED_VEHICLE_COUNT")
+public class ParkedVehicleCount extends Savable{
 
 	@Column(name = "PARKING_LOCATION_ID")
 	private long  parkingLocationId ;
@@ -22,7 +22,7 @@ public class ParkingDetailsCount extends Savable{
 	private Integer  totalCount ;
 	
 	@Column(name = "TOTAL_OCCUPIED")
-	private Integer  totalOccupied ;
+	private Integer  totalOccupied = 0;
 	
 	
 

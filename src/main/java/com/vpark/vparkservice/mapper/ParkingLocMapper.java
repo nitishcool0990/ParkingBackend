@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.vpark.vparkservice.dto.AgentParkingLocationDTO;
+import com.vpark.vparkservice.entity.ParkedVehicleCount;
 import com.vpark.vparkservice.entity.ParkingDetails;
 import com.vpark.vparkservice.entity.ParkingLocation;
 import com.vpark.vparkservice.entity.ParkingType;
@@ -41,5 +42,23 @@ public class ParkingLocMapper {
     			  .collect(Collectors.toList());
     	
     	 parkingLocVo.setParkingDetails(ParkingDetailsVos);
+	}
+	
+    public List<ParkedVehicleCount> createParkedVehicleVo( AgentParkingLocationDTO parkingLocationDto , long parkingLocId  ){
+	  	
+    	
+    	List<ParkedVehicleCount> parkedVehicleCountVos = parkingLocationDto.getParkingDetailsDtos() .stream()
+    			  .map((parkingDetailsDto) -> {
+    				  
+    				  ParkedVehicleCount parkedVehicleCountVo = new ParkedVehicleCount() ;
+    				  parkedVehicleCountVo.setParkingLocationId(parkingLocId);
+    				  parkedVehicleCountVo.setVehicleTypeId(parkingDetailsDto.getVehicleTypeId());
+    				  parkedVehicleCountVo.setTotalCount(parkingDetailsDto.getCapacity());
+    				  
+    				return parkedVehicleCountVo ;
+    			  })
+    			  .collect(Collectors.toList());
+    	
+    	    return parkedVehicleCountVos ;
 	}
 }

@@ -24,6 +24,9 @@ public class UserProfile extends Savable {
 
     @Column(name = "EMAIL", unique = true, nullable = false)
     private String email;
+    
+    @Column(name = "REFERAL_Code", unique = true, nullable = false)
+    private String referalCode;
 
    
 

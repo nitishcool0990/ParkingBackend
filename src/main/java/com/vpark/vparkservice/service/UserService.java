@@ -132,8 +132,13 @@ public class UserService {
 				user.setPassword(this.bcryptEncoder.encode(user.getPassword()));
 				user.setId(userObj.getId());
 				user.setStatus(IConstants.Status.ACTIVE);
+				if(null != user.getUserProfile().getReferalCode()){
+					
+				}
+				// generate unique referal Code here
 				UserWallet userWalletVo = new UserWallet ();
 				userWalletVo.setUser(userObj);
+				
 				BeanUtils.copyProperties(user, userObj);
 
 				this.userRepository.save(userObj);

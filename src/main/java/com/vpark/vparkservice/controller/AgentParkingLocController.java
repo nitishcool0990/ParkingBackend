@@ -12,6 +12,7 @@ import com.google.gson.Gson;
 import com.vpark.vparkservice.constants.IConstants;
 import com.vpark.vparkservice.dto.AgentParkingLocationDTO;
 import com.vpark.vparkservice.dto.BookedVehicleDetailsDTO;
+import com.vpark.vparkservice.dto.CheckInAndCheckOutDTO;
 import com.vpark.vparkservice.dto.ParkingDetailsDTO;
 import com.vpark.vparkservice.dto.ParkingTypeDTO;
 import com.vpark.vparkservice.model.EsResponse;
@@ -100,6 +101,25 @@ public class AgentParkingLocController implements  IAgentParkingLocController {
 		        return ResponseEntity.ok(this.agentParkingService.findUpcomingVehicleDetails( locId ));
 		}
 
+
+		@Override
+		public ResponseEntity<EsResponse<?>> checkInVehicle(CheckInAndCheckOutDTO checkInDto) {
+			 if ( checkInDto.getLocationId() < 0) {
+		            return ResponseEntity.badRequest().body(new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("invalid.id")));
+		        }
+		        return ResponseEntity.ok(this.agentParkingService.checkInVehicle(checkInDto));
+		
+		}
+
+
+		@Override
+		public ResponseEntity<EsResponse<?>> checkOutVehicle(CheckInAndCheckOutDTO checkOutDto) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+
+		
 
 		
 }
