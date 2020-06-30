@@ -44,7 +44,7 @@ public class ParkingLocation extends Savable {
     @Enumerated(EnumType.STRING)
     private IConstants.Status status = IConstants.Status.INACTIVE;
     
-    @ManyToOne(cascade = CascadeType.DETACH )
+    @ManyToOne(cascade = CascadeType.DETACH , fetch = FetchType.LAZY)
     @JoinColumn(name = "USER_ID", referencedColumnName = "ID", foreignKey = @ForeignKey(name = "FK_PAR_LOC2USER"))
     private User user; 
 
@@ -53,7 +53,7 @@ public class ParkingLocation extends Savable {
     private List<ParkingDetails> parkingDetails = new ArrayList<ParkingDetails>();
 
     
-    @ManyToOne(cascade = CascadeType.DETACH)
+    @ManyToOne(cascade = CascadeType.DETACH , fetch = FetchType.LAZY)
     @JoinColumn(name = "PARKING_TYPE_ID", referencedColumnName = "ID", foreignKey = @ForeignKey(name = "FK_PARK_LOC2TYPE"))
     private ParkingType  parkingType ;
     

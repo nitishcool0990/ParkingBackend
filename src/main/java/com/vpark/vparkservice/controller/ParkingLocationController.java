@@ -54,11 +54,11 @@ public class ParkingLocationController implements IParkingLocationController {
 
     
     @Override
-    public ResponseEntity<EsResponse<?>> patchParkReview(@PathVariable long id, @RequestBody ParkingReviews parkingReviews) {
-        if (id <= 0) {
+    public ResponseEntity<EsResponse<?>> patchParkReview(@RequestBody ParkingReviewDTO parkingReviewDto) {
+        if (parkingReviewDto.getReviewId() <= 0) {
             return ResponseEntity.badRequest().body(new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("invalid.id")));
         }
-        return ResponseEntity.ok(this.parkingLocationService.patchParkReviews(id, parkingReviews));
+        return ResponseEntity.ok(this.parkingLocationService.updateParkReviews(parkingReviewDto));
     }
 
     @Override
@@ -84,7 +84,7 @@ public class ParkingLocationController implements IParkingLocationController {
         if (locId <= 0) {
             return ResponseEntity.badRequest().body(new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("invalid.id")));
         }
-       return ResponseEntity.ok(this.parkingLocationService.findAllReviews(locId));
+       return ResponseEntity.ok(this.parkingLocationService.findAllReviews(locId  ));
   
     }
 }

@@ -10,6 +10,8 @@ import com.vpark.vparkservice.entity.User;
 import com.vpark.vparkservice.model.EsResponse;
 import com.vpark.vparkservice.repository.IParkingLocationRepository;
 import com.vpark.vparkservice.repository.IParkingReviewsRepository;
+import com.vpark.vparkservice.repository.IUserRepository;
+
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
@@ -36,6 +38,9 @@ public class ParkingLocationService {
     
     @Autowired
     private  IParkingReviewsRepository   parkingReviewsRepository ;
+    
+    @Autowired
+    private IUserRepository userRepository;
     
 
 
@@ -76,21 +81,19 @@ public class ParkingLocationService {
 
    
 
-    public EsResponse<?> patchParkReviews(long id, ParkingReviews parkingReview) {
-        EsResponse<ParkingLocation> locationById = this.findLocationDetailsById(id);
-        if (locationById.getStatus() == IConstants.RESPONSE_STATUS_ERROR) {
-            return locationById;
-        }
-        try {
-            ParkingLocation location = locationById.getData();
-            //Set<ParkingReviews> parkingReviews = location.getParkingReviews();
-           // parkingReviews.add(parkingReview);
-            //location.setParkingReviews(parkingReviews);
-            ParkingLocation save = this.parkingLocationRepository.save(location);
-            return new EsResponse<>(IConstants.RESPONSE_STATUS_OK, save, this.ENV.getProperty("parking.review.save.success"));
+    public EsResponse<?> updateParkReviews( ParkingReviewDTO parkingReviewDto) {
+      try {
+    	  Optional<ParkingReviews> parkingReviewVo = this.parkingReviewsRepository.findById(parkingReviewDto.getReviewId());
+    	  
+    	  if(parkingReviewVo.isPresent()){
+    		  parkingReviewVo.get().setReply(parkingReviewDto.getReply());
+    	  }
+    	  this.parkingReviewsRepository.save(parkingReviewVo.get());
+         
+            return new EsResponse<>(IConstants.RESPONSE_STATUS_OK, this.ENV.getProperty("parking.review.update.success"));
         } catch (Exception e) {
             e.printStackTrace();
-            return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("parking.review.save.failed"));
+            return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("parking.review.update.failed"));
         }
     }
 
@@ -163,9 +166,10 @@ public class ParkingLocationService {
     
     
     
-    public EsResponse<List<ParkingReviewDTO>> findAllReviews( long locId) {
+    public EsResponse<List<ParkingReviewDTO>> findAllReviews( long locId  ) {
        try{
     	List<ParkingReviews > parkingReviewsVos  = this.parkingReviewsRepository.findAllByLocationId(locId);
+    	                                                                         
     	
     	   List<ParkingReviewDTO> ParkingReviewDtos = parkingReviewsVos.stream()
     			  .map((parkingReviewsVo) -> {
@@ -173,7 +177,8 @@ public class ParkingLocationService {
     				  parkReviewDto.setReviewId(parkingReviewsVo.getId());
     				  parkReviewDto.setReviewrName(parkingReviewsVo.getUser().getUserProfile().getFirstName());
     				  parkReviewDto.setCreateDate(parkingReviewsVo.getCreatedDate());
-    
+    				  parkReviewDto.setReply(parkingReviewsVo.getReply());
+    				  
     				return parkReviewDto ;
     			  })
     			  .collect(Collectors.toList());

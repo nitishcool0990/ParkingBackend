@@ -12,7 +12,8 @@ import lombok.NoArgsConstructor;
 public class BookedVehicleDetailsDTO {
 
 	public String vehicleName ;
-	public String userName ;
+	public String vehicleNo ;
+	public String mobileNo ;
 	public String OutTime ;
 	public String arrivalTime;
 	public String isArrived;

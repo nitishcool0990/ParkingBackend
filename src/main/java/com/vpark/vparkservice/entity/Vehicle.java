@@ -18,7 +18,7 @@ public class Vehicle extends Savable {
     @Column(name = "VEHICLE_NO", unique = true, nullable = false)
     private String vehicleNo;
 
-    @ManyToOne(cascade = CascadeType.DETACH)
+    @ManyToOne(cascade = CascadeType.DETACH ,  fetch = FetchType.LAZY)
     @JoinColumn(name = "VEHICLE_TYPE_ID", referencedColumnName = "ID", foreignKey = @ForeignKey(name = "FK_VEHICLETYPE2VEHICLE"))
     private VehicleType vehicleType;
 

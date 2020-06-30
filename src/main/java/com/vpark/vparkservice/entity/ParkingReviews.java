@@ -5,6 +5,7 @@ import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.ForeignKey;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -19,7 +20,7 @@ import javax.persistence.Table;
 @Table(name = "PARKING_REVIEWS")
 public class ParkingReviews extends Savable {
 
-	@ManyToOne
+	@ManyToOne( fetch = FetchType.LAZY)
     @JoinColumn(name = "USER_ID", referencedColumnName = "ID", foreignKey = @ForeignKey(name = "FK_REVIEW2USER"))
     private User user; 
 
@@ -33,7 +34,7 @@ public class ParkingReviews extends Savable {
     private String reply;
     
     
-    @ManyToOne
+    @ManyToOne( fetch = FetchType.LAZY)
    @JoinColumn(name = "PARK_LOC_ID", referencedColumnName = "ID", foreignKey = @ForeignKey(name = "FK_REVIEW2PARK_LOC"))
     private ParkingLocation parkingLocId ;
 
