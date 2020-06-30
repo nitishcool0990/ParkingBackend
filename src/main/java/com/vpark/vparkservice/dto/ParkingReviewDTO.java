@@ -19,6 +19,7 @@ public class ParkingReviewDTO {
 	private String comment ;
 	private long parkingLocId ;
 	private String reviewrName ;
+	private String reply ;
 	private LocalDateTime createDate;
 	
 }

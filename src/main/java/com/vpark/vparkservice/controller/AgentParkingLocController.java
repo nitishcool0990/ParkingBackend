@@ -11,6 +11,8 @@ import org.springframework.web.multipart.MultipartFile;
 import com.google.gson.Gson;
 import com.vpark.vparkservice.constants.IConstants;
 import com.vpark.vparkservice.dto.AgentParkingLocationDTO;
+import com.vpark.vparkservice.dto.BookedVehicleDetailsDTO;
+import com.vpark.vparkservice.dto.CheckInAndCheckOutDTO;
 import com.vpark.vparkservice.dto.ParkingDetailsDTO;
 import com.vpark.vparkservice.dto.ParkingTypeDTO;
 import com.vpark.vparkservice.model.EsResponse;
@@ -46,19 +48,19 @@ public class AgentParkingLocController implements  IAgentParkingLocController {
    
 		
 		@Override
-		public ResponseEntity<EsResponse<List<ParkingDetailsDTO>>> findParkingStatusById(long id) {
-			 if ( id < 0) {
+		public ResponseEntity<EsResponse<List<ParkingDetailsDTO>>> findParkingStatusById(long locId) {
+			 if ( locId < 0) {
 		            return ResponseEntity.badRequest().body(new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("invalid.id")));
 		        }
-		        return ResponseEntity.ok(this.agentParkingService.findParkingDetailsById( id ));
+		        return ResponseEntity.ok(this.agentParkingService.findParkingDetailsById( locId ));
 			
 		}
 		
-	public ResponseEntity<EsResponse<List<ParkingDetailsDTO>>> findParkingDetailsById(@PathVariable long id ){
-		 if ( id < 0) {
+	public ResponseEntity<EsResponse<List<ParkingDetailsDTO>>> findParkingDetailsById(@PathVariable long locId ){
+		 if ( locId < 0) {
 	            return ResponseEntity.badRequest().body(new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("invalid.id")));
 	        }
-	        return ResponseEntity.ok(this.agentParkingService.findParkingDetailsById( id ));
+	        return ResponseEntity.ok(this.agentParkingService.findParkingDetailsById( locId ));
 	}
 		
 		
@@ -90,6 +92,34 @@ public class AgentParkingLocController implements  IAgentParkingLocController {
 			
 		}
 
+
+		@Override
+		public ResponseEntity<EsResponse<List<BookedVehicleDetailsDTO>>> findUpcomingVehicles(long locId) {
+			 if ( locId < 0) {
+		            return ResponseEntity.badRequest().body(new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("invalid.id")));
+		        }
+		        return ResponseEntity.ok(this.agentParkingService.findUpcomingVehicleDetails( locId ));
+		}
+
+
+		@Override
+		public ResponseEntity<EsResponse<?>> checkInVehicle(CheckInAndCheckOutDTO checkInDto) {
+			 if ( checkInDto.getLocationId() < 0) {
+		            return ResponseEntity.badRequest().body(new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("invalid.id")));
+		        }
+		        return ResponseEntity.ok(this.agentParkingService.checkInVehicle(checkInDto));
+		
+		}
+
+
+		@Override
+		public ResponseEntity<EsResponse<?>> checkOutVehicle(CheckInAndCheckOutDTO checkOutDto) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+
+		
 
 		
 }

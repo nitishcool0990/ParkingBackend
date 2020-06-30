@@ -14,9 +14,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import com.vpark.vparkservice.constants.IConstants;
 import com.vpark.vparkservice.dto.AgentParkingLocationDTO;
+import com.vpark.vparkservice.dto.BookedVehicleDetailsDTO;
+import com.vpark.vparkservice.dto.CheckInAndCheckOutDTO;
 import com.vpark.vparkservice.dto.ParkingDetailsDTO;
 import com.vpark.vparkservice.dto.ParkingTypeDTO;
-import com.vpark.vparkservice.dto.VehicleDto;
 import com.vpark.vparkservice.model.EsResponse;
 import com.vpark.vparkservice.model.RequestAttribute;
 
@@ -29,12 +30,21 @@ public interface IAgentParkingLocController {
 	 @GetMapping(IConstants.VERSION_1 )
 	 ResponseEntity<EsResponse<List<AgentParkingLocationDTO>>> findAllParkingLocationById(@RequestAttribute("Id")  long userId);
 	 
-	 @GetMapping(IConstants.VERSION_1 +"/details/{id}")
-	 ResponseEntity<EsResponse<List<ParkingDetailsDTO>>> findParkingDetailsById(@PathVariable long id  );
+	 @GetMapping(IConstants.VERSION_1 +"/details/{locId}")
+	 ResponseEntity<EsResponse<List<ParkingDetailsDTO>>> findParkingDetailsById(@PathVariable long locId  );
 	 
 	 @GetMapping(IConstants.VERSION_1 +"/parkingstatus/{id}")
-	 ResponseEntity<EsResponse<List<ParkingDetailsDTO>>> findParkingStatusById(@PathVariable long id  );
-
+	 ResponseEntity<EsResponse<List<ParkingDetailsDTO>>> findParkingStatusById(@PathVariable long locId  );
+	 
+	 @GetMapping(IConstants.VERSION_1 +"/upcomingVehicles/{locId}")
+	 ResponseEntity<EsResponse<List<BookedVehicleDetailsDTO>>> findUpcomingVehicles(@PathVariable long locId  );
+	 
+	 @PostMapping(IConstants.VERSION_1 +"/checkIn")
+	 ResponseEntity<EsResponse<?>> checkInVehicle(@RequestBody CheckInAndCheckOutDTO checkInDto );
+	 
+	 @PostMapping(IConstants.VERSION_1 +"/checkOut")
+	 ResponseEntity<EsResponse<?>> checkOutVehicle(@RequestBody CheckInAndCheckOutDTO checkOutDto  );
+	 
 	 @DeleteMapping(IConstants.VERSION_1 + "/delete/{id}")
 	 ResponseEntity<EsResponse<?>> deleteLocation(@PathVariable long id);
 	 
@@ -42,6 +52,6 @@ public interface IAgentParkingLocController {
 	  ResponseEntity<EsResponse<List<ParkingTypeDTO>>> findAllParkingType();
 	  
 	  @PutMapping(IConstants.VERSION_1 + "/update")
-	    ResponseEntity<EsResponse<?>> updateParkingLocation(@RequestParam(value="images") MultipartFile[]  images ,   @RequestParam(value="parkingLoc")String parkingLoc , @RequestAttribute("Id")  long userId);
+	  ResponseEntity<EsResponse<?>> updateParkingLocation(@RequestParam(value="images") MultipartFile[]  images ,   @RequestParam(value="parkingLoc")String parkingLoc , @RequestAttribute("Id")  long userId);
 
 }

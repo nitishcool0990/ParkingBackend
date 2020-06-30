@@ -4,7 +4,6 @@ import com.vpark.vparkservice.constants.IConstants;
 import com.vpark.vparkservice.dto.ParkingLocationDto;
 import com.vpark.vparkservice.dto.ParkingReviewDTO;
 import com.vpark.vparkservice.entity.ParkingDetails;
-import com.vpark.vparkservice.entity.ParkingReviews;
 import com.vpark.vparkservice.model.EsResponse;
 import com.vpark.vparkservice.model.RequestAttribute;
 import org.springframework.http.ResponseEntity;
@@ -29,8 +28,8 @@ public interface IParkingLocationController {
     @GetMapping(IConstants.VERSION_1 + "/{id}/parking-details")
     ResponseEntity<EsResponse<?>> findAllLocationDetails(@PathVariable long id);
 
-    @PatchMapping(IConstants.VERSION_1 + "/{id}/park-reviews")
-    ResponseEntity<EsResponse<?>> patchParkReview(@PathVariable long id, @RequestBody ParkingReviews parkingReviews);
+    @PatchMapping(IConstants.VERSION_1 + "/park-reviews/update")
+    ResponseEntity<EsResponse<?>> patchParkReview( @RequestBody ParkingReviewDTO parkingReviewDto);
 
     @PostMapping(IConstants.VERSION_1 + "/park-reviews")
     ResponseEntity<EsResponse<?>> addParkReview( @RequestAttribute("Id")  long userId , @RequestBody ParkingReviewDTO parkingReviewDto);
@@ -39,6 +38,6 @@ public interface IParkingLocationController {
     ResponseEntity<EsResponse<?>> deleteParkReview( @PathVariable long reviewId);
 
     @GetMapping(IConstants.VERSION_1 + "/park-reviews/{locId}")
-    ResponseEntity<EsResponse<List<ParkingReviewDTO>>> findAllReviews(@PathVariable long locId );
+    ResponseEntity<EsResponse<List<ParkingReviewDTO>>> findAllReviews(@PathVariable long locId   );
 
 }

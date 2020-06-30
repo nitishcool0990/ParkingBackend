@@ -2,6 +2,7 @@ package com.vpark.vparkservice.service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,19 +12,25 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import com.vpark.vparkservice.constants.IConstants;
 import com.vpark.vparkservice.dto.AgentParkingLocationDTO;
+import com.vpark.vparkservice.dto.BookedVehicleDetailsDTO;
+import com.vpark.vparkservice.dto.CheckInAndCheckOutDTO;
 import com.vpark.vparkservice.dto.ParkingDetailsDTO;
 import com.vpark.vparkservice.dto.ParkingTypeDTO;
 import com.vpark.vparkservice.entity.ParkBookingHistory;
+import com.vpark.vparkservice.entity.ParkedVehicleCount;
 import com.vpark.vparkservice.entity.ParkingDetails;
 import com.vpark.vparkservice.entity.ParkingLocation;
 import com.vpark.vparkservice.entity.ParkingType;
 import com.vpark.vparkservice.entity.User;
+import com.vpark.vparkservice.entity.Vehicle;
 import com.vpark.vparkservice.mapper.ParkingLocMapper;
 import com.vpark.vparkservice.model.EsResponse;
 import com.vpark.vparkservice.repository.IParkBookingHistoryRepository;
+import com.vpark.vparkservice.repository.IParkedVehicleCountRepository;
 import com.vpark.vparkservice.repository.IParkingDetailsRepository;
 import com.vpark.vparkservice.repository.IParkingLocationRepository;
 import com.vpark.vparkservice.repository.IParkingTypeRepository;
+import com.vpark.vparkservice.repository.IUserRepository;
 
 @Service
 public class AgentParkingLocService  {
@@ -47,7 +54,14 @@ public class AgentParkingLocService  {
 	  private IParkingDetailsRepository parkingDetailsRepository ;
 	  
 	  @Autowired
-		 private IParkBookingHistoryRepository   parkBookingHistoryRepository ;
+	  private IParkBookingHistoryRepository   parkBookingHistoryRepository ;
+	  
+	  @Autowired
+	   private IUserRepository userRepository;
+	  
+	  @Autowired
+	  private IParkedVehicleCountRepository parkedVehicleCountRepository ;
+
 	  
 	  
 	  
@@ -64,7 +78,10 @@ public class AgentParkingLocService  {
 	        		byte[] photoBytes   = image.getBytes();
 	        		parkingLocVo.setPhoto(photoBytes);
 	        	}
-	        	this.parkingLocationRepository.save(parkingLocVo);
+	        	ParkingLocation savedParkingLocVo   = this.parkingLocationRepository.save(parkingLocVo);
+	        	List<ParkedVehicleCount>  parkedVehicleVos = parkingLocMapper.createParkedVehicleVo(parkingLocationDto , savedParkingLocVo.getId());
+	        	
+	        	this.parkedVehicleCountRepository.saveAll(parkedVehicleVos);
 	
 	            return new EsResponse<>(IConstants.RESPONSE_STATUS_OK  , this.ENV.getProperty("parking.location.creation.success"));
 	      
@@ -120,7 +137,7 @@ public class AgentParkingLocService  {
 	 }
 	 
 	 
-	/* public EsResponse<List<ParkingDetailsDTO>> findParkingStatusById(long locId ){
+	 /*public EsResponse<List<ParkingDetailsDTO>> findParkingStatusById(long locId ){
 		 try {
 			 List<ParkBookingHistory> parkBookingHistoryVos     = this.parkBookingHistoryRepository.findByParkingLocationId(locId);
 	  
@@ -202,6 +219,60 @@ public class AgentParkingLocService  {
   }
  
 	
+	
+	public EsResponse<List<BookedVehicleDetailsDTO>> findUpcomingVehicleDetails(long locId ){
+	 try {
+		 List<ParkBookingHistory> parkBookingHistoryVos     = this.parkBookingHistoryRepository.findByParkingLocationId(locId);
+
+       	List<BookedVehicleDetailsDTO> bookedVehicleDetailsDTOs = parkBookingHistoryVos.stream()
+     			  .map((parkBookingHistoryVo) -> {
+     				 BookedVehicleDetailsDTO  bookedVehicleDetailsDto=  modelMapper.map(parkBookingHistoryVo , BookedVehicleDetailsDTO.class);
+     				bookedVehicleDetailsDto.setArrivalTime(parkBookingHistoryVo.getInTime());
+     				
+     				Optional<User> userVo  = userRepository.findById(parkBookingHistoryVo.getUserId());
+     				bookedVehicleDetailsDto.setMobileNo(userVo.get().getMobileNo());
+     				List<Vehicle> vehiclesVos  = userVo.get().getVehicles();
+     				
+     				for(Vehicle  vehicleVo : vehiclesVos){
+     				
+     					if(parkBookingHistoryVo.getVehicleId() == vehicleVo.getId() ){
+     						
+     						bookedVehicleDetailsDto.setVehicleName(vehicleVo.getVehicleType().getVehicleName());
+     						bookedVehicleDetailsDto.setVehicleNo(vehicleVo.getVehicleNo());
+     						bookedVehicleDetailsDto.setVehicleTypeId(vehicleVo.getVehicleType().getId());
+     					}
+     				}
+     				return bookedVehicleDetailsDto ;
+     			  })
+     			  .collect(Collectors.toList());
+      
+           return  new EsResponse<>(IConstants.RESPONSE_STATUS_OK, bookedVehicleDetailsDTOs , this.ENV.getProperty("booking.upcoming.found.success"));
+                 
+       } catch (Exception e) {
+           e.printStackTrace();
+           return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("upcoming booking found failed"));
+       }
+}
+	
+	
+	public EsResponse<?> checkInVehicle(CheckInAndCheckOutDTO  checkInDto){
+		try{
+			
+			ParkedVehicleCount parkedVehicleCountVo= 	this.parkedVehicleCountRepository.findByParkingLocationIdAndVehicleTypeId(checkInDto.getLocationId() , checkInDto.getVehicleTypeId());
+			if(null !=parkedVehicleCountVo){
+				parkedVehicleCountVo.setTotalCount(parkedVehicleCountVo.getTotalCount()-1);
+				parkedVehicleCountVo.setTotalOccupied(parkedVehicleCountVo.getTotalOccupied() + 1);
+			}
+			
+			this.parkedVehicleCountRepository.save(parkedVehicleCountVo);
+			
+			 return  new EsResponse<>(IConstants.RESPONSE_STATUS_OK,  this.ENV.getProperty("booking.upcoming.found.success"));
+		}
+		catch (Exception e) {
+	        e.printStackTrace();
+	        return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("parking.type.not.found"));
+	       }
+	}
 	
 	  
 	 public EsResponse<List<ParkingTypeDTO>> findAllParkingType() {
