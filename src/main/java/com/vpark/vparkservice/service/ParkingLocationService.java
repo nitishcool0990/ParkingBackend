@@ -3,15 +3,15 @@ package com.vpark.vparkservice.service;
 import com.vpark.vparkservice.constants.IConstants;
 import com.vpark.vparkservice.dto.ParkingLocationDto;
 import com.vpark.vparkservice.dto.ParkingReviewDTO;
-import com.vpark.vparkservice.entity.ParkingDetails;
 import com.vpark.vparkservice.entity.ParkingLocation;
 import com.vpark.vparkservice.entity.ParkingReviews;
+import com.vpark.vparkservice.entity.ParkingSearchLocation;
 import com.vpark.vparkservice.entity.User;
+import com.vpark.vparkservice.mapper.ParkingLocMapper;
 import com.vpark.vparkservice.model.EsResponse;
 import com.vpark.vparkservice.repository.IParkingLocationRepository;
 import com.vpark.vparkservice.repository.IParkingReviewsRepository;
-import com.vpark.vparkservice.repository.IUserRepository;
-
+import com.vpark.vparkservice.repository.IParkingSearchLocation;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
@@ -38,10 +38,12 @@ public class ParkingLocationService {
     
     @Autowired
     private  IParkingReviewsRepository   parkingReviewsRepository ;
+        
+    @Autowired
+    private ParkingLocMapper parkingLocMapper ;
     
     @Autowired
-    private IUserRepository userRepository;
-    
+    private IParkingSearchLocation parkingSearchLoc;
 
 
     public EsResponse<ParkingLocation> findLocationDetailsById(long id) {
@@ -56,30 +58,7 @@ public class ParkingLocationService {
     }
 
     
-   
-    public EsResponse<?> patchLocationDetails(long id, ParkingDetails parkingDetail) {
-        EsResponse<ParkingLocation> locationById = this.findLocationDetailsById(id);
-        if (locationById.getStatus() == IConstants.RESPONSE_STATUS_ERROR) {
-            return locationById;
-        }
-        try {
-            ParkingLocation location = locationById.getData();
-            //Set<ParkingDetails> parkingDetails = location.getParkingDetails();
-           // Optional<ParkingDetails> pDetails = parkingDetails.stream().filter(pd -> pd.getId() == parkingDetail.getId()).findFirst();
-           // pDetails.ifPresent(parkingDetails1 -> {
-               // parkingDetails.remove(parkingDetails1);
-                //parkingDetails.add(parkingDetail);
-           // });
-           // location.setParkingDetails(parkingDetails);
-            ParkingLocation save = this.parkingLocationRepository.save(location);
-            return new EsResponse<>(IConstants.RESPONSE_STATUS_OK, save, this.ENV.getProperty("parking.location.update.success"));
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("parking.location.update.failed"));
-        }
-    }
-
-   
+ 
 
     public EsResponse<?> updateParkReviews( ParkingReviewDTO parkingReviewDto) {
       try {
@@ -147,20 +126,27 @@ public class ParkingLocationService {
     }
 
     
-    public EsResponse<List<ParkingLocationDto>> findLocationByCooridates(double  latitude,double  longitude,int  vehicleTypeId) {
+    public EsResponse<List<ParkingLocationDto>> findLocationByCoordinates(double  latitude,double  longitude,int  vehicleTypeId  , long userId) {
     	try {
-    		 List<Object[]> closestParkingList = parkingLocationRepository.getClosestParkingArea("KM",latitude, longitude,2, 20,vehicleTypeId);
+    		 List<Object[]> closestParkingList = parkingLocationRepository.getClosestParkingArea("KM",latitude, longitude, 2, 20,vehicleTypeId);
     		
     		 if(closestParkingList!=null && closestParkingList.size()>0) {
 	    		 List<ParkingLocationDto> list = closestParkingList.stream()
-	    				 .map(objectArray->new ParkingLocationDto((BigInteger)objectArray[0], objectArray[1], objectArray[2], (double)objectArray[3], objectArray[4].toString(), (double)objectArray[5], (double)objectArray[6])).collect(Collectors.toList());
-	    		  return new EsResponse<>(IConstants.RESPONSE_STATUS_OK,list,  this.ENV.getProperty("parking.location.found"));
-    		 }else {
+	    				 
+	    				 .map(objectArray->new ParkingLocationDto((BigInteger)objectArray[0], objectArray[1], objectArray[2], (double)objectArray[3], objectArray[4].toString(), 
+	    						                                                             (double)objectArray[5], (double)objectArray[6])).collect(Collectors.toList());
+	    		  
+	    		 return new EsResponse<>(IConstants.RESPONSE_STATUS_OK,list,  this.ENV.getProperty("parking.location.found"));
+    		 }
+    		 else {
+    			 // Add this location in parking search location
+    			 ParkingSearchLocation parkSearchLocVo  = parkingLocMapper.createParkingSearchLocationVo(latitude , longitude ,  userId);
+    			 this.parkingSearchLoc.save(parkSearchLocVo);
     			 return new EsResponse<>(IConstants.RESPONSE_STATUS_OK,  this.ENV.getProperty("parking.location.not.found"));
     		 }
         } catch (Exception e) {
             e.printStackTrace();
-            return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("exception.internalerror"));
+            return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("exception.internal.error"));
         }
 }
     
@@ -175,7 +161,7 @@ public class ParkingLocationService {
     			  .map((parkingReviewsVo) -> {
     				  ParkingReviewDTO  parkReviewDto =  modelMapper.map(parkingReviewsVo , ParkingReviewDTO.class);
     				  parkReviewDto.setReviewId(parkingReviewsVo.getId());
-    				  parkReviewDto.setReviewrName(parkingReviewsVo.getUser().getUserProfile().getFirstName());
+    				  parkReviewDto.setReviewerName(parkingReviewsVo.getUser().getUserProfile().getFirstName());
     				  parkReviewDto.setCreateDate(parkingReviewsVo.getCreatedDate());
     				  parkReviewDto.setReply(parkingReviewsVo.getReply());
     				  

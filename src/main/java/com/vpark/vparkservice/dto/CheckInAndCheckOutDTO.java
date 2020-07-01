@@ -9,8 +9,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class CheckInAndCheckOutDTO {
 
+	public long bookingId ;
 	
 	public long locationId ;
+	
 	public long vehicleTypeId ;
 	
 }

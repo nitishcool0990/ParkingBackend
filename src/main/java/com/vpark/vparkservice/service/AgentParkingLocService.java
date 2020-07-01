@@ -8,6 +8,8 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import com.vpark.vparkservice.constants.IConstants;
@@ -64,7 +66,7 @@ public class AgentParkingLocService  {
 
 	  
 	  
-	  
+	  @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
 	 public EsResponse<ParkingLocation> createNewLocation( MultipartFile[]  parkingImages , AgentParkingLocationDTO parkingLocationDto  ,   long userId) {
 	        try {
 	        	ParkingLocation parkingLocVo  = modelMapper.map(parkingLocationDto, ParkingLocation.class) ;
@@ -137,27 +139,7 @@ public class AgentParkingLocService  {
 	 }
 	 
 	 
-	 /*public EsResponse<List<ParkingDetailsDTO>> findParkingStatusById(long locId ){
-		 try {
-			 List<ParkBookingHistory> parkBookingHistoryVos     = this.parkBookingHistoryRepository.findByParkingLocationId(locId);
-	  
-	        	
-	        	List<ParkingDetailsDTO> parkingDetailsDtos = parkBookingHistoryVos.stream()
-	      			  .map((parkBookingHistoryVo) -> {
-	      				ParkingDetailsDTO  parkDetailsDto =  modelMapper.map(parkBookingHistoryVo , ParkingDetailsDTO.class);
-	      				parkDetailsDto.setVehicleName(ParkingDetailsVo.getVehicleType().getVehicleName());
-	      				
-	      				return parkDetailsDto ;
-	      			  })
-	      			  .collect(Collectors.toList());
-	       
-	            return  new EsResponse<>(IConstants.RESPONSE_STATUS_OK, parkingDetailsDtos , this.ENV.getProperty("parking.location.found"));
-	                  
-	        } catch (Exception e) {
-	            e.printStackTrace();
-	            return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("parking.location.not.found"));
-	        }
-	 }*/
+	
 	 
 	 
 	 
@@ -220,43 +202,53 @@ public class AgentParkingLocService  {
  
 	
 	
-	public EsResponse<List<BookedVehicleDetailsDTO>> findUpcomingVehicleDetails(long locId ){
-	 try {
-		 List<ParkBookingHistory> parkBookingHistoryVos     = this.parkBookingHistoryRepository.findByParkingLocationId(locId);
+	public EsResponse<List<BookedVehicleDetailsDTO>> findUpcomingVehicleDetails(long locId) {
+		try {
+			List<ParkBookingHistory> parkBookingHistoryVos = this.parkBookingHistoryRepository.findByParkingLocationId(locId);
 
-       	List<BookedVehicleDetailsDTO> bookedVehicleDetailsDTOs = parkBookingHistoryVos.stream()
-     			  .map((parkBookingHistoryVo) -> {
-     				 BookedVehicleDetailsDTO  bookedVehicleDetailsDto=  modelMapper.map(parkBookingHistoryVo , BookedVehicleDetailsDTO.class);
-     				bookedVehicleDetailsDto.setArrivalTime(parkBookingHistoryVo.getInTime());
-     				
-     				Optional<User> userVo  = userRepository.findById(parkBookingHistoryVo.getUserId());
-     				bookedVehicleDetailsDto.setMobileNo(userVo.get().getMobileNo());
-     				List<Vehicle> vehiclesVos  = userVo.get().getVehicles();
-     				
-     				for(Vehicle  vehicleVo : vehiclesVos){
-     				
-     					if(parkBookingHistoryVo.getVehicleId() == vehicleVo.getId() ){
-     						
-     						bookedVehicleDetailsDto.setVehicleName(vehicleVo.getVehicleType().getVehicleName());
-     						bookedVehicleDetailsDto.setVehicleNo(vehicleVo.getVehicleNo());
-     						bookedVehicleDetailsDto.setVehicleTypeId(vehicleVo.getVehicleType().getId());
-     					}
-     				}
-     				return bookedVehicleDetailsDto ;
-     			  })
-     			  .collect(Collectors.toList());
-      
-           return  new EsResponse<>(IConstants.RESPONSE_STATUS_OK, bookedVehicleDetailsDTOs , this.ENV.getProperty("booking.upcoming.found.success"));
-                 
-       } catch (Exception e) {
-           e.printStackTrace();
-           return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("upcoming booking found failed"));
-       }
-}
+			List<BookedVehicleDetailsDTO> bookedVehicleDetailsDTOs = parkBookingHistoryVos.stream()
+					.map((parkBookingHistoryVo) -> {
+						BookedVehicleDetailsDTO bookedVehicleDetailsDto = modelMapper.map(parkBookingHistoryVo,
+								BookedVehicleDetailsDTO.class);
+						bookedVehicleDetailsDto.setArrivalTime(parkBookingHistoryVo.getInTime());
+						bookedVehicleDetailsDto.setBookingId(parkBookingHistoryVo.getId());
+
+						Optional<User> userVo = userRepository.findById(parkBookingHistoryVo.getUserId());
+						bookedVehicleDetailsDto.setMobileNo(userVo.get().getMobileNo());
+						List<Vehicle> vehiclesVos = userVo.get().getVehicles();
+
+						for (Vehicle vehicleVo : vehiclesVos) {
+
+							if (parkBookingHistoryVo.getVehicleId() == vehicleVo.getId()) {
+
+								bookedVehicleDetailsDto.setVehicleName(vehicleVo.getVehicleType().getVehicleName());
+								bookedVehicleDetailsDto.setVehicleNo(vehicleVo.getVehicleNo());
+								bookedVehicleDetailsDto.setVehicleTypeId(vehicleVo.getVehicleType().getId());
+							}
+						}
+						return bookedVehicleDetailsDto;
+					}).collect(Collectors.toList());
+
+			return new EsResponse<>(IConstants.RESPONSE_STATUS_OK, bookedVehicleDetailsDTOs, this.ENV.getProperty("booking.upcoming.found.success"));
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("booking.upcoming.found.failed"));
+		}
+	}
 	
-	
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
 	public EsResponse<?> checkInVehicle(CheckInAndCheckOutDTO  checkInDto){
 		try{
+			
+			if(checkInDto.getBookingId() >0 ){
+				Optional<ParkBookingHistory> parkBookingHistoryVo =  this.parkBookingHistoryRepository.findById(checkInDto.getBookingId() );
+				if(parkBookingHistoryVo.isPresent())
+				{
+					parkBookingHistoryVo.get().setStatus(IConstants.ParkingStatus.PARKED);
+					this.parkBookingHistoryRepository.save(parkBookingHistoryVo.get());
+				 }
+			}
 			
 			ParkedVehicleCount parkedVehicleCountVo= 	this.parkedVehicleCountRepository.findByParkingLocationIdAndVehicleTypeId(checkInDto.getLocationId() , checkInDto.getVehicleTypeId());
 			if(null !=parkedVehicleCountVo){
@@ -266,15 +258,46 @@ public class AgentParkingLocService  {
 			
 			this.parkedVehicleCountRepository.save(parkedVehicleCountVo);
 			
-			 return  new EsResponse<>(IConstants.RESPONSE_STATUS_OK,  this.ENV.getProperty("booking.upcoming.found.success"));
+			 return  new EsResponse<>(IConstants.RESPONSE_STATUS_OK,  this.ENV.getProperty("vehicle.checkin.success"));
 		}
 		catch (Exception e) {
 	        e.printStackTrace();
-	        return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("parking.type.not.found"));
+	        return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("vehicle.checkin.failed"));
+	       }
+	}
+	
+	
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
+	public EsResponse<?> checkOutVehicle(CheckInAndCheckOutDTO  checkOutDto){
+		try{
+			
+			if(checkOutDto.getBookingId() >0 ){
+				Optional<ParkBookingHistory> parkBookingHistoryVo =  this.parkBookingHistoryRepository.findById(checkOutDto.getBookingId() );
+				if(parkBookingHistoryVo.isPresent())
+				{
+					parkBookingHistoryVo.get().setStatus(IConstants.ParkingStatus.COMPLETED);
+					this.parkBookingHistoryRepository.save(parkBookingHistoryVo.get());
+				}
+				
+			}
+			ParkedVehicleCount parkedVehicleCountVo= 	this.parkedVehicleCountRepository.findByParkingLocationIdAndVehicleTypeId(checkOutDto.getLocationId() , checkOutDto.getVehicleTypeId());
+			if(null !=parkedVehicleCountVo){
+				parkedVehicleCountVo.setTotalCount(parkedVehicleCountVo.getTotalCount()+1);
+				parkedVehicleCountVo.setTotalOccupied(parkedVehicleCountVo.getTotalOccupied() - 1);
+			}
+			
+			this.parkedVehicleCountRepository.save(parkedVehicleCountVo);
+			
+			 return  new EsResponse<>(IConstants.RESPONSE_STATUS_OK,  this.ENV.getProperty("vehicle.checkout.success"));
+		}
+		catch (Exception e) {
+	        e.printStackTrace();
+	        return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("vehicle.checkout.failed"));
 	       }
 	}
 	
 	  
+	
 	 public EsResponse<List<ParkingTypeDTO>> findAllParkingType() {
 	     try{
 	    	List<ParkingType> parkingTypeVos    =  parkingTypeRepository.findAll() ;

@@ -3,7 +3,6 @@ package com.vpark.vparkservice.controller;
 import com.vpark.vparkservice.constants.IConstants;
 import com.vpark.vparkservice.dto.VehicleDto;
 import com.vpark.vparkservice.dto.VehicleTypeDTO;
-import com.vpark.vparkservice.entity.User;
 import com.vpark.vparkservice.entity.Vehicle;
 import com.vpark.vparkservice.model.EsResponse;
 import com.vpark.vparkservice.model.RequestAttribute;

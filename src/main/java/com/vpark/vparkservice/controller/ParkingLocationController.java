@@ -3,9 +3,8 @@ package com.vpark.vparkservice.controller;
 import com.vpark.vparkservice.constants.IConstants;
 import com.vpark.vparkservice.dto.ParkingLocationDto;
 import com.vpark.vparkservice.dto.ParkingReviewDTO;
-import com.vpark.vparkservice.entity.ParkingDetails;
-import com.vpark.vparkservice.entity.ParkingReviews;
 import com.vpark.vparkservice.model.EsResponse;
+import com.vpark.vparkservice.model.RequestAttribute;
 import com.vpark.vparkservice.service.ParkingLocationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
@@ -30,19 +29,12 @@ public class ParkingLocationController implements IParkingLocationController {
 
     
     @Override
-    public ResponseEntity<EsResponse<List<ParkingLocationDto>>> findLocationByCoordinates(@RequestParam("latitude") double  latitude,@RequestParam("longitude") double  longitude,@RequestParam("vehicleTypeId") int  vehicleTypeId) {
-        return ResponseEntity.ok(this.parkingLocationService.findLocationByCooridates(latitude, longitude,vehicleTypeId));
+    public ResponseEntity<EsResponse<List<ParkingLocationDto>>> findLocationByCoordinates(@RequestParam("latitude") double  latitude,
+    		 @RequestParam("longitude") double  longitude,@RequestParam("vehicleTypeId") int  vehicleTypeId , @RequestAttribute("Id")  long userId ) {
+        return ResponseEntity.ok(this.parkingLocationService.findLocationByCoordinates(latitude, longitude,vehicleTypeId  , userId));
     }
 
-  
-    @Override
-    public ResponseEntity<EsResponse<?>> patchParkingDetail(@PathVariable long id, @RequestBody ParkingDetails parkingDetails) {
-        if (id <= 0 || parkingDetails.getId() <= 0) {
-            return ResponseEntity.badRequest().body(new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("invalid.id")));
-        }
-        return ResponseEntity.ok(this.parkingLocationService.patchLocationDetails(id, parkingDetails));
-    }
-
+ 
     
     @Override
     public ResponseEntity<EsResponse<?>> findAllLocationDetails(@PathVariable long id) {

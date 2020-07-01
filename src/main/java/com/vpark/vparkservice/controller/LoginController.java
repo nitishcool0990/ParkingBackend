@@ -4,7 +4,6 @@ import com.vpark.vparkservice.constants.IConstants;
 import com.vpark.vparkservice.dto.SpringSecurityUserDetails;
 import com.vpark.vparkservice.model.EsResponse;
 import com.vpark.vparkservice.model.JwtResponse;
-import com.vpark.vparkservice.repository.IUserRepository;
 import com.vpark.vparkservice.service.JwtUserDetailsService;
 import com.vpark.vparkservice.util.JwtTokenUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 public class LoginController implements ILoginController {
+	
     @Autowired
     private AuthenticationManager authenticationManager;
 
@@ -46,6 +46,8 @@ public class LoginController implements ILoginController {
         }
     }
 
+    
+    
     private void authenticate(String username, String password) throws Exception {
         try {
            this.authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));

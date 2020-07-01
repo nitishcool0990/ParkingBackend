@@ -5,6 +5,7 @@ import java.util.Date;
 
 import org.springframework.stereotype.Component;
 
+import com.vpark.vparkservice.entity.ReferalCodeHistory;
 import com.vpark.vparkservice.entity.User;
 import com.vpark.vparkservice.entity.UserOtp;
 import com.vpark.vparkservice.model.OTPResponse;
@@ -28,5 +29,16 @@ public class UserMapper {
     	userOtpVo.setDetails(response.getDetails());
 		return userOtpVo;
     	
+	}
+	
+	public ReferalCodeHistory createReferalCodeHistoryVo(User user  , User referUserObj){
+		
+		ReferalCodeHistory  referalCodeHistoryVo = new ReferalCodeHistory ();
+		referalCodeHistoryVo.setReferalCode(user.getUserProfile().getReferalCode());
+		referalCodeHistoryVo.setRefereeUserId(user.getId());
+		referalCodeHistoryVo.setReferalUserId(referUserObj.getId());
+		user.getUserProfile().setReferalCode(null);
+		
+		return referalCodeHistoryVo;
 	}
 }

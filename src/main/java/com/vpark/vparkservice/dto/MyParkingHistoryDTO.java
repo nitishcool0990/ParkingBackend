@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class MyParkingHistoryDTO {
 	
-	private long id;
+	private long bookingId;
 	
 	private String parkName ;
 	

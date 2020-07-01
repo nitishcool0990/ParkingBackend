@@ -55,7 +55,7 @@ public class ParkingBookingController implements IParkingBookingController {
 	}
 	
 	@Override
-	public ResponseEntity<EsResponse<PaymentDTO>> cancelBookingAmount(@RequestParam("parkBookHistId") long  parkBookId,@RequestAttribute("Id")  long userId,double  latitude, double  longitude){
+	public ResponseEntity<EsResponse<PaymentDTO>> cancelBookingAmount(@RequestParam("bookingParkId") long  parkBookId,@RequestAttribute("Id")  long userId,double  latitude, double  longitude){
 		return ResponseEntity.ok(this.parkingBookingService.cancelBookingAmount(parkBookId, userId,latitude,longitude));
 		
 	}

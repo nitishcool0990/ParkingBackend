@@ -3,6 +3,7 @@ package com.vpark.vparkservice.service;
 import com.vpark.vparkservice.constants.IConstants;
 import com.vpark.vparkservice.dto.ProfileDto;
 import com.vpark.vparkservice.dto.UserAccountDTO;
+import com.vpark.vparkservice.entity.ReferalCodeHistory;
 import com.vpark.vparkservice.entity.User;
 import com.vpark.vparkservice.entity.UserOtp;
 import com.vpark.vparkservice.entity.UserProfile;
@@ -10,12 +11,16 @@ import com.vpark.vparkservice.entity.UserWallet;
 import com.vpark.vparkservice.mapper.UserMapper;
 import com.vpark.vparkservice.model.EsResponse;
 import com.vpark.vparkservice.model.OTPResponse;
+import com.vpark.vparkservice.repository.IReferalCodeHistoryRepository;
 import com.vpark.vparkservice.repository.IUserOtp;
+import com.vpark.vparkservice.repository.IUserProfileRepository;
 import com.vpark.vparkservice.repository.IUserRepository;
 import com.vpark.vparkservice.repository.IUserWalletRepository;
 import com.vpark.vparkservice.urlcalling.URLCaller;
 import com.vpark.vparkservice.util.CommonProperties;
 import com.vpark.vparkservice.util.OTPGenerateUtil;
+import com.vpark.vparkservice.util.Utility;
+
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -26,6 +31,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Created by kalana.w on 5/17/2020.
@@ -58,6 +65,12 @@ public class UserService {
     
     @Autowired
     private IUserWalletRepository   userWalletRepository ;
+    
+    @Autowired
+    private IUserProfileRepository  userProfileRepository ;
+    
+    @Autowired
+    private IReferalCodeHistoryRepository referalCodeHisRepository ;
     
     Date date =new Date();
     
@@ -125,16 +138,24 @@ public class UserService {
     
     
     
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
     public EsResponse<?> createNewUser(User user) {
 		try {
 			User userObj = this.userRepository.findByMobileNo(user.getMobileNo());
 			if (userObj != null) {
+				
 				user.setPassword(this.bcryptEncoder.encode(user.getPassword()));
 				user.setId(userObj.getId());
 				user.setStatus(IConstants.Status.ACTIVE);
+				
 				if(null != user.getUserProfile().getReferalCode()){
 					
+					User referUserObj  = this.userRepository.findByReferalCodeLike(Utility.queryLikeAny(user.getUserProfile().getReferalCode()));
+					ReferalCodeHistory  referalCodeHistoryVo = userMapper.createReferalCodeHistoryVo(user  , referUserObj);
+					this.referalCodeHisRepository.save(referalCodeHistoryVo);
+					
 				}
+				user.getUserProfile().setReferalCode(user.getId()+"test");
 				// generate unique referal Code here
 				UserWallet userWalletVo = new UserWallet ();
 				userWalletVo.setUser(userObj);
@@ -150,7 +171,7 @@ public class UserService {
 			}
 		} catch (Exception e) {
             e.printStackTrace();
-            return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("User profile creation failed"));
+            return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("user.profile.creation.failed"));
         }
     }
 
@@ -176,12 +197,12 @@ public class UserService {
 	}
 	
 	
+	
 	public EsResponse<UserAccountDTO> findUserWallet(long userId) {
 		try {
 			UserAccountDTO userAccDto  = new UserAccountDTO() ;
 			Optional<UserWallet> userWalletVo = this.userWalletRepository.findByUserId(userId);
-			 
-
+			
 			if (userWalletVo.isPresent()) {
 				UserWallet userWallet = userWalletVo.get();
 				double amt  =  userWallet.getDeposit() + userWallet.getBonus()+userWallet.getReal() ;
@@ -217,9 +238,8 @@ public class UserService {
 			e.printStackTrace();
 			return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR,
 					this.ENV.getProperty("user.profile.update.failed"));
-		}
-
-	}
+		  }
+	  }
     
    
 }

@@ -3,7 +3,6 @@ package com.vpark.vparkservice.controller;
 import com.vpark.vparkservice.constants.IConstants;
 import com.vpark.vparkservice.dto.ParkingLocationDto;
 import com.vpark.vparkservice.dto.ParkingReviewDTO;
-import com.vpark.vparkservice.entity.ParkingDetails;
 import com.vpark.vparkservice.model.EsResponse;
 import com.vpark.vparkservice.model.RequestAttribute;
 import org.springframework.http.ResponseEntity;
@@ -18,12 +17,7 @@ public interface IParkingLocationController {
 
 
     @PostMapping(value=IConstants.VERSION_1 + "/findLocByCoordinates",headers = IConstants.HEADER_VALUE)
-    ResponseEntity<EsResponse<List<ParkingLocationDto>>> findLocationByCoordinates(@RequestParam("latitude") double  latitude,@RequestParam("longitude") double  longitude,@RequestParam("vehicleTypeId") int  vehicleTypeId);
-
-
-
-    @PatchMapping(IConstants.VERSION_1 + "/{id}/parking-details")
-    ResponseEntity<EsResponse<?>> patchParkingDetail(@PathVariable long id, @RequestBody ParkingDetails parkingDetails);
+    ResponseEntity<EsResponse<List<ParkingLocationDto>>> findLocationByCoordinates(@RequestParam("latitude") double  latitude,@RequestParam("longitude") double  longitude,@RequestParam("vehicleTypeId") int  vehicleTypeId  , @RequestAttribute("Id")  long userId );
 
     @GetMapping(IConstants.VERSION_1 + "/{id}/parking-details")
     ResponseEntity<EsResponse<?>> findAllLocationDetails(@PathVariable long id);

@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
  */
 @RequestMapping("sessions/")
 public interface ILoginController {
+	
     @PostMapping(IConstants.VERSION_1 + "/authenticate")
     ResponseEntity<EsResponse<JwtResponse>> login(@RequestHeader String userName, @RequestHeader String password) throws Exception;
 }

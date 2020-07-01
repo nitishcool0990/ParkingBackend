@@ -9,13 +9,11 @@ import com.vpark.vparkservice.entity.VehicleType;
 import com.vpark.vparkservice.model.EsResponse;
 import com.vpark.vparkservice.repository.IVehicleRepository;
 import com.vpark.vparkservice.repository.IVehicleTypeRepository;
-import com.vpark.vparkservice.util.Utility;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -36,19 +34,7 @@ public class VehicleService {
     private ModelMapper modelMapper;
     
 
-    
-    public EsResponse<List<VehicleDto>> findAllVehicles(String vehicleNo, User user) {
-        try {
-            List<VehicleDto> list = this.vehicleRepository
-                    .findByVehicleNoLikeAndUserOrderByModifiedDateDesc(Utility.queryLikeAny(vehicleNo) , user);
-            return new EsResponse<>(IConstants.RESPONSE_STATUS_OK, list, this.ENV.getProperty("vehicle.search.success"));
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("vehicle.search.failed"));
-        }
-    }
-
-   
+  
     public EsResponse<List<VehicleDto>> findVehicleByUserId(long userId) {
         try {
         	List<Vehicle> vehicleVos = this.vehicleRepository.FindByUserId(userId);
@@ -69,6 +55,7 @@ public class VehicleService {
     }
     
 
+    
     public EsResponse<Vehicle> createNewVehicle(VehicleDto vehicleDto , long userId ) {
         try {
         	List<Vehicle> vehicleList =this.vehicleRepository.findAllVehicleNumber();
@@ -102,6 +89,7 @@ public class VehicleService {
     }
 
     
+    
     public EsResponse<List<VehicleTypeDTO>> findAllVehicleType() {
         try {
         	List<VehicleType> vehicleTypelist = this.vehicleTypeRepository.findByVehicleActive();
@@ -119,6 +107,7 @@ public class VehicleService {
 		
     }
    
+    
     
     public EsResponse<?> updateVehicle( VehicleDto vehicleDto , long userId ) {
         try {
@@ -148,6 +137,7 @@ public class VehicleService {
         }
     }
 
+    
     
     public EsResponse<?> deleteVehicle(long id) {
       

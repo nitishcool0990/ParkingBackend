@@ -110,7 +110,7 @@ public class ParkingBookingService {
 			List<MyParkingHistoryDTO> myParkingHistoryDtos    = parkBookingHistoryVos.stream().map(Object  ->{
 						 
 				MyParkingHistoryDTO  myParkingHistoryDto  = new MyParkingHistoryDTO() ;
-				 myParkingHistoryDto.setId((Long)Object[0]);
+				 myParkingHistoryDto.setBookingId((Long)Object[0]);
 				myParkingHistoryDto.setInTime(Object[1].toString());
 				myParkingHistoryDto.setOutTime(Object[2].toString());
 				myParkingHistoryDto.setStatus(Object[3].toString());
@@ -307,6 +307,8 @@ public class ParkingBookingService {
 		return null;
 
 	}
+	
+	
 	
 	@Transactional(readOnly = false,   propagation = Propagation.REQUIRES_NEW)
 	public EsResponse<PaymentDTO> cancelBookingAmount( long  parkBookId, long userId,double  latitude, double  longitude){

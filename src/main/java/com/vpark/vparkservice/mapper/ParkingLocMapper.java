@@ -11,6 +11,7 @@ import com.vpark.vparkservice.dto.AgentParkingLocationDTO;
 import com.vpark.vparkservice.entity.ParkedVehicleCount;
 import com.vpark.vparkservice.entity.ParkingDetails;
 import com.vpark.vparkservice.entity.ParkingLocation;
+import com.vpark.vparkservice.entity.ParkingSearchLocation;
 import com.vpark.vparkservice.entity.ParkingType;
 import com.vpark.vparkservice.entity.VehicleType;
 
@@ -44,6 +45,8 @@ public class ParkingLocMapper {
     	 parkingLocVo.setParkingDetails(ParkingDetailsVos);
 	}
 	
+	
+	
     public List<ParkedVehicleCount> createParkedVehicleVo( AgentParkingLocationDTO parkingLocationDto , long parkingLocId  ){
 	  	
     	
@@ -61,4 +64,16 @@ public class ParkingLocMapper {
     	
     	    return parkedVehicleCountVos ;
 	}
+    
+    
+    public ParkingSearchLocation createParkingSearchLocationVo(double  latitude,double  longitude  , long userId){
+    	
+    	ParkingSearchLocation  parkSearchLocVo = new ParkingSearchLocation();
+    	
+    	parkSearchLocVo.setLatitude(latitude) ;
+    	parkSearchLocVo.setLongitude(longitude);
+    	parkSearchLocVo.setUserId(userId);
+    	
+		return parkSearchLocVo;
+    }
 }

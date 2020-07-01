@@ -14,7 +14,6 @@ import com.vpark.vparkservice.entity.ParkingLocation;
 import com.vpark.vparkservice.entity.User;
 import com.vpark.vparkservice.model.EsResponse;
 import com.vpark.vparkservice.repository.IFavouriteParkingRepository;
-import com.vpark.vparkservice.repository.IParkingLocationRepository;
 
 @Service
 public class FavouriteParkingLocService {
@@ -31,9 +30,7 @@ public class FavouriteParkingLocService {
 	 
 	 public  EsResponse<?> addFavouriteParkingLocation(long locId , long userId ){
 		 try{
-			 //Optional<FavouriteParking> getFavParkingVo    =  this.favParkingRepository.findByLocationIdAndUserId(locId , userId) ;
-		   //  if(!getFavParkingVo.isPresent()){
-		    	 
+	
 		    	 FavouriteParking favParkingVo = new FavouriteParking() ;
 		    	 ParkingLocation  parkLocVo = new ParkingLocation();
 		    	 User user = new User() ;
@@ -46,9 +43,6 @@ public class FavouriteParkingLocService {
 		    	
 		    	 this.favParkingRepository.save(favParkingVo);
 		    	 return new EsResponse<>(IConstants.RESPONSE_STATUS_OK, this.ENV.getProperty("parking.fav.save.success"));
-		     //}
-		     //else
-		    	 //return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("parking.fav.exist")); 
 			 
 		  } catch (Exception e) {
 	            e.printStackTrace();

@@ -37,7 +37,7 @@ public interface IParkingBookingController {
 	    ResponseEntity<EsResponse<List<MyParkingHistoryDTO>>> getUserParkingHistory(@RequestAttribute("Id")  long userId);
 	 
 	 @PostMapping(value=IConstants.VERSION_1 + "/cancelBooking")
-	 ResponseEntity<EsResponse<PaymentDTO>> cancelBookingAmount(@RequestParam("parkBookHistId") long  parkingId,@RequestAttribute("Id")  long id,@RequestParam("latitude") double  latitude,@RequestParam("longitude") double  longitude);
+	 ResponseEntity<EsResponse<PaymentDTO>> cancelBookingAmount(@RequestParam("bookingParkId") long  parkingId,@RequestAttribute("Id")  long id,@RequestParam("latitude") double  latitude,@RequestParam("longitude") double  longitude);
 
 
 }

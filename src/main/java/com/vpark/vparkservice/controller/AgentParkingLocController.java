@@ -114,8 +114,10 @@ public class AgentParkingLocController implements  IAgentParkingLocController {
 
 		@Override
 		public ResponseEntity<EsResponse<?>> checkOutVehicle(CheckInAndCheckOutDTO checkOutDto) {
-			// TODO Auto-generated method stub
-			return null;
+			 if ( checkOutDto.getLocationId() < 0) {
+		            return ResponseEntity.badRequest().body(new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("invalid.id")));
+		        }
+		        return ResponseEntity.ok(this.agentParkingService.checkOutVehicle(checkOutDto));
 		}
 
 
