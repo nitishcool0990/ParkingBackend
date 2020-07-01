@@ -74,7 +74,10 @@ public class UserController  implements IUserController  {
     return null;
     }
 
-  
+    @Override
+    public   ResponseEntity<EsResponse<User>> resetPassword( String pass, String repass,String mobileNo){
+    	 return  ResponseEntity.ok(this.userService.resetPassword(pass, repass, mobileNo));
+    }
  
 
 	

@@ -37,6 +37,8 @@ public interface IUserController {
     @PutMapping(IConstants.VERSION_1)
     ResponseEntity<EsResponse<?>> createUserPassword(@RequestAttribute("Id") long id , @RequestBody User user);
 
-    
+    @GetMapping(IConstants.VERSION_1 + "/resetpassword/{pass}/{repass}/{mobileNo}")
+    ResponseEntity<EsResponse<User>> resetPassword(@PathVariable String pass,@PathVariable String repass,@PathVariable String mobileNo);
+	
     
 }

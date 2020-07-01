@@ -33,6 +33,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.PathVariable;
 
 /**
  * Created by kalana.w on 5/17/2020.
@@ -125,7 +126,12 @@ public class UserService {
 					this.userRepository.save(user);
 					return new EsResponse<>(IConstants.RESPONSE_STATUS_OK, this.ENV.getProperty("user.update.success"));
 				} else {
-					return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR,this.ENV.getProperty("user.update.failed"));
+					if(user != null && user.getStatus().equals(IConstants.Status.ACTIVE)) {
+						return new EsResponse<>(IConstants.RESPONSE_OPEN_RESET_SCREEN,this.ENV.getProperty("user.reset.password"));
+					}else {
+					
+						return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR,this.ENV.getProperty("user.update.failed"));
+					}
 				}
 			} else {
 				return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("user.verifyOTP.failed"));
@@ -240,6 +246,32 @@ public class UserService {
 					this.ENV.getProperty("user.profile.update.failed"));
 		  }
 	  }
+	
+	public EsResponse<User> resetPassword(String pass, String repass,String mobileNo) {
+		try {
+			
+			if(pass.equalsIgnoreCase(repass)) {
+				User userVo = this.userRepository.findUserByMobileNo(mobileNo).orElse(null);
+				if( userVo!=null) {
+					
+					userVo.setPassword(this.bcryptEncoder.encode(pass));
+					this.userRepository.save(userVo);
+					return new EsResponse<>(IConstants.RESPONSE_STATUS_OK, this.ENV.getProperty("user.profile.update.success"));
+	
+				}else {
+					return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("user.not.found"));
+				}
+			}else {
+				
+				return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("user.not.same.password"));
+			}
+		}catch (Exception e) {
+			e.printStackTrace();
+			return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR,
+					this.ENV.getProperty("user.profile.update.failed"));
+		  }
+		
+	}
     
    
 }
