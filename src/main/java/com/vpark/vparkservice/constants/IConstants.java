@@ -45,6 +45,10 @@ public interface IConstants {
     enum TransStatus{
     	APPROVED  , DECLINED 
     }
+    
+    enum ReferalStatus {
+         PENDING, DONE 
+    }
 
     
 }

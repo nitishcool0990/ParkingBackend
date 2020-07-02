@@ -19,6 +19,7 @@ import com.vpark.vparkservice.repository.IUserWalletRepository;
 import com.vpark.vparkservice.urlcalling.URLCaller;
 import com.vpark.vparkservice.util.CommonProperties;
 import com.vpark.vparkservice.util.OTPGenerateUtil;
+import com.vpark.vparkservice.util.ReferalCodeUtil;
 import com.vpark.vparkservice.util.Utility;
 
 import java.util.Date;
@@ -54,6 +55,9 @@ public class UserService {
     
     @Autowired
     private URLCaller urlCaller;
+    
+    @Autowired
+    private ReferalCodeUtil  referalCodeUtil ;
     
     @Autowired
 	private CommonProperties commonProperties;
@@ -161,8 +165,9 @@ public class UserService {
 					this.referalCodeHisRepository.save(referalCodeHistoryVo);
 					
 				}
-				user.getUserProfile().setReferalCode(user.getId()+"test");
-				// generate unique referal Code here
+				
+				user.getUserProfile().setReferalCode(user.getId()+referalCodeUtil.getSaltString(4));
+			
 				UserWallet userWalletVo = new UserWallet ();
 				userWalletVo.setUser(userObj);
 				

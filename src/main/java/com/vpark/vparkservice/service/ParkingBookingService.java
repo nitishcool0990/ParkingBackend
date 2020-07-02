@@ -273,7 +273,7 @@ public class ParkingBookingService {
 							AgentTransHistory agentHistoryVo = parkBookingMapper.createAgentHitsoryVo(percentageAmt , userId);
 							this.agentTransactionRepo.save(agentHistoryVo);
 
-							ParkTransHistory parkTransVo = parkBookingMapper.createParkingHitsoryVo(amount, userId,"DR","Parking Booked");
+							ParkTransHistory parkTransVo = parkBookingMapper.createParkingHitsoryVo(amount, userId,"DR","Parking Booked" , "real");
 							this.parkingTransRepo.save(parkTransVo);
 
 							ParkBookingHistory bookingHistoryVo = parkBookingMapper.createParkingBookingHitsoryVo(parkingDetails, depositAmt,realAmt,bonusAmt, userId, inTime, outTime);
@@ -285,7 +285,7 @@ public class ParkingBookingService {
 							return new EsResponse<>(IConstants.RESPONSE_ADD_PAYMENT, sendLoc , this.ENV.getProperty("bookins.success"));
 						} else {
 							System.out.println("Location is null or save flag is false " + saveFlag);
-							// throw new Exception("Location is null or save  flag is false");
+							//throw new Exception("Location is null or save  flag is false");
 							return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR , this.ENV.getProperty("exception.internal.error"));
 						}
 					} else {
@@ -327,7 +327,7 @@ public class ParkingBookingService {
 				if(distance>0.100) {
 					UserWallet userWallet = this.userWalletRepo.findByUserId(userId).orElse(null);
 					if(userWallet!=null) {
-						ParkTransHistory parkTransVo = parkBookingMapper.createParkingHitsoryVo(parkingHistory.getBonusAmt()+parkingHistory.getDepositAmt()+parkingHistory.getRealAmt(), userId,"CR","Parking Cancelled");
+						ParkTransHistory parkTransVo = parkBookingMapper.createParkingHitsoryVo(parkingHistory.getBonusAmt()+parkingHistory.getDepositAmt()+parkingHistory.getRealAmt(), userId,"CR","Parking Cancelled" , "real");
 						
 						userWallet.setBonus(userWallet.getBonus()+parkingHistory.getBonusAmt());
 						userWallet.setDeposit(userWallet.getDeposit()+parkingHistory.getDepositAmt());

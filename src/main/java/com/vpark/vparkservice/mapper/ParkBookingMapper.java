@@ -25,11 +25,11 @@ public class ParkBookingMapper {
 		
 	}
 	
-    public ParkTransHistory createParkingHitsoryVo( double amount  , long userId,String crDR,String remarks ){
+    public ParkTransHistory createParkingHitsoryVo( double amount  , long userId,String crDR,String remarks , String chipType ){
 		
     	ParkTransHistory parkTrans = new ParkTransHistory();
 		parkTrans.setAmt(amount);
-		parkTrans.setChipType("real");
+		parkTrans.setChipType(chipType);
 		parkTrans.setCrdr(crDR);
 		parkTrans.setRemarks(remarks);
 		parkTrans.setStatus(IConstants.TransStatus.APPROVED);

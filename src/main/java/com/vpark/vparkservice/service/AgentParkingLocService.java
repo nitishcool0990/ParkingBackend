@@ -2,7 +2,6 @@ package com.vpark.vparkservice.service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +10,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.MultipartHttpServletRequest;
 import com.vpark.vparkservice.constants.IConstants;
 import com.vpark.vparkservice.dto.AgentParkingLocationDTO;
 import com.vpark.vparkservice.dto.BookedVehicleDetailsDTO;
@@ -19,20 +17,27 @@ import com.vpark.vparkservice.dto.CheckInAndCheckOutDTO;
 import com.vpark.vparkservice.dto.ParkingDetailsDTO;
 import com.vpark.vparkservice.dto.ParkingTypeDTO;
 import com.vpark.vparkservice.entity.ParkBookingHistory;
+import com.vpark.vparkservice.entity.ParkTransHistory;
 import com.vpark.vparkservice.entity.ParkedVehicleCount;
 import com.vpark.vparkservice.entity.ParkingDetails;
 import com.vpark.vparkservice.entity.ParkingLocation;
 import com.vpark.vparkservice.entity.ParkingType;
+import com.vpark.vparkservice.entity.ReferalCodeHistory;
 import com.vpark.vparkservice.entity.User;
+import com.vpark.vparkservice.entity.UserWallet;
 import com.vpark.vparkservice.entity.Vehicle;
+import com.vpark.vparkservice.mapper.ParkBookingMapper;
 import com.vpark.vparkservice.mapper.ParkingLocMapper;
 import com.vpark.vparkservice.model.EsResponse;
 import com.vpark.vparkservice.repository.IParkBookingHistoryRepository;
+import com.vpark.vparkservice.repository.IParkTransHistoryRepository;
 import com.vpark.vparkservice.repository.IParkedVehicleCountRepository;
 import com.vpark.vparkservice.repository.IParkingDetailsRepository;
 import com.vpark.vparkservice.repository.IParkingLocationRepository;
 import com.vpark.vparkservice.repository.IParkingTypeRepository;
+import com.vpark.vparkservice.repository.IReferalCodeHistoryRepository;
 import com.vpark.vparkservice.repository.IUserRepository;
+import com.vpark.vparkservice.repository.IUserWalletRepository;
 
 @Service
 public class AgentParkingLocService  {
@@ -63,6 +68,18 @@ public class AgentParkingLocService  {
 	  
 	  @Autowired
 	  private IParkedVehicleCountRepository parkedVehicleCountRepository ;
+	  
+	  @Autowired
+	  private  IReferalCodeHistoryRepository  referalCodeHistoryRepository ;
+	  
+	 @Autowired
+	  private ParkBookingMapper  parkBookingMapper ;
+	 
+	 @Autowired
+	 private IParkTransHistoryRepository parkingTransRepo;
+	 
+	 @Autowired
+	 private IUserWalletRepository  userWalletRepository ;
 
 	  
 	  
@@ -242,12 +259,15 @@ public class AgentParkingLocService  {
 		try{
 			
 			if(checkInDto.getBookingId() >0 ){
+			
 				Optional<ParkBookingHistory> parkBookingHistoryVo =  this.parkBookingHistoryRepository.findById(checkInDto.getBookingId() );
 				if(parkBookingHistoryVo.isPresent())
 				{
 					parkBookingHistoryVo.get().setStatus(IConstants.ParkingStatus.PARKED);
 					this.parkBookingHistoryRepository.save(parkBookingHistoryVo.get());
 				 }
+				processReferalAmt(parkBookingHistoryVo.get().getUserId());
+				
 			}
 			
 			ParkedVehicleCount parkedVehicleCountVo= 	this.parkedVehicleCountRepository.findByParkingLocationIdAndVehicleTypeId(checkInDto.getLocationId() , checkInDto.getVehicleTypeId());
@@ -265,6 +285,40 @@ public class AgentParkingLocService  {
 	        return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("vehicle.checkin.failed"));
 	       }
 	}
+	
+	
+	public void processReferalAmt(long userId ){
+	  try{
+			
+		ReferalCodeHistory referalCodeHistoryVo = this.referalCodeHistoryRepository.findByRefereeUserIdAndStatus(userId);
+		
+		if(null != referalCodeHistoryVo)
+		{
+		 referalCodeHistoryVo.setStatus( IConstants.ReferalStatus.DONE);
+		 referalCodeHistoryVo.setEarnAmt(10.0);
+		 this.referalCodeHistoryRepository.save(referalCodeHistoryVo);
+		 
+		 Optional<UserWallet> userWallet= userWalletRepository.findByUserId(referalCodeHistoryVo.getReferalUserId());
+			if (userWallet.isPresent()) {
+				userWallet.get().setBonus(10);
+				this.userWalletRepository.save(userWallet.get());
+
+				ParkTransHistory parkTransVo = parkBookingMapper.createParkingHitsoryVo(10, referalCodeHistoryVo.getReferalUserId(), "CR", "Referal Bonus", "bonus");
+				this.parkingTransRepo.save(parkTransVo);
+			}
+		 else{
+			 System.out.println(this.ENV.getProperty("user.referal.bonus.credit.failed"));
+		    }
+	   	  }
+		}
+		catch (Exception e) 
+	  {
+	        e.printStackTrace();
+	        System.out.println(this.ENV.getProperty("user.referal.bonus.credit.failed"));
+	     }
+	}
+	
+	
 	
 	
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
