@@ -25,7 +25,7 @@ public interface IParkingLocationRepository extends JpaRepository<ParkingLocatio
     @Query("Select pl from  ParkingLocation pl where pl.user.id = ?1" )
  	List<ParkingLocation> FindByUserId(long userId);
     
-    @Query("Select pl.id , pl.parkName, pl.openTime , pl.closeTime , pl.description , pl.rating , pc.hours ,pc.charges ,  pd.monthlyRate, pd.bookingRate , pl.advanceBookingHr , pl.bookingCancelHr , pl.photo"
+    @Query("Select pl.id , pl.parkName, pl.openTime , pl.closeTime , pl.description , pl.rating ,pc.charges ,  pd.monthlyRate, pd.bookingRate , pl.advanceBookingHr , pl.bookingCancelHr , pl.photo,pc.hours"
     		+ "  from  ParkingLocation pl "
     		+ " left join ParkingDetails pd on pl.id= pd.parkingLocation "
     		+ " left join ParkingCharges pc on pd.id= pc.parkingDetails "

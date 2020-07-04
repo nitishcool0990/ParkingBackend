@@ -4,6 +4,7 @@ package com.vpark.vparkservice.service;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
+import java.util.HashMap;
 import java.util.List;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -88,8 +89,27 @@ public class ParkingBookingService {
 			ParkingLocationDto parkingLocDTO = null;
 			if (!objList.isEmpty()) {
 				Object[] obj = objList.get(0);
-				parkingLocDTO = new ParkingLocationDto((Long) obj[0], (double) obj[6], (double) obj[7], (double) obj[5],
-						obj[4].toString(), obj[1].toString(), obj[2].toString(), obj[3].toString(), obj[8].toString()  ,  (double)  obj[9] , (double)  obj[10] , (byte[]) obj[11]);
+				HashMap<String,String> hourlyTimeSlot =new HashMap<String,String>();
+				for(Object[] objArray :objList ) {
+					hourlyTimeSlot.put(objArray[12].toString(), objArray[6].toString());
+				}
+				/*
+				 * parkingloc0_.id AS col_0_0_, parkingloc0_.park_name AS col_1_0_,
+				 * parkingloc0_.open_time AS col_2_0_, parkingloc0_.close_time AS col_3_0_,
+				 * parkingloc0_.description AS col_4_0_, parkingloc0_.rating AS col_5_0_,
+				 * parkingcha2_.hours AS col_6_0_, parkingcha2_.charges AS col_7_0_,
+				 * parkingdet1_.monthly_rate AS col_8_0_, parkingdet1_.booking_rate AS col_9_0_,
+				 * parkingloc0_.advance_booking_hr AS col_10_0_, parkingloc0_.booking_cancel_hr
+				 * AS col_11_0_, parkingloc0_.photo AS col_12_0_
+				 * 
+				 * Long bookingParkId, double monthlyRate, Double rating, String describe,String
+				 * parkingName, String openTime,String closeTime,String bookingRate , double
+				 * cancelBookingHr , double advanceBookingHr , byte[] image,HashMap
+				 * hourlyMoneyWithRate
+				 */
+				
+				parkingLocDTO = new ParkingLocationDto((Long) obj[0], (double) obj[7],  (double) obj[5],
+						obj[4].toString(), obj[1].toString(), obj[2].toString(), obj[3].toString(), obj[8].toString()  ,  (double)  obj[9] , (double)  obj[10] , (byte[]) obj[11],hourlyTimeSlot);
 				return new EsResponse<>(IConstants.RESPONSE_STATUS_OK, parkingLocDTO , this.ENV.getProperty("booking.parking.details"));
 			} else {
 				return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR , this.ENV.getProperty("exception.internal.error"));
