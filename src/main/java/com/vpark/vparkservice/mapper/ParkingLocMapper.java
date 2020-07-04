@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 
 import com.vpark.vparkservice.dto.AgentParkingLocationDTO;
 import com.vpark.vparkservice.entity.ParkedVehicleCount;
+import com.vpark.vparkservice.entity.ParkingCharges;
 import com.vpark.vparkservice.entity.ParkingDetails;
 import com.vpark.vparkservice.entity.ParkingLocation;
 import com.vpark.vparkservice.entity.ParkingSearchLocation;
@@ -21,6 +22,7 @@ public class ParkingLocMapper {
 
 	 @Autowired
 	 private ModelMapper modelMapper;
+	 
 	 
 	public void mapAgentParkingLocToVo( AgentParkingLocationDTO parkingLocationDto , ParkingLocation parkingLocVo ){
 		
@@ -38,6 +40,15 @@ public class ParkingLocMapper {
     				 
     				  ParkingDetailsVo.setParkingLocation(parkingLocVo);
     				  
+    			List<ParkingCharges> parkingChargesVos =  parkingDetailsDto.getParkingChargesDtos().stream().map(
+    					  parkingChargesDto ->{
+    						  ParkingCharges   parkingChargesVo = modelMapper.map(parkingChargesDto , ParkingCharges.class);
+    						  parkingChargesVo.setParkingDetails(ParkingDetailsVo);
+    						  return parkingChargesVo;
+    						  
+    				  }) .collect(Collectors.toList());
+    			
+    			     ParkingDetailsVo.setParkingCharges(parkingChargesVos);
     				return ParkingDetailsVo ;
     			  })
     			  .collect(Collectors.toList());
@@ -57,6 +68,7 @@ public class ParkingLocMapper {
     				  parkedVehicleCountVo.setParkingLocationId(parkingLocId);
     				  parkedVehicleCountVo.setVehicleTypeId(parkingDetailsDto.getVehicleTypeId());
     				  parkedVehicleCountVo.setTotalCount(parkingDetailsDto.getCapacity());
+    				  parkedVehicleCountVo.setRemainingSpace(parkingDetailsDto.getCapacity());
     				  
     				return parkedVehicleCountVo ;
     			  })
@@ -64,6 +76,7 @@ public class ParkingLocMapper {
     	
     	    return parkedVehicleCountVos ;
 	}
+    
     
     
     public ParkingSearchLocation createParkingSearchLocationVo(double  latitude,double  longitude  , long userId){

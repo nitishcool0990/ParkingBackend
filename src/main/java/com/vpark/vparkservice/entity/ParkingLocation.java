@@ -16,7 +16,7 @@ import java.util.List;
 @Entity
 @DynamicUpdate
 @Table(name = "PARKING_LOCATIONS")
-@JsonIgnoreProperties(value = {"parkingDetails", "parkingReviews"}, allowSetters = true)
+@JsonIgnoreProperties(value = {"parkingDetails"}, allowSetters = true)
 public class ParkingLocation extends Savable {
 
     @Column(name = "PARK_NAME", unique = true, nullable = false)
@@ -65,11 +65,11 @@ public class ParkingLocation extends Savable {
     private double rating = 5;
     
     @Column(name = "ADVANCE_BOOKING_HR")
-    private double advanceBookingHr;
+    private double advanceBookingHr = 1;
     
     
     @Column(name = "BOOKING_CANCEL_HR")
-    private double bookingCancelHr;
+    private double bookingCancelHr = 0.5;
     
     @Lob
     @Column(name  = "photo")

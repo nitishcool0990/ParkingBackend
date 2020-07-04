@@ -15,7 +15,7 @@ public interface IParkingLocationRepository extends JpaRepository<ParkingLocatio
     List<ParkingLocation> findAllByParkRegion(String region);
     
     @Query(value = "SELECT pl.id,latitude,longitude, ROUND((CASE ?1 WHEN 'miles' THEN 3959 ELSE 6371 END * ACOS( COS( RADIANS(?2) ) * COS( RADIANS(latitude) ) * COS( RADIANS(longitude) - RADIANS(?3)) + SIN(RADIANS(?2)) * SIN( RADIANS(latitude)))  ), 3) AS distance,"
-    		+ "  pt.color,pd.hourly_rate,pd.monthly_rate "
+    		+ "  pt.color,pd.hourly_rate  , pd.monthly_rate "
     		+ "  FROM parking_locations pl "
     		+ " LEFT JOIN parking_type pt ON pl.parking_type_id = pt.id "
     		+ " LEFT JOIN `parking_details` pd ON pl.id= pd.park_loc_id "
@@ -25,9 +25,10 @@ public interface IParkingLocationRepository extends JpaRepository<ParkingLocatio
     @Query("Select pl from  ParkingLocation pl where pl.user.id = ?1" )
  	List<ParkingLocation> FindByUserId(long userId);
     
-    @Query("Select pl.id,pl.parkName,pl.openTime,pl.closeTime,pl.description,pl.rating,pd.hourlyRate,pd.monthlyRate,pd.bookingRate , pl.advanceBookingHr , pl.bookingCancelHr , pl.photo"
+    @Query("Select pl.id , pl.parkName, pl.openTime , pl.closeTime , pl.description , pl.rating , pc.hours ,pc.charges ,  pd.monthlyRate, pd.bookingRate , pl.advanceBookingHr , pl.bookingCancelHr , pl.photo"
     		+ "  from  ParkingLocation pl "
     		+ " left join ParkingDetails pd on pl.id= pd.parkingLocation "
+    		+ " left join ParkingCharges pc on pd.id= pc.parkingDetails "
     		+ " left join VehicleType vt on pd.vehicleType = vt.id  "
     		+ " where pl.id = ?1 and  vt.id =?2 and pl.status='ACTIVE'")
     List<Object[]> getParkingInfo(long parkingId,long vehicleTypeId);

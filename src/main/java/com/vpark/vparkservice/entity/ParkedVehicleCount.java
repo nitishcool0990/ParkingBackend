@@ -24,6 +24,9 @@ public class ParkedVehicleCount extends Savable{
 	@Column(name = "TOTAL_OCCUPIED")
 	private Integer  totalOccupied = 0;
 	
+	@Column(name = "REMAINING_SPACE")
+	private Integer  remainingSpace = 0;
+	
 	
 
 

@@ -25,7 +25,7 @@ public class ParkBookingMapper {
 		
 	}
 	
-    public ParkTransHistory createParkingHitsoryVo( double amount  , long userId,String crDR,String remarks , String chipType ){
+    public ParkTransHistory createParkingHitsoryVo( double amount  , long userId, String crDR, String remarks , String chipType ){
 		
     	ParkTransHistory parkTrans = new ParkTransHistory();
 		parkTrans.setAmt(amount);

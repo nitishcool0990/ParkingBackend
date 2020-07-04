@@ -21,11 +21,9 @@ import com.vpark.vparkservice.util.CommonProperties;
 import com.vpark.vparkservice.util.OTPGenerateUtil;
 import com.vpark.vparkservice.util.ReferalCodeUtil;
 import com.vpark.vparkservice.util.Utility;
-
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +32,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PathVariable;
+
 
 /**
  * Created by kalana.w on 5/17/2020.
@@ -251,6 +249,7 @@ public class UserService {
 					this.ENV.getProperty("user.profile.update.failed"));
 		  }
 	  }
+	
 	
 	public EsResponse<User> resetPassword(String pass, String repass,String mobileNo) {
 		try {

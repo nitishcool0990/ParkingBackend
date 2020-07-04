@@ -16,6 +16,7 @@ import com.vpark.vparkservice.constants.IConstants;
 import com.vpark.vparkservice.dto.AgentParkingLocationDTO;
 import com.vpark.vparkservice.dto.BookedVehicleDetailsDTO;
 import com.vpark.vparkservice.dto.CheckInAndCheckOutDTO;
+import com.vpark.vparkservice.dto.ParkingChargesDTO;
 import com.vpark.vparkservice.dto.ParkingDetailsDTO;
 import com.vpark.vparkservice.dto.ParkingTypeDTO;
 import com.vpark.vparkservice.model.EsResponse;
@@ -38,6 +39,9 @@ public interface IAgentParkingLocController {
 	 
 	 @GetMapping(IConstants.VERSION_1 +"/upcomingVehicles/{locId}")
 	 ResponseEntity<EsResponse<List<BookedVehicleDetailsDTO>>> findUpcomingVehicles(@PathVariable long locId  );
+	 
+	 @GetMapping(IConstants.VERSION_1 +"/ParkedVehicles/{locId}")
+	 ResponseEntity<EsResponse<List<BookedVehicleDetailsDTO>>> findParkedVehicles(@PathVariable long locId  );
 	 
 	 @PostMapping(IConstants.VERSION_1 +"/checkIn")
 	 ResponseEntity<EsResponse<?>> checkInVehicle(@RequestBody CheckInAndCheckOutDTO checkInDto );

@@ -21,11 +21,11 @@ public class BookedVehicleDetailsDTO {
 	
 	public String mobileNo ;
 	
-	public String OutTime ;
+	public String outTime ;
 	
 	public String arrivalTime;
 	
-	public String isArrived;
+
 	
 	
 }

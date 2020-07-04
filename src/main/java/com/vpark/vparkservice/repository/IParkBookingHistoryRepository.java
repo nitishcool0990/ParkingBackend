@@ -16,8 +16,11 @@ public interface IParkBookingHistoryRepository  extends JpaRepository<ParkBookin
 	@Query("select pbh from ParkBookingHistory pbh where userId = ?1" )
 	List<ParkBookingHistory>  findByUserId(long userId) ;
 	
-	@Query("select pbh from ParkBookingHistory pbh where parkingLocationId = ?1" )
-	List<ParkBookingHistory>  findByParkingLocationId(long parkingLocId) ;
+	@Query("select pbh from ParkBookingHistory pbh where parkingLocationId = ?1 and pbh.status = 'RUNNING' ")
+	List<ParkBookingHistory>  findUpcomingVehiclesByParkingLocationId(long parkingLocId) ;
+	
+	@Query("select pbh from ParkBookingHistory pbh where parkingLocationId = ?1 and pbh.status = 'PARKED' ")
+	List<ParkBookingHistory>  findParkedVehiclesByParkingLocationId(long parkingLocId) ;
 	
 	  @Query("Select pbh .id ,    pbh.inTime ,  pbh.outTime , pbh.status  , pbh.bonusAmt+pbh.realAmt+pbh.depositAmt , pl.parkName,  v.vehicleNo  , v.vehicleType.vehicleName  ,  pbh.createdDate   "
 	    		+ "  from  ParkBookingHistory pbh "

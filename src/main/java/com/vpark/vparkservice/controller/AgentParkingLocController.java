@@ -121,6 +121,15 @@ public class AgentParkingLocController implements  IAgentParkingLocController {
 		}
 
 
+		@Override
+		public ResponseEntity<EsResponse<List<BookedVehicleDetailsDTO>>> findParkedVehicles(long locId) {
+			 if ( locId < 0) {
+		            return ResponseEntity.badRequest().body(new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("invalid.id")));
+		        }
+		        return ResponseEntity.ok(this.agentParkingService.findParkedVehicleDetails( locId ));
+		}
+
+
 		
 
 		

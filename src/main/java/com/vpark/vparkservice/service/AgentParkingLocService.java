@@ -14,6 +14,7 @@ import com.vpark.vparkservice.constants.IConstants;
 import com.vpark.vparkservice.dto.AgentParkingLocationDTO;
 import com.vpark.vparkservice.dto.BookedVehicleDetailsDTO;
 import com.vpark.vparkservice.dto.CheckInAndCheckOutDTO;
+import com.vpark.vparkservice.dto.ParkingChargesDTO;
 import com.vpark.vparkservice.dto.ParkingDetailsDTO;
 import com.vpark.vparkservice.dto.ParkingTypeDTO;
 import com.vpark.vparkservice.entity.ParkBookingHistory;
@@ -139,10 +140,18 @@ public class AgentParkingLocService  {
 	        	List<ParkingDetails> ParkingDetailsVos = this.parkingDetailsRepository.findByparkingLocationId(locId);
 	        	
 	        	List<ParkingDetailsDTO> parkingDetailsDtos = ParkingDetailsVos.stream()
-	      			  .map((ParkingDetailsVo) -> {
-	      				ParkingDetailsDTO  parkDetailsDto =  modelMapper.map(ParkingDetailsVo , ParkingDetailsDTO.class);
-	      				parkDetailsDto.setVehicleName(ParkingDetailsVo.getVehicleType().getVehicleName());
+	      			  .map((parkingDetailsVo) -> {
+	      				ParkingDetailsDTO  parkDetailsDto =  modelMapper.map(parkingDetailsVo , ParkingDetailsDTO.class);
+	      				parkDetailsDto.setVehicleName(parkingDetailsVo.getVehicleType().getVehicleName());
 	      				
+	      				List<ParkingChargesDTO> parkingChargesDtos 	= parkingDetailsVo.getParkingCharges().stream().map( parkingChargesVo -> {
+	      					
+	      					ParkingChargesDTO  parkingChargesDto = modelMapper.map(parkingChargesVo , ParkingChargesDTO.class);
+	      					
+	      					return parkingChargesDto ;
+	      					
+	      				}) .collect(Collectors.toList());
+	      				parkDetailsDto.setParkingChargesDtos(parkingChargesDtos);
 	      				return parkDetailsDto ;
 	      			  })
 	      			  .collect(Collectors.toList());
@@ -157,9 +166,6 @@ public class AgentParkingLocService  {
 	 
 	 
 	
-	 
-	 
-	 
 	public EsResponse<?> deleteParkingLocation(long locId) {
 		try {
 			Optional<ParkingLocation> parkingLocVo = this.parkingLocationRepository.findById(locId);
@@ -217,11 +223,20 @@ public class AgentParkingLocService  {
         }
   }
  
-	
+	  public void findParkingCurrentStatus(long locId){
+		try{
+			List<ParkedVehicleCount> parkedVehicleCountVo= 	this.parkedVehicleCountRepository.findByParkingLocationId(locId);
+			
+	  } catch (Exception e) {
+			e.printStackTrace();
+			return;
+		}
+	 }
+
 	
 	public EsResponse<List<BookedVehicleDetailsDTO>> findUpcomingVehicleDetails(long locId) {
 		try {
-			List<ParkBookingHistory> parkBookingHistoryVos = this.parkBookingHistoryRepository.findByParkingLocationId(locId);
+			List<ParkBookingHistory> parkBookingHistoryVos = this.parkBookingHistoryRepository.findUpcomingVehiclesByParkingLocationId(locId);
 
 			List<BookedVehicleDetailsDTO> bookedVehicleDetailsDTOs = parkBookingHistoryVos.stream()
 					.map((parkBookingHistoryVo) -> {
@@ -254,12 +269,63 @@ public class AgentParkingLocService  {
 		}
 	}
 	
+	
+	
+	
+	public EsResponse<List<BookedVehicleDetailsDTO>> findParkedVehicleDetails(long locId) {
+		try {
+			List<ParkBookingHistory> parkBookingHistoryVos = this.parkBookingHistoryRepository.findParkedVehiclesByParkingLocationId(locId);
+
+			List<BookedVehicleDetailsDTO> bookedVehicleDetailsDTOs = parkBookingHistoryVos.stream()
+					.map((parkBookingHistoryVo) -> {
+						BookedVehicleDetailsDTO bookedVehicleDetailsDto = modelMapper.map(parkBookingHistoryVo,
+								BookedVehicleDetailsDTO.class);
+						
+						bookedVehicleDetailsDto.setArrivalTime(parkBookingHistoryVo.getInTime());
+						bookedVehicleDetailsDto.setBookingId(parkBookingHistoryVo.getId());
+
+						Optional<User> userVo = userRepository.findById(parkBookingHistoryVo.getUserId());
+						bookedVehicleDetailsDto.setMobileNo(userVo.get().getMobileNo());
+						List<Vehicle> vehiclesVos = userVo.get().getVehicles();
+
+						for (Vehicle vehicleVo : vehiclesVos) {
+
+							if (parkBookingHistoryVo.getVehicleId() == vehicleVo.getId()) {
+
+								bookedVehicleDetailsDto.setVehicleName(vehicleVo.getVehicleType().getVehicleName());
+								bookedVehicleDetailsDto.setVehicleNo(vehicleVo.getVehicleNo());
+								bookedVehicleDetailsDto.setVehicleTypeId(vehicleVo.getVehicleType().getId());
+							}
+						}
+						return bookedVehicleDetailsDto;
+					}).collect(Collectors.toList());
+
+			return new EsResponse<>(IConstants.RESPONSE_STATUS_OK, bookedVehicleDetailsDTOs, this.ENV.getProperty("parked.vehicle.found.success"));
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("parked.vehicle.found.failed"));
+		}
+	}
+	
+	
+	
+	
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
 	public EsResponse<?> checkInVehicle(CheckInAndCheckOutDTO  checkInDto){
 		try{
 			
-			if(checkInDto.getBookingId() >0 ){
+			ParkedVehicleCount parkedVehicleCountVo= 	this.parkedVehicleCountRepository.findByParkingLocationIdAndVehicleTypeId(
+					                                                                       checkInDto.getLocationId() , checkInDto.getVehicleTypeId());
+			if(null !=parkedVehicleCountVo  && parkedVehicleCountVo.getTotalCount() > 0){
+				
+			parkedVehicleCountVo.setRemainingSpace(parkedVehicleCountVo.getRemainingSpace() -1);
+			parkedVehicleCountVo.setTotalOccupied(parkedVehicleCountVo.getTotalOccupied() + 1);
+	
+			this.parkedVehicleCountRepository.save(parkedVehicleCountVo);
 			
+			if(checkInDto.getBookingId() >0 ){
+				
 				Optional<ParkBookingHistory> parkBookingHistoryVo =  this.parkBookingHistoryRepository.findById(checkInDto.getBookingId() );
 				if(parkBookingHistoryVo.isPresent())
 				{
@@ -269,22 +335,18 @@ public class AgentParkingLocService  {
 				processReferalAmt(parkBookingHistoryVo.get().getUserId());
 				
 			}
-			
-			ParkedVehicleCount parkedVehicleCountVo= 	this.parkedVehicleCountRepository.findByParkingLocationIdAndVehicleTypeId(checkInDto.getLocationId() , checkInDto.getVehicleTypeId());
-			if(null !=parkedVehicleCountVo){
-				parkedVehicleCountVo.setTotalCount(parkedVehicleCountVo.getTotalCount()-1);
-				parkedVehicleCountVo.setTotalOccupied(parkedVehicleCountVo.getTotalOccupied() + 1);
-			}
-			
-			this.parkedVehicleCountRepository.save(parkedVehicleCountVo);
-			
-			 return  new EsResponse<>(IConstants.RESPONSE_STATUS_OK,  this.ENV.getProperty("vehicle.checkin.success"));
+			return  new EsResponse<>(IConstants.RESPONSE_STATUS_OK,  this.ENV.getProperty("vehicle.checkin.success"));
+		}
+			else{
+				return  new EsResponse<>(IConstants.RESPONSE_FULL_PARKING,  this.ENV.getProperty("parking.full"));
+			} 
 		}
 		catch (Exception e) {
 	        e.printStackTrace();
 	        return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("vehicle.checkin.failed"));
 	       }
 	}
+	
 	
 	
 	public void processReferalAmt(long userId ){
@@ -324,23 +386,29 @@ public class AgentParkingLocService  {
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
 	public EsResponse<?> checkOutVehicle(CheckInAndCheckOutDTO  checkOutDto){
 		try{
+			ParkedVehicleCount parkedVehicleCountVo= 	this.parkedVehicleCountRepository.findByParkingLocationIdAndVehicleTypeId(
+					                                                        checkOutDto.getLocationId() , checkOutDto.getVehicleTypeId());
 			
-			if(checkOutDto.getBookingId() >0 ){
-				Optional<ParkBookingHistory> parkBookingHistoryVo =  this.parkBookingHistoryRepository.findById(checkOutDto.getBookingId() );
-				if(parkBookingHistoryVo.isPresent())
-				{
-					parkBookingHistoryVo.get().setStatus(IConstants.ParkingStatus.COMPLETED);
-					this.parkBookingHistoryRepository.save(parkBookingHistoryVo.get());
-				}
+			if(null !=parkedVehicleCountVo && parkedVehicleCountVo.getTotalOccupied() >0 ){
 				
-			}
-			ParkedVehicleCount parkedVehicleCountVo= 	this.parkedVehicleCountRepository.findByParkingLocationIdAndVehicleTypeId(checkOutDto.getLocationId() , checkOutDto.getVehicleTypeId());
-			if(null !=parkedVehicleCountVo){
-				parkedVehicleCountVo.setTotalCount(parkedVehicleCountVo.getTotalCount()+1);
+				parkedVehicleCountVo.setRemainingSpace(parkedVehicleCountVo.getRemainingSpace() +1);
 				parkedVehicleCountVo.setTotalOccupied(parkedVehicleCountVo.getTotalOccupied() - 1);
+				
+				this.parkedVehicleCountRepository.save(parkedVehicleCountVo);
+				
+				if(checkOutDto.getBookingId() >0 ){
+					Optional<ParkBookingHistory> parkBookingHistoryVo =  this.parkBookingHistoryRepository.findById(checkOutDto.getBookingId() );
+					if(parkBookingHistoryVo.isPresent())
+					{
+						parkBookingHistoryVo.get().setStatus(IConstants.ParkingStatus.COMPLETED);
+						this.parkBookingHistoryRepository.save(parkBookingHistoryVo.get());
+					}
+				}
+			}
+			else{
+				return  new EsResponse<>(IConstants.RESPONSE_EMPTY_PARKING,  this.ENV.getProperty("parking.empty"));
 			}
 			
-			this.parkedVehicleCountRepository.save(parkedVehicleCountVo);
 			
 			 return  new EsResponse<>(IConstants.RESPONSE_STATUS_OK,  this.ENV.getProperty("vehicle.checkout.success"));
 		}

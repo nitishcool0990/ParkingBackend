@@ -1,5 +1,6 @@
 package com.vpark.vparkservice.dto;
 
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
@@ -12,15 +13,18 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ParkingDetailsDTO {
-	
-	private long vehicleTypeId ;
-	
-	private double hourlyRate ; 
-	
-	private double monthlyRate ;
-	
+
 	private int capacity ;
 	
     private String vehicleName ;
-
+    
+	private long vehicleTypeId ;
+	
+	private  String chargesType ;
+	
+	private double monthlyRate ;
+	
+	private double nightCharges ;
+	
+	private List<ParkingChargesDTO> parkingChargesDtos ; 
 }

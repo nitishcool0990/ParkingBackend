@@ -18,7 +18,8 @@ public class ParkingLocationDto {
 	private Object  longitude;
 	private Double distance;
 	private String color;
-	private Double hourlyRate;
+	private Double hours;
+	private Double charges;
 	private Double monthlyRate;
 	private Double rating;
 	private String describe;
@@ -32,21 +33,21 @@ public class ParkingLocationDto {
 	
 	
 	public ParkingLocationDto(BigInteger parkingId, Object latitude, Object longitude, double distance, String color,
-			double hourlyRate, double monthlyRate) {
+			double hours, double monthlyRate) {
 		super();
 		this.parkingId = parkingId;
 		this.latitude = latitude;
 		this.longitude = longitude;
 		this.distance = distance;
 		this.color = color;
-		this.hourlyRate = hourlyRate;
+		this.hours = hours;
 		this.monthlyRate = monthlyRate;
 	}
 
 	public ParkingLocationDto(Long bookingParkId, double hourlyRate, double monthlyRate, Double rating, String describe,String parkingName,
 			 String openTime,String closeTime,String bookingRate , double cancelBookingHr , double advanceBookingHr  ,  byte[] image) {
 		this.bookingParkId = bookingParkId;
-		this.hourlyRate = hourlyRate;
+		this.hours = hours;
 		this.monthlyRate = monthlyRate;
 		this.rating = rating;
 		this.describe = describe;
