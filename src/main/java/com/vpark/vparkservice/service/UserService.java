@@ -238,6 +238,7 @@ public class UserService {
 			
 			if (userVo.isPresent() && null != userVo.get().getUserProfile() && userVo.get().getUserProfile().getId() > 0) {
 				userProfile.setId(userVo.get().getUserProfile().getId());
+				userProfile.setReferalCode(userVo.get().getUserProfile().getReferalCode());
 				userVo.get().setUserProfile(userProfile);
 			}
 			this.userRepository.save(userVo.get());
