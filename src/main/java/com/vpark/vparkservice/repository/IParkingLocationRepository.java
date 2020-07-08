@@ -37,5 +37,10 @@ public interface IParkingLocationRepository extends JpaRepository<ParkingLocatio
     Optional<ParkingLocation> findByParkingLocId(long parkingLOCId);
     
     
+   
+    @Query("select  pl from  ParkingLocation pl where pl.latitude Like  ?1 or pl.longitude Like ?2  or pl.parkName Like  ?3 ")
+        ParkingLocation findBylatitudeAndlongitudeAndparkName(String latitude   , String longitude , String parkName);
+    
+    
 
 }

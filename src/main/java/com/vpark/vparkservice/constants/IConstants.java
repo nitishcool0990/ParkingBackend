@@ -12,6 +12,7 @@ public interface IConstants {
     int RESPONSE_OPEN_RESET_SCREEN=5;
     int RESPONSE_FULL_PARKING=6;
     int RESPONSE_EMPTY_PARKING=7;
+    int RESPONSE_DUPLICATE_LOCATION =8;
 
     String VERSION_1 = "v1";
     public static final int OTP_LEN=4;

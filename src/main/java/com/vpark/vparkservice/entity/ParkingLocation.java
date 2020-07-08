@@ -54,7 +54,7 @@ public class ParkingLocation extends Savable {
 
     
     @ManyToOne(cascade = CascadeType.DETACH , fetch = FetchType.LAZY)
-    @JoinColumn(name = "PARKING_TYPE_ID", referencedColumnName = "ID", foreignKey = @ForeignKey(name = "FK_PARK_LOC2TYPE"))
+    @JoinColumn(name = "PARKING_TYPE_ID")
     private ParkingType  parkingType ;
     
     

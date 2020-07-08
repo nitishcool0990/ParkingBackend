@@ -41,8 +41,8 @@ public class ParkingDetails extends Savable {
     private IConstants.Status status = IConstants.Status.INACTIVE;
     
     
-    @ManyToOne( cascade = CascadeType.DETACH , fetch = FetchType.LAZY)
-    @JoinColumn(name = "PARK_LOC_ID", referencedColumnName = "ID", foreignKey = @ForeignKey(name = "FK_DETAILS2PARK_LOC"))
+    @ManyToOne( cascade = CascadeType.ALL , fetch = FetchType.LAZY)
+    @JoinColumn(name = "PARK_LOC_ID")
      private ParkingLocation parkingLocation;
     
     

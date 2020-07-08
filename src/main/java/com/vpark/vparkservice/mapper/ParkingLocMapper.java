@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -31,8 +32,10 @@ public class ParkingLocMapper {
     	parkingLocVo.setParkingType(parkingTypeVo);
     	
     	List<ParkingDetails> ParkingDetailsVos = parkingLocationDto.getParkingDetailsDtos() .stream()
-    			  .map((parkingDetailsDto) -> {
-    				  ParkingDetails  ParkingDetailsVo =  modelMapper.map(parkingDetailsDto , ParkingDetails.class);
+    			  .map(parkingDetailsDto -> {
+    				  ParkingDetails  ParkingDetailsVo  = new ParkingDetails() ;
+    				  BeanUtils.copyProperties(parkingDetailsDto, ParkingDetailsVo);
+    				  //ParkingDetails  ParkingDetailsVo =  modelMapper.map(parkingDetailsDto , ParkingDetails.class);
     				  
     				  VehicleType  vehicleTypeVo = new VehicleType() ;
     				  vehicleTypeVo.setId(parkingDetailsDto.getVehicleTypeId());

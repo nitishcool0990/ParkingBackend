@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
@@ -87,7 +88,18 @@ public class AgentParkingLocService  {
 	  @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
 	 public EsResponse<ParkingLocation> createNewLocation( MultipartFile[]  parkingImages , AgentParkingLocationDTO parkingLocationDto  ,   long userId) {
 	        try {
-	        	ParkingLocation parkingLocVo  = modelMapper.map(parkingLocationDto, ParkingLocation.class) ;
+	        	ParkingLocation parkLocEntity  = this.parkingLocationRepository.findBylatitudeAndlongitudeAndparkName(parkingLocationDto.getLatitude() , 
+	        			 parkingLocationDto.getLongitude() , parkingLocationDto.getParkName());
+	        	
+	        	if(null != parkLocEntity){
+	        		return new EsResponse<>(IConstants.RESPONSE_DUPLICATE_LOCATION  , this.ENV.getProperty("parking.location.already.exist"));
+	      	      
+	        	}
+	        	
+	        	ParkingLocation parkingLocVo = new ParkingLocation () ;
+	        	BeanUtils.copyProperties(parkingLocationDto, parkingLocVo);
+	        	//ParkingLocation parkingLocVo  = modelMapper.map(parkingLocationDto, ParkingLocation.class) ;
+	        	
 	        	parkingLocMapper.mapAgentParkingLocToVo(parkingLocationDto, parkingLocVo);
 	        	
 	        	User user = new User() ;
@@ -104,7 +116,8 @@ public class AgentParkingLocService  {
 	        	this.parkedVehicleCountRepository.saveAll(parkedVehicleVos);
 	
 	            return new EsResponse<>(IConstants.RESPONSE_STATUS_OK  , this.ENV.getProperty("parking.location.creation.success"));
-	      
+	        		        	
+	        	
 	        } catch (Exception e) {
 	            e.printStackTrace();
 	            return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("parking.location.creation.failed"));
