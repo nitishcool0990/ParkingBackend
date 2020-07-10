@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 import org.modelmapper.ModelMapper;
 import com.vpark.vparkservice.constants.IConstants;
 import com.vpark.vparkservice.dto.CashFreeDTO;
+import com.vpark.vparkservice.dto.MonthlyBookingDTO;
 import com.vpark.vparkservice.dto.MyParkingHistoryDTO;
 import com.vpark.vparkservice.dto.ParkingLocationDto;
 import com.vpark.vparkservice.dto.PaymentDTO;
@@ -57,14 +58,10 @@ public class ParkingBookingService {
 	 @Autowired
 	 private IUserWalletRepository userWalletRepo;
 	 
-	 @Autowired
-	 private ModelMapper modelMapper;
-	 
+
 	 @Autowired
 	 private IParkBookingHistoryRepository   parkBookingHistoryRepository ;
-	 
-	 @Autowired
-	 private IUserRepository userRepo;
+	
 	 
 	 @Autowired
 	 private ICashFreeTransHistory cashFreeRepo;
@@ -87,10 +84,14 @@ public class ParkingBookingService {
 		try {
 			List<Object[]> objList = parkingLocationRepository.getParkingInfo(parkingId, vehicleTypeId);
 			ParkingLocationDto parkingLocDTO = null;
+			
 			if (!objList.isEmpty()) {
 				Object[] obj = objList.get(0);
+				
 				HashMap<String,String> hourlyTimeSlot =new HashMap<String,String>();
+				
 				for(Object[] objArray :objList ) {
+					
 					hourlyTimeSlot.put(objArray[12].toString(), objArray[6].toString());
 				}
 				/*
@@ -110,8 +111,10 @@ public class ParkingBookingService {
 				
 				parkingLocDTO = new ParkingLocationDto((Long) obj[0], (double) obj[7],  (double) obj[5],
 						obj[4].toString(), obj[1].toString(), obj[2].toString(), obj[3].toString(), obj[8].toString()  ,  (double)  obj[9] , (double)  obj[10] , (byte[]) obj[11],hourlyTimeSlot);
+				
 				return new EsResponse<>(IConstants.RESPONSE_STATUS_OK, parkingLocDTO , this.ENV.getProperty("booking.parking.details"));
-			} else {
+			} 
+			else {
 				return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR , this.ENV.getProperty("exception.internal.error"));
 			 }
 
@@ -376,18 +379,13 @@ public class ParkingBookingService {
 	
 	
 	
-	public static void main(String[] args) {
-		LocalTime fromDateTime = LocalTime.of(18, 00);
-		LocalTime toDateTime = LocalTime.now();
-		long hours = fromDateTime.until( toDateTime, ChronoUnit.HOURS );
-		fromDateTime = fromDateTime.plusHours( hours );
-
-		long minutes = fromDateTime.until( toDateTime, ChronoUnit.MINUTES );
+	public void initMonthlyBooking(MonthlyBookingDTO   monthlyBookingDto){
 		
-		System.out.println("hours" +hours+"  mins " +minutes);
-		System.out.println(fromDateTime);
-		// = tempDateTime.plusMinutes( minutes );
+		
+		
 	}
+	
+	
 	
 
 }

@@ -67,6 +67,7 @@ public class ParkingLocationService {
     	  if(parkingReviewVo.isPresent()){
     		  parkingReviewVo.get().setReply(parkingReviewDto.getReply());
     	  }
+    	  
     	  this.parkingReviewsRepository.save(parkingReviewVo.get());
          
             return new EsResponse<>(IConstants.RESPONSE_STATUS_OK, this.ENV.getProperty("parking.review.update.success"));

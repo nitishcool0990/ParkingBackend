@@ -70,7 +70,7 @@ public class VehicleService {
         		List<Vehicle> vehicleVos = this.vehicleRepository.FindByUserId(userId);
 				for (Vehicle vehicle : vehicleVos) {
 					if (vehicle.getIsDefault().equals(IConstants.Default.TRUE) )
-						return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("vehicle.default.exist"));
+						return new EsResponse<>(IConstants.RESPONSE_DUPLICATE, this.ENV.getProperty("vehicle.default.exist"));
 				}
 			}
         	Vehicle vehicleVo = modelMapper.map(vehicleDto , Vehicle.class);
@@ -115,7 +115,7 @@ public class VehicleService {
         	
         	for (Vehicle vehicle  : vehicleList) {
         		if(vehicle.getVehicleNo().equals(vehicleDto.getVehicleNo())  && vehicle.getId() != vehicleDto.getId() )
-        		   return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("vehicle.number.duplicate")); 
+        		   return new EsResponse<>(IConstants.RESPONSE_DUPLICATE, this.ENV.getProperty("vehicle.number.duplicate")); 
            }
         	
         	if(vehicleDto.getIsDefault().equalsIgnoreCase( "TRUE")){

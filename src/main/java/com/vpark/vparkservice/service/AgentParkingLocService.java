@@ -93,13 +93,11 @@ public class AgentParkingLocService  {
 	        	
 	        	if(null != parkLocEntity){
 	        		return new EsResponse<>(IConstants.RESPONSE_DUPLICATE_LOCATION  , this.ENV.getProperty("parking.location.already.exist"));
-	      	      
 	        	}
 	        	
 	        	ParkingLocation parkingLocVo = new ParkingLocation () ;
 	        	BeanUtils.copyProperties(parkingLocationDto, parkingLocVo);
-	        	//ParkingLocation parkingLocVo  = modelMapper.map(parkingLocationDto, ParkingLocation.class) ;
-	        	
+	       
 	        	parkingLocMapper.mapAgentParkingLocToVo(parkingLocationDto, parkingLocVo);
 	        	
 	        	User user = new User() ;
@@ -236,6 +234,7 @@ public class AgentParkingLocService  {
         }
   }
  
+	// to nbe continue
 	  public void findParkingCurrentStatus(long locId){
 		try{
 			List<ParkedVehicleCount> parkedVehicleCountVo= 	this.parkedVehicleCountRepository.findByParkingLocationId(locId);

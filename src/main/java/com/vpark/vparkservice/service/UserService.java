@@ -159,6 +159,9 @@ public class UserService {
 				if(null != user.getUserProfile().getReferalCode()){
 					
 					User referUserObj  = this.userRepository.findByReferalCodeLike(Utility.queryLikeAny(user.getUserProfile().getReferalCode()));
+					if(null == referUserObj){
+						return new EsResponse<>(IConstants.RESPONSE_VERIFICATION_FAILED ,this.ENV.getProperty("user.verify.referal.code.failed"));
+					}
 					ReferalCodeHistory  referalCodeHistoryVo = userMapper.createReferalCodeHistoryVo(user  , referUserObj);
 					this.referalCodeHisRepository.save(referalCodeHistoryVo);
 					
