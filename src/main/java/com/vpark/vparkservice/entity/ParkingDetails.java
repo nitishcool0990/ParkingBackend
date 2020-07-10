@@ -25,6 +25,9 @@ public class ParkingDetails extends Savable {
     @Column(name = "CAPACITY")
     private Integer capacity;
     
+    @Column(name = "HOURLY_RATE")
+    private double hourlyRate;
+    
     @Column(name = "MONTHLY_RATE")
     private double monthlyRate =0 ;
     
@@ -56,5 +59,8 @@ public class ParkingDetails extends Savable {
     
     @Column(name = "AGENT_PERCENTAGE")
     private double agentPercentage  = 10 ;
+    
+    @Column(name = "MAX_LIMIT")
+    private double maxLimit;
 
 }

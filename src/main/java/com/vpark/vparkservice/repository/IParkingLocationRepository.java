@@ -19,7 +19,7 @@ public interface IParkingLocationRepository extends JpaRepository<ParkingLocatio
     		+ "  FROM parking_locations pl "
     		+ " LEFT JOIN parking_type pt ON pl.parking_type_id = pt.id "
     		+ " LEFT JOIN `parking_details` pd ON pl.id= pd.park_loc_id "
-    		+ " WHERE vehicle_type_id = ?6 HAVING distance <= ?4 ORDER BY distance ASC   LIMIT ?5", nativeQuery = true)
+    		+ " WHERE vehicle_type_id = ?6 and pl.status='ACTIVE' and pd.status='ACTIVE' HAVING distance <= ?4 ORDER BY distance ASC   LIMIT ?5", nativeQuery = true)
     List<Object[]> getClosestParkingArea(String units,double  latitude,double  longitude, int distance,int limit ,int vehicleTypeId );
     
     @Query("Select pl from  ParkingLocation pl where pl.user.id = ?1" )
