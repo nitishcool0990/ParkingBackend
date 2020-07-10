@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -21,6 +22,7 @@ import java.util.stream.Collectors;
  */
 @Service
 public class VehicleService {
+	
     @Autowired
     private IVehicleRepository vehicleRepository;
     
@@ -59,27 +61,35 @@ public class VehicleService {
     public EsResponse<Vehicle> createNewVehicle(VehicleDto vehicleDto , long userId ) {
         try {
         	List<Vehicle> vehicleList =this.vehicleRepository.findAllVehicleNumber();
+        	Vehicle vehicleExistVo = null ;
         	
         	for (Vehicle vehicle  : vehicleList) {
-        		if(vehicle.getVehicleNo().equals(vehicleDto.getVehicleNo()))
-        		   return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("vehicle.number.duplicate")); 
-           }
+        		if(vehicle.getVehicleNo().equals(vehicleDto.getVehicleNo()) && vehicle.getUser().getId() == userId ){
+        			vehicleExistVo  = vehicle ;
+        			break ;
+        		}
+        }
         	
         	if(vehicleDto.getIsDefault().equalsIgnoreCase( "TRUE"))
 			{  
-        		List<Vehicle> vehicleVos = this.vehicleRepository.FindByUserId(userId);
-				for (Vehicle vehicle : vehicleVos) {
-					if (vehicle.getIsDefault().equals(IConstants.Default.TRUE) )
-						return new EsResponse<>(IConstants.RESPONSE_DUPLICATE, this.ENV.getProperty("vehicle.default.exist"));
-				}
+        		this.vehicleRepository.updateVehicleDefaultValueByUserId(userId  ,  IConstants.Default.FALSE);
+        		if(null != vehicleExistVo)
+        			vehicleExistVo.setIsDefault(IConstants.Default.TRUE);
 			}
-        	Vehicle vehicleVo = modelMapper.map(vehicleDto , Vehicle.class);
-        
+        	
         	User user = new User() ;
         	user.setId(userId);
-        	vehicleVo.setUser(user);
         	
+        	if(null != vehicleExistVo){
+        		vehicleExistVo.setUser(user);
+        		vehicleExistVo.setDispalyFlag(IConstants.Default.TRUE) ;
+        		vehicleRepository.save(vehicleExistVo) ;
+        	}
+        	else{
+        	Vehicle vehicleVo = modelMapper.map(vehicleDto , Vehicle.class);
+        	vehicleVo.setUser(user);
         	vehicleRepository.save(vehicleVo) ;
+        	}
         	
             return new EsResponse<>(IConstants.RESPONSE_STATUS_OK, this.ENV.getProperty("vehicle.creation.success"));
         } catch (Exception e) {
@@ -111,12 +121,12 @@ public class VehicleService {
     
     public EsResponse<?> updateVehicle( VehicleDto vehicleDto , long userId ) {
         try {
-        	List<Vehicle> vehicleList = this.vehicleRepository.findAllVehicleNumber();
+        	//List<Vehicle> vehicleList = this.vehicleRepository.findAllVehicleNumber();
         	
-        	for (Vehicle vehicle  : vehicleList) {
+        	/*for (Vehicle vehicle  : vehicleList) {
         		if(vehicle.getVehicleNo().equals(vehicleDto.getVehicleNo())  && vehicle.getId() != vehicleDto.getId() )
         		   return new EsResponse<>(IConstants.RESPONSE_DUPLICATE, this.ENV.getProperty("vehicle.number.duplicate")); 
-           }
+           }*/
         	
         	if(vehicleDto.getIsDefault().equalsIgnoreCase( "TRUE")){
         		this.vehicleRepository.updateVehicleDefaultValueByUserId(userId  ,  IConstants.Default.FALSE);
@@ -142,8 +152,16 @@ public class VehicleService {
     public EsResponse<?> deleteVehicle(long id) {
       
         try {
-            this.vehicleRepository.deleteById(id);
-            return new EsResponse<>(IConstants.RESPONSE_STATUS_OK, this.ENV.getProperty("vehicle.delete.success"));
+        	Optional<Vehicle> vehicleVo  = this.vehicleRepository.findById(id);
+        	
+        	if(vehicleVo.isPresent()){
+        	  vehicleVo.get().setDispalyFlag(IConstants.Default.FALSE) ;
+              this.vehicleRepository.save(vehicleVo.get());
+               return new EsResponse<>(IConstants.RESPONSE_STATUS_OK, this.ENV.getProperty("vehicle.delete.success"));
+        	}
+          else
+        	 return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("vehicle.not.found"));
+           
         } catch (Exception e) {
             e.printStackTrace();
             return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("vehicle.delete.failed"));

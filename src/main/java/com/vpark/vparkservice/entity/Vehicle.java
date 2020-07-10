@@ -15,7 +15,7 @@ import javax.persistence.*;
 //@JsonIgnoreProperties(value = {"user"}, allowSetters = true)
 public class Vehicle extends Savable {
 
-    @Column(name = "VEHICLE_NO", unique = true, nullable = false)
+    @Column(name = "VEHICLE_NO", nullable = false)
     private String vehicleNo;
 
     @ManyToOne(cascade = CascadeType.DETACH ,  fetch = FetchType.LAZY)
@@ -30,5 +30,9 @@ public class Vehicle extends Savable {
     @Column(name = "IS_DEFAULT", nullable = false)
     @Enumerated(EnumType.STRING)
     private IConstants.Default isDefault  = IConstants.Default.FALSE;
+    
+    @Column(name = "DISPLAY_FLAG", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private IConstants.Default dispalyFlag  = IConstants.Default.TRUE;
     
 }
