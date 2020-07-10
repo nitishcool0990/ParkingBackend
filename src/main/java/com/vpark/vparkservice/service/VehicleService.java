@@ -39,7 +39,7 @@ public class VehicleService {
   
     public EsResponse<List<VehicleDto>> findVehicleByUserId(long userId) {
         try {
-        	List<Vehicle> vehicleVos = this.vehicleRepository.FindByUserId(userId);
+        	List<Vehicle> vehicleVos = this.vehicleRepository.FindActiveVehicleByUserId(userId);
         	
         	List<VehicleDto> vehicleDtos = vehicleVos .stream()
       			  .map((vehicleVo) -> {
@@ -60,7 +60,7 @@ public class VehicleService {
     
     public EsResponse<Vehicle> createNewVehicle(VehicleDto vehicleDto , long userId ) {
         try {
-        	List<Vehicle> vehicleList =this.vehicleRepository.findAllVehicleNumber();
+        	List<Vehicle> vehicleList =this.vehicleRepository.FindByUserId(userId);
         	Vehicle vehicleExistVo = null ;
         	
         	for (Vehicle vehicle  : vehicleList) {
@@ -68,7 +68,7 @@ public class VehicleService {
         			vehicleExistVo  = vehicle ;
         			break ;
         		}
-        }
+            }
         	
         	if(vehicleDto.getIsDefault().equalsIgnoreCase( "TRUE"))
 			{  
@@ -81,15 +81,20 @@ public class VehicleService {
         	user.setId(userId);
         	
         	if(null != vehicleExistVo){
+        		
+        		VehicleType vehicleTypeVo  = new VehicleType () ;
+        		vehicleTypeVo.setId(vehicleDto.getVehicleTypeId());
+        		
         		vehicleExistVo.setUser(user);
+        		vehicleExistVo.setVehicleType(vehicleTypeVo);
         		vehicleExistVo.setDispalyFlag(IConstants.Default.TRUE) ;
         		vehicleRepository.save(vehicleExistVo) ;
-        	}
-        	else{
+              }
+        else{
         	Vehicle vehicleVo = modelMapper.map(vehicleDto , Vehicle.class);
         	vehicleVo.setUser(user);
         	vehicleRepository.save(vehicleVo) ;
-        	}
+        }
         	
             return new EsResponse<>(IConstants.RESPONSE_STATUS_OK, this.ENV.getProperty("vehicle.creation.success"));
         } catch (Exception e) {
@@ -121,13 +126,7 @@ public class VehicleService {
     
     public EsResponse<?> updateVehicle( VehicleDto vehicleDto , long userId ) {
         try {
-        	//List<Vehicle> vehicleList = this.vehicleRepository.findAllVehicleNumber();
-        	
-        	/*for (Vehicle vehicle  : vehicleList) {
-        		if(vehicle.getVehicleNo().equals(vehicleDto.getVehicleNo())  && vehicle.getId() != vehicleDto.getId() )
-        		   return new EsResponse<>(IConstants.RESPONSE_DUPLICATE, this.ENV.getProperty("vehicle.number.duplicate")); 
-           }*/
-        	
+        
         	if(vehicleDto.getIsDefault().equalsIgnoreCase( "TRUE")){
         		this.vehicleRepository.updateVehicleDefaultValueByUserId(userId  ,  IConstants.Default.FALSE);
         	}

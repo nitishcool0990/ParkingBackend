@@ -21,6 +21,12 @@ public class AgentTransHistory extends Savable{
 	@Column(name = "USER_ID")
 	private long user;
 	
+	@Column(name = "LOCATION_ID")
+	private long  locId ;
+	
+	@Column(name = "BOOKING_ID")
+	private long  bookingId ;
+
 	@Column(name = "AMT")
 	private double amt ;
 	

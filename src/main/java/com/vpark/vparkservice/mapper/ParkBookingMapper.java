@@ -12,13 +12,15 @@ import com.vpark.vparkservice.entity.ParkingDetails;
 public class ParkBookingMapper {
 
 	
-	public AgentTransHistory createAgentHitsoryVo( double percentageAmt  , long userId ){
+	public AgentTransHistory createAgentHitsoryVo( double percentageAmt  , long userId  , long ParkLocId , long bookingId , String remarks  ){
 		
 		AgentTransHistory agentHistory = new AgentTransHistory();
 		agentHistory.setAmt(percentageAmt);
+		agentHistory.setLocId(ParkLocId);
+		agentHistory.setBookingId(bookingId);
 		agentHistory.setChipType("real");
-		agentHistory.setCrdr("cr");
-		agentHistory.setRemarks("User Book Parking spot");
+		agentHistory.setCrdr("CR");
+		agentHistory.setRemarks(remarks);
 		agentHistory.setStatus(IConstants.TransStatus.APPROVED);
 		agentHistory.setUser(userId);
 		

@@ -6,9 +6,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
 import com.vpark.vparkservice.constants.IConstants;
 import com.vpark.vparkservice.dto.CancelBookingDTO;
 import com.vpark.vparkservice.dto.CashFreeDTO;

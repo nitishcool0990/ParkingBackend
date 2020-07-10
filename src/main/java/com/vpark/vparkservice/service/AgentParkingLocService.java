@@ -18,6 +18,7 @@ import com.vpark.vparkservice.dto.CheckInAndCheckOutDTO;
 import com.vpark.vparkservice.dto.ParkingChargesDTO;
 import com.vpark.vparkservice.dto.ParkingDetailsDTO;
 import com.vpark.vparkservice.dto.ParkingTypeDTO;
+import com.vpark.vparkservice.entity.AgentTransHistory;
 import com.vpark.vparkservice.entity.ParkBookingHistory;
 import com.vpark.vparkservice.entity.ParkTransHistory;
 import com.vpark.vparkservice.entity.ParkedVehicleCount;
@@ -31,6 +32,7 @@ import com.vpark.vparkservice.entity.Vehicle;
 import com.vpark.vparkservice.mapper.ParkBookingMapper;
 import com.vpark.vparkservice.mapper.ParkingLocMapper;
 import com.vpark.vparkservice.model.EsResponse;
+import com.vpark.vparkservice.repository.IAgentTransHistoryRepository;
 import com.vpark.vparkservice.repository.IParkBookingHistoryRepository;
 import com.vpark.vparkservice.repository.IParkTransHistoryRepository;
 import com.vpark.vparkservice.repository.IParkedVehicleCountRepository;
@@ -66,6 +68,9 @@ public class AgentParkingLocService  {
 	  private IParkBookingHistoryRepository   parkBookingHistoryRepository ;
 	  
 	  @Autowired
+	  private IAgentTransHistoryRepository    agentTransHistoryRepo ;
+	  
+	  @Autowired
 	   private IUserRepository userRepository;
 	  
 	  @Autowired
@@ -82,6 +87,9 @@ public class AgentParkingLocService  {
 	 
 	 @Autowired
 	 private IUserWalletRepository  userWalletRepository ;
+	 
+	 @Autowired
+	 private IUserWalletRepository userWalletRepo;
 
 	  
 	  
@@ -181,9 +189,11 @@ public class AgentParkingLocService  {
 		try {
 			Optional<ParkingLocation> parkingLocVo = this.parkingLocationRepository.findById(locId);
 
-			if (null != parkingLocVo)
-				this.parkingLocationRepository.deleteById(locId);
-
+			if (parkingLocVo.isPresent()){
+				parkingLocVo.get().setStatus(IConstants.Status.INACTIVE);
+				this.parkingLocationRepository.save(parkingLocVo.get());
+			}
+			
 			return new EsResponse<>(IConstants.RESPONSE_STATUS_OK, this.ENV.getProperty("parking.location.delete.success"));
 			
 		} catch (Exception e) {
@@ -234,15 +244,32 @@ public class AgentParkingLocService  {
         }
   }
  
-	// to nbe continue
-	  public void findParkingCurrentStatus(long locId){
+
+	  public EsResponse<?> find(long locId , long userId){
 		try{
-			List<ParkedVehicleCount> parkedVehicleCountVo= 	this.parkedVehicleCountRepository.findByParkingLocationId(locId);
+			UserWallet agentWallet  =  this.userWalletRepo.findByUserId(userId).orElse(null);
+			List<AgentTransHistory> agentHistoryVos  = this.agentTransHistoryRepo.findByLocationId(locId ); 
+			double agentAmt = 0;
+			
+			if(null != agentWallet ){
+			 if(  null !=  agentHistoryVos  &&  agentHistoryVos.size() > 0){
+			
+				agentHistoryVos.stream().forEach(agentHistoryVo  ->{
+				
+					agentHistoryVo.getAmt();
+				}) ;
+			 }
+			}
+			else{
+				 return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("user.not.found"));	
+			}
+			
 			
 	  } catch (Exception e) {
 			e.printStackTrace();
-			return;
+			  return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("parking.location.update.failed"));
 		}
+		return null;
 	 }
 
 	
@@ -324,9 +351,9 @@ public class AgentParkingLocService  {
 	
 	
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
-	public EsResponse<?> checkInVehicle(CheckInAndCheckOutDTO  checkInDto){
+	public EsResponse<?> checkInVehicle(CheckInAndCheckOutDTO  checkInDto  , long userId ){
 		try{
-			
+		
 			ParkedVehicleCount parkedVehicleCountVo= 	this.parkedVehicleCountRepository.findByParkingLocationIdAndVehicleTypeId(
 					                                                                       checkInDto.getLocationId() , checkInDto.getVehicleTypeId());
 			if(null !=parkedVehicleCountVo  && parkedVehicleCountVo.getTotalCount() > 0){
@@ -339,9 +366,23 @@ public class AgentParkingLocService  {
 			if(checkInDto.getBookingId() >0 ){
 				
 				Optional<ParkBookingHistory> parkBookingHistoryVo =  this.parkBookingHistoryRepository.findById(checkInDto.getBookingId() );
+				UserWallet agentWallet = this.userWalletRepo.findByUserId(userId).orElse(null); 
+				
+				Optional<ParkingDetails>  parkingDetailsVo = parkingDetailsRepository.findBylocationIdAndVehicleTypeId(checkInDto.getLocationId(), checkInDto.getVehicleTypeId());
+				
 				if(parkBookingHistoryVo.isPresent())
 				{
-					parkBookingHistoryVo.get().setStatus(IConstants.ParkingStatus.PARKED);
+					ParkBookingHistory  parkBookingHistory = parkBookingHistoryVo.get() ;
+					parkBookingHistory.setStatus(IConstants.ParkingStatus.PARKED);
+					
+					double amt = parkBookingHistory.getBonusAmt() + parkBookingHistory.getRealAmt() + parkBookingHistory.getDepositAmt() ;
+					double percentageAmt = amt / parkingDetailsVo.get().getAgentPercentage();
+					agentWallet.setReal(percentageAmt);
+					String remarks = "parking booking" ;
+					
+					AgentTransHistory agentHistoryVo = parkBookingMapper.createAgentHitsoryVo(percentageAmt , userId  , checkInDto.getLocationId()  ,  parkBookingHistory.getId() ,  remarks);
+					 this.agentTransHistoryRepo.save(agentHistoryVo);
+					
 					this.parkBookingHistoryRepository.save(parkBookingHistoryVo.get());
 				 }
 				processReferalAmt(parkBookingHistoryVo.get().getUserId());

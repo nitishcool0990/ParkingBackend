@@ -44,7 +44,7 @@ public interface IAgentParkingLocController {
 	 ResponseEntity<EsResponse<List<BookedVehicleDetailsDTO>>> findParkedVehicles(@PathVariable long locId  );
 	 
 	 @PostMapping(IConstants.VERSION_1 +"/checkIn")
-	 ResponseEntity<EsResponse<?>> checkInVehicle(@RequestBody CheckInAndCheckOutDTO checkInDto );
+	 ResponseEntity<EsResponse<?>> checkInVehicle(@RequestBody CheckInAndCheckOutDTO checkInDto  , @RequestAttribute("Id")  long userId );
 	 
 	 @PostMapping(IConstants.VERSION_1 +"/checkOut")
 	 ResponseEntity<EsResponse<?>> checkOutVehicle(@RequestBody CheckInAndCheckOutDTO checkOutDto  );

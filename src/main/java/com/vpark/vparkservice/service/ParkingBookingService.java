@@ -311,21 +311,21 @@ public class ParkingBookingService {
 
 		        ParkingDetails parkingDetails = this.parkingDetailsRepository.findBylocationIdAndVehicleTypeId(doneBookingDto.getParkingId(), vehicleVo.get().getVehicleType().getId()).orElse(null);
 						if (parkingDetails != null) {
+							
 							this.userWalletRepo.save(userWallet);
 							UserWallet agentWallet = this.userWalletRepo.findByUserId(parkingDetails.getParkingLocation().getUser().getId()).orElse(null);
 							double percentageAmt = doneBookingDto.getAmount() / parkingDetails.getAgentPercentage();
 							agentWallet.setReal(agentWallet.getReal() + percentageAmt);
 							this.userWalletRepo.save(agentWallet);
 
-							// to cut amount and provide to Agent
-							AgentTransHistory agentHistoryVo = parkBookingMapper.createAgentHitsoryVo(percentageAmt , userId);
-							this.agentTransactionRepo.save(agentHistoryVo);
-
 							String remarks = "Parking Booked" ;
 							 if(doneBookingDto.isMonthlyBooking()){
 								 remarks = "Monthly Parking Booked";
 							 }
-								 
+							// Monthly booking cut amount and provide to Agent and also set booking id 
+							AgentTransHistory agentHistoryVo = parkBookingMapper.createAgentHitsoryVo(percentageAmt , userId  , doneBookingDto.getParkingId() , -1 , remarks);
+							this.agentTransactionRepo.save(agentHistoryVo);
+
 							ParkTransHistory parkTransVo = parkBookingMapper.createParkingHitsoryVo(doneBookingDto.getAmount(), userId,"DR", remarks , "real");
 							this.parkingTransRepo.save(parkTransVo);
 

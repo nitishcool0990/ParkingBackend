@@ -26,6 +26,9 @@ public interface IVehicleRepository extends JpaRepository<Vehicle, Long> {
     @Query("Select v from  Vehicle v where v.user.id = ?1" )
 	List<Vehicle> FindByUserId(long userId);
     
+    @Query("Select v from  Vehicle v where v.user.id = ?1  and v.dispalyFlag = 'TRUE' " )
+	List<Vehicle> FindActiveVehicleByUserId(long userId);
+    
     @Transactional
     @Modifying(clearAutomatically = true)
     @Query("Update Vehicle v Set v.isDefault =?2 where v.user.id = ?1"   )
