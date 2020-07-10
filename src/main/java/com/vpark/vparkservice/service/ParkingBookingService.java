@@ -6,6 +6,8 @@ import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
+
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
@@ -17,7 +19,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import java.util.stream.Collectors;
 import org.modelmapper.ModelMapper;
 import com.vpark.vparkservice.constants.IConstants;
+import com.vpark.vparkservice.dto.CancelBookingDTO;
 import com.vpark.vparkservice.dto.CashFreeDTO;
+import com.vpark.vparkservice.dto.DoneBookingDTO;
 import com.vpark.vparkservice.dto.MonthlyBookingDTO;
 import com.vpark.vparkservice.dto.MyParkingHistoryDTO;
 import com.vpark.vparkservice.dto.ParkingLocationDto;
@@ -25,11 +29,13 @@ import com.vpark.vparkservice.dto.PaymentDTO;
 import com.vpark.vparkservice.dto.PaymetGateWayDTO;
 import com.vpark.vparkservice.entity.ParkingLocation;
 import com.vpark.vparkservice.entity.UserWallet;
+import com.vpark.vparkservice.entity.Vehicle;
 import com.vpark.vparkservice.mapper.ParkBookingMapper;
 import com.vpark.vparkservice.entity.AgentTransHistory;
 import com.vpark.vparkservice.entity.CashFreeTransHistory;
 import com.vpark.vparkservice.entity.ParkBookingHistory;
 import com.vpark.vparkservice.entity.ParkTransHistory;
+import com.vpark.vparkservice.entity.ParkedVehicleCount;
 import com.vpark.vparkservice.entity.ParkingDetails;
 import com.vpark.vparkservice.model.EsResponse;
 import com.vpark.vparkservice.model.RequestAttribute;
@@ -37,10 +43,12 @@ import com.vpark.vparkservice.repository.IAgentTransHistoryRepository;
 import com.vpark.vparkservice.repository.ICashFreeTransHistory;
 import com.vpark.vparkservice.repository.IParkBookingHistoryRepository;
 import com.vpark.vparkservice.repository.IParkTransHistoryRepository;
+import com.vpark.vparkservice.repository.IParkedVehicleCountRepository;
 import com.vpark.vparkservice.repository.IParkingDetailsRepository;
 import com.vpark.vparkservice.repository.IParkingLocationRepository;
 import com.vpark.vparkservice.repository.IUserRepository;
 import com.vpark.vparkservice.repository.IUserWalletRepository;
+import com.vpark.vparkservice.repository.IVehicleRepository;
 import com.vpark.vparkservice.test.GFGTest;
 
 import lombok.Synchronized;
@@ -58,10 +66,11 @@ public class ParkingBookingService {
 	 @Autowired
 	 private IUserWalletRepository userWalletRepo;
 	 
-
 	 @Autowired
 	 private IParkBookingHistoryRepository   parkBookingHistoryRepository ;
 	
+	 @Autowired
+	   private IVehicleRepository vehicleRepository;
 	 
 	 @Autowired
 	 private ICashFreeTransHistory cashFreeRepo;
@@ -77,6 +86,9 @@ public class ParkingBookingService {
 	 
 	 @Autowired
 	 private ParkBookingMapper  parkBookingMapper ;
+	 
+	 @Autowired
+	  private IParkedVehicleCountRepository parkedVehicleCountRepository ;
 	    
 	
 	 
@@ -161,7 +173,9 @@ public class ParkingBookingService {
 		try {
 			
 			UserWallet userWallet = this.userWalletRepo.findByUserId(userId).orElse(null);
-			if(userWallet!=null) {
+			 //ParkedVehicleCount parkedVehicleCountVo  = this.parkedVehicleCountRepository.findByParkingLocationIdAndVehicleTypeId(  parkingLocId ,
+                     //vehicleVo.get().getVehicleType().getId() ) ;
+			if(userWallet!=null  ) {
 				ParkingLocation location = this.parkingLocationRepository.findById(parkingLocId).orElse(null);
 				
 				LocalTime fromLOCDateTime = LocalTime.of(Integer.parseInt(location.getOpenTime().split(":")[0]),Integer.parseInt(location.getOpenTime().split(":")[1]));
@@ -181,8 +195,7 @@ public class ParkingBookingService {
 				if(hours>0|| minutes >0) {
 					return new EsResponse<>(IConstants.RESPONSE_STATUS_OK, this.ENV.getProperty("booking.parking.close"));
 				}
-				
-				
+			
 				LocalTime currentTime =LocalTime.now();
 				
 				hours = currentTime.until( fromDate, ChronoUnit.HOURS );
@@ -196,25 +209,9 @@ public class ParkingBookingService {
 						 return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("booking.not.allowed"));
 					}
 				}
+				PaymentDTO paymentDto = getWalletInfo(userWallet , amount , parkingLocId);
 				
-				PaymentDTO paymentDto = new PaymentDTO();
-				PaymetGateWayDTO paymentGateWayDTO=null;
-				if(userWallet.getDeposit()+userWallet.getReal()+userWallet.getBonus()>=amount) {
-					paymentGateWayDTO=new PaymetGateWayDTO("Wallet", userWallet.getDeposit()+userWallet.getReal()+userWallet.getBonus());
-					paymentDto.setParkingLocId(parkingLocId );
-					paymentDto.setPayableAmt(amount);
-					paymentDto.getPaymentGateWay().add(paymentGateWayDTO);
-				}else {
-					 paymentGateWayDTO=new PaymetGateWayDTO("Wallet", userWallet.getDeposit()+userWallet.getReal()+userWallet.getBonus());
-					paymentDto.setParkingLocId(parkingLocId );
-					paymentDto.setPayableAmt(amount);
-					paymentDto.getPaymentGateWay().add(paymentGateWayDTO);
-					
-					 paymentGateWayDTO=new PaymetGateWayDTO("CashFree",amount- (userWallet.getDeposit()+userWallet.getReal()+userWallet.getBonus()));
-					paymentDto.getPaymentGateWay().add(paymentGateWayDTO);
-				}
-			
-				  return new EsResponse<>(IConstants.RESPONSE_STATUS_OK, paymentDto,this.ENV.getProperty("booking.parking.init"));
+				  return new EsResponse<>(IConstants.RESPONSE_STATUS_OK ,  paymentDto , this.ENV.getProperty("booking.parking.init"));
 			}else {
 				  return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("user.not.found"));
 			}
@@ -222,6 +219,27 @@ public class ParkingBookingService {
 			e.printStackTrace();
 			  return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("exception.internal.error"));
 		}
+	}
+	
+	
+	
+	private PaymentDTO getWalletInfo(UserWallet userWallet  , double amount  , long  parkingLocId ){
+		
+		PaymentDTO paymentDto = new PaymentDTO();
+		PaymetGateWayDTO paymentGateWayDTO=null;
+		
+		paymentGateWayDTO=new PaymetGateWayDTO("Wallet", userWallet.getDeposit()+userWallet.getReal()+userWallet.getBonus());
+		paymentDto.setParkingLocId(parkingLocId );
+		paymentDto.setPayableAmt(amount);
+		paymentDto.getPaymentGateWay().add(paymentGateWayDTO);
+		
+		if(userWallet.getDeposit()+userWallet.getReal()+userWallet.getBonus() <  amount) {
+		
+			 paymentGateWayDTO=new PaymetGateWayDTO("CashFree",amount- (userWallet.getDeposit()+userWallet.getReal()+userWallet.getBonus()));
+			paymentDto.getPaymentGateWay().add(paymentGateWayDTO);
+		}
+		
+		return paymentDto;
 	}
 	
 	
@@ -254,20 +272,27 @@ public class ParkingBookingService {
 	
 	@Synchronized
 	@Transactional(readOnly = false,   propagation = Propagation.REQUIRES_NEW)
-	public EsResponse<ParkingLocationDto> doneBooking(long parkingLocId , long userId , double amount, long vehicleTypeId , 	String inTime, String outTime) {
+	public EsResponse<ParkingLocationDto> doneBooking(DoneBookingDTO  doneBookingDto , long userId ) {
 		try {
-			UserWallet userWallet = this.userWalletRepo.findByUserId(userId).orElse(null);
-			if (userWallet != null && amount > 0) {
+		Optional<Vehicle>  vehicleVo   = this.vehicleRepository.findById(doneBookingDto.getVehicleId());
+	    UserWallet userWallet = this.userWalletRepo.findByUserId(userId).orElse(null);
+			 
+		if(vehicleVo.isPresent() && userWallet != null && doneBookingDto.getAmount() > 0 ){
+				 
+		 ParkedVehicleCount parkedVehicleCountVo  = this.parkedVehicleCountRepository.findByParkingLocationIdAndVehicleTypeId(  doneBookingDto.getParkingId() ,  
+				                                                                          vehicleVo.get().getVehicleType().getId()) ;
+		 
+			if (parkedVehicleCountVo.getRemainingSpace() > 0) {
 				double depositAmt=0,realAmt=0,bonusAmt=0;
-				if (userWallet.getDeposit() + userWallet.getReal() + userWallet.getBonus() >= amount) {
+				if (userWallet.getDeposit() + userWallet.getReal() + userWallet.getBonus() >= doneBookingDto.getAmount()) {
 					boolean saveFlag = true;
-					if (userWallet.getDeposit() >= amount) {
-						depositAmt = userWallet.getDeposit() - amount;
+					if (userWallet.getDeposit() >= doneBookingDto.getAmount()) {
+						depositAmt = userWallet.getDeposit() - doneBookingDto.getAmount();
 						userWallet.setDeposit(depositAmt);
 					} 
 					else {
 						depositAmt = userWallet.getDeposit();
-						double remainingAmount = amount - userWallet.getDeposit();
+						double remainingAmount = doneBookingDto.getAmount() - userWallet.getDeposit();
 						userWallet.setDeposit(0);
 						if (userWallet.getReal() >= remainingAmount) {
 							realAmt = userWallet.getReal() - remainingAmount;
@@ -284,11 +309,11 @@ public class ParkingBookingService {
 					}
 		       if (saveFlag) {
 
-		        ParkingDetails parkingDetails = this.parkingDetailsRepository.findBylocationIdAndVehicleId(parkingLocId, vehicleTypeId).orElse(null);
+		        ParkingDetails parkingDetails = this.parkingDetailsRepository.findBylocationIdAndVehicleTypeId(doneBookingDto.getParkingId(), vehicleVo.get().getVehicleType().getId()).orElse(null);
 						if (parkingDetails != null) {
 							this.userWalletRepo.save(userWallet);
 							UserWallet agentWallet = this.userWalletRepo.findByUserId(parkingDetails.getParkingLocation().getUser().getId()).orElse(null);
-							double percentageAmt = amount / parkingDetails.getAgentPercentage();
+							double percentageAmt = doneBookingDto.getAmount() / parkingDetails.getAgentPercentage();
 							agentWallet.setReal(agentWallet.getReal() + percentageAmt);
 							this.userWalletRepo.save(agentWallet);
 
@@ -296,13 +321,18 @@ public class ParkingBookingService {
 							AgentTransHistory agentHistoryVo = parkBookingMapper.createAgentHitsoryVo(percentageAmt , userId);
 							this.agentTransactionRepo.save(agentHistoryVo);
 
-							ParkTransHistory parkTransVo = parkBookingMapper.createParkingHitsoryVo(amount, userId,"DR","Parking Booked" , "real");
+							String remarks = "Parking Booked" ;
+							 if(doneBookingDto.isMonthlyBooking()){
+								 remarks = "Monthly Parking Booked";
+							 }
+								 
+							ParkTransHistory parkTransVo = parkBookingMapper.createParkingHitsoryVo(doneBookingDto.getAmount(), userId,"DR", remarks , "real");
 							this.parkingTransRepo.save(parkTransVo);
 
-							ParkBookingHistory bookingHistoryVo = parkBookingMapper.createParkingBookingHitsoryVo(parkingDetails, depositAmt,realAmt,bonusAmt, userId, inTime, outTime);
+							ParkBookingHistory bookingHistoryVo = parkBookingMapper.createParkingBookingHitsoryVo( doneBookingDto ,  parkingDetails ,  depositAmt, realAmt , bonusAmt, userId , remarks ) ;
 							this.parkBookingHistoryRepository.save(bookingHistoryVo);
 
-							ParkingLocationDto sendLoc = new ParkingLocationDto(parkingLocId, parkingDetails.getParkingLocation().getLatitude(),
+							ParkingLocationDto sendLoc = new ParkingLocationDto(doneBookingDto.getParkingId() , parkingDetails.getParkingLocation().getLatitude(),
 									                                  parkingDetails.getParkingLocation().getLongitude());
 
 							return new EsResponse<>(IConstants.RESPONSE_ADD_PAYMENT, sendLoc , this.ENV.getProperty("bookins.success"));
@@ -322,43 +352,58 @@ public class ParkingBookingService {
 					return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR , this.ENV.getProperty("booking.insufficient.amount"));
 				}
 			}
+			else{
+				 return  new EsResponse<>(IConstants.RESPONSE_FULL_PARKING,  this.ENV.getProperty("parking.full"));
+			      }
+			 }
+			 else {
+				  return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("user.not.found"));
+			     }
 		} catch (Exception e) {
 			e.printStackTrace();
 			return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("exception.internal.error"));
 		}
-
-		return null;
 
 	}
 	
 	
 	
 	@Transactional(readOnly = false,   propagation = Propagation.REQUIRES_NEW)
-	public EsResponse<PaymentDTO> cancelBookingAmount( long  parkBookId, long userId,double  latitude, double  longitude){
+	public EsResponse<PaymentDTO> cancelBookingAmount( CancelBookingDTO  cancelBookingDto , long userId){
 		try {
-			ParkBookingHistory parkingHistory =  parkBookingHistoryRepository.findByParkingBookingIdAndUserId(parkBookId,userId).orElse(null);
-			
-			
+			ParkBookingHistory parkingHistory =  parkBookingHistoryRepository.findByParkingBookingIdAndUserId(cancelBookingDto.getBookingId() ,userId).orElse(null);
+		
 			if(parkingHistory!=null) {
 				
 				ParkingLocation location =this.parkingLocationRepository.findByParkingLocId(parkingHistory.getParkingLocationId()).orElse(null);
 				
-				double distance =GFGTest.distance(Double.parseDouble(location.getLatitude()), latitude, Double.parseDouble(location.getLongitude()), longitude);
+				double distance =GFGTest.distance(Double.parseDouble(location.getLatitude()), cancelBookingDto.getLatitude(), Double.parseDouble(location.getLongitude()), cancelBookingDto.getLongitude());
 				
 				System.out.println("distance "+distance);
 				
 				if(distance>0.100) {
 					UserWallet userWallet = this.userWalletRepo.findByUserId(userId).orElse(null);
-					if(userWallet!=null) {
+					 Optional<Vehicle>  vehicleVo   = this.vehicleRepository.findById(parkingHistory.getVehicleId());
+			
+					if(userWallet!=null  &&  vehicleVo.isPresent()) {
+						
 						ParkTransHistory parkTransVo = parkBookingMapper.createParkingHitsoryVo(parkingHistory.getBonusAmt()+parkingHistory.getDepositAmt()+parkingHistory.getRealAmt(), userId,"CR","Parking Cancelled" , "real");
+						
+						ParkedVehicleCount parkedVehicleCountVo  = this.parkedVehicleCountRepository.findByParkingLocationIdAndVehicleTypeId(  parkingHistory.getParkingLocationId() ,
+		                        vehicleVo.get().getVehicleType().getId() ) ;
 						
 						userWallet.setBonus(userWallet.getBonus()+parkingHistory.getBonusAmt());
 						userWallet.setDeposit(userWallet.getDeposit()+parkingHistory.getDepositAmt());
 						userWallet.setReal(userWallet.getReal()+parkingHistory.getRealAmt());
 						parkingHistory.setStatus(IConstants.ParkingStatus.CANCEL);
+						
+						parkedVehicleCountVo.setTotalOccupied(parkedVehicleCountVo.getTotalOccupied()-1);
+						parkedVehicleCountVo.setRemainingSpace(parkedVehicleCountVo.getRemainingSpace()+1);
+						
 						this.parkBookingHistoryRepository.save(parkingHistory);
 						this.userWalletRepo.save(userWallet);
 						this.parkingTransRepo.save(parkTransVo);
+						this.parkedVehicleCountRepository.save(parkedVehicleCountVo);
 						return new EsResponse<>(IConstants.RESPONSE_STATUS_OK, this.ENV.getProperty("booking.cancel.success"));
 					}
 				}else {
@@ -379,9 +424,37 @@ public class ParkingBookingService {
 	
 	
 	
-	public void initMonthlyBooking(MonthlyBookingDTO   monthlyBookingDto){
-		
-		
+	public EsResponse<PaymentDTO> initMonthlyBooking(MonthlyBookingDTO   monthlyBookingDto  , long userId ){
+		try{
+	    Optional<Vehicle>  vehicleVo   = this.vehicleRepository.findById(monthlyBookingDto.getVehicleId());
+	    
+	    UserWallet userWallet = this.userWalletRepo.findByUserId(userId).orElse(null);
+	    
+	    if(vehicleVo.isPresent()  && null != userWallet){
+	    	
+	     ParkedVehicleCount parkedVehicleCountVo  = this.parkedVehicleCountRepository.findByParkingLocationIdAndVehicleTypeId(  monthlyBookingDto.getParkLocId() ,
+			                                                                              vehicleVo.get().getVehicleType().getId() ) ;
+	  
+	     if(null != parkedVehicleCountVo  && parkedVehicleCountVo.getRemainingSpace() >0 ){
+	    	 
+	    	 PaymentDTO paymentDto = getWalletInfo(userWallet , monthlyBookingDto.getAmt() ,  monthlyBookingDto.getParkLocId());
+	    	 
+	    	  return new EsResponse<>(IConstants.RESPONSE_STATUS_OK ,  paymentDto , this.ENV.getProperty("booking.parking.init"));
+	    	
+	     }
+	     else {
+	    	 return  new EsResponse<>(IConstants.RESPONSE_FULL_PARKING,  this.ENV.getProperty("parking.full"));
+	         } 
+	    }
+	    else {
+			  return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("user.not.found"));
+		     }
+		} 
+		catch (Exception e) {
+			e.printStackTrace();
+			return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR ,  this.ENV.getProperty("exception.internal.error"));
+		}
+	
 		
 	}
 	

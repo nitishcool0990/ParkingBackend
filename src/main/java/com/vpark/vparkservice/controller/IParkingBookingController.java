@@ -10,7 +10,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import com.vpark.vparkservice.constants.IConstants;
+import com.vpark.vparkservice.dto.CancelBookingDTO;
 import com.vpark.vparkservice.dto.CashFreeDTO;
+import com.vpark.vparkservice.dto.DoneBookingDTO;
 import com.vpark.vparkservice.dto.MonthlyBookingDTO;
 import com.vpark.vparkservice.dto.MyParkingHistoryDTO;
 import com.vpark.vparkservice.dto.ParkingLocationDto;
@@ -32,16 +34,16 @@ public interface IParkingBookingController {
 	 ResponseEntity<EsResponse<PaymentDTO>> addBookingAmount(@RequestBody CashFreeDTO cashFreeDto,@RequestAttribute("Id")  long id);
 
 	 @PostMapping(value=IConstants.VERSION_1 + "/doneBooking")
-	 ResponseEntity<EsResponse<ParkingLocationDto>> doneBooking(@RequestParam("parkingLocId") long  parkingId,@RequestAttribute("Id") long id,@RequestParam("amount") double amount,@RequestParam("vehicleTypeId") long  vehicleId,@RequestParam("inTime") String  inTime,@RequestParam("outTime") String  outTime);
+	 ResponseEntity<EsResponse<ParkingLocationDto>> doneBooking( @RequestBody DoneBookingDTO  doneBookingDto  , @RequestAttribute("Id") long id );
 
 	 @GetMapping(value=IConstants.VERSION_1+"/myBooking")
 	    ResponseEntity<EsResponse<List<MyParkingHistoryDTO>>> getUserParkingHistory(@RequestAttribute("Id")  long userId);
 	 
 	 @PostMapping(value=IConstants.VERSION_1 + "/monthlyBooking")
-	 ResponseEntity<EsResponse<?>> MonthlyBookingAmount(@RequestBody  MonthlyBookingDTO  monthlyBookingDto ,  @RequestAttribute("Id")  long id);
+	 ResponseEntity<EsResponse<PaymentDTO>> MonthlyBookingAmount(@RequestBody  MonthlyBookingDTO  monthlyBookingDto ,  @RequestAttribute("Id")  long id);
 	 
 	 @PostMapping(value=IConstants.VERSION_1 + "/cancelBooking")
-	 ResponseEntity<EsResponse<PaymentDTO>> cancelBookingAmount(@RequestParam("bookingParkId") long  parkingId,@RequestAttribute("Id")  long id,@RequestParam("latitude") double  latitude,@RequestParam("longitude") double  longitude);
+	 ResponseEntity<EsResponse<PaymentDTO>> cancelBookingAmount(@RequestBody  CancelBookingDTO  cancelBookingDto ,  @RequestAttribute("Id")  long id );
 
 
 }

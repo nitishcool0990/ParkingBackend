@@ -10,7 +10,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.vpark.vparkservice.constants.IConstants;
+import com.vpark.vparkservice.dto.CancelBookingDTO;
 import com.vpark.vparkservice.dto.CashFreeDTO;
+import com.vpark.vparkservice.dto.DoneBookingDTO;
 import com.vpark.vparkservice.dto.MonthlyBookingDTO;
 import com.vpark.vparkservice.dto.MyParkingHistoryDTO;
 import com.vpark.vparkservice.dto.ParkingLocationDto;
@@ -51,12 +53,13 @@ public class ParkingBookingController implements IParkingBookingController {
 	}
 
 	@Override
-	public ResponseEntity<EsResponse<ParkingLocationDto>> doneBooking(long parkingLocId, long userId, double amount, long  vehicleTypeId , String  inTime,String  outTime) {
-		if(parkingLocId >0 ){
+	public ResponseEntity<EsResponse<ParkingLocationDto>> doneBooking(DoneBookingDTO  doneBookingDto , long userId ) {
+		if(doneBookingDto.getParkingId() >0 ){
 			   return ResponseEntity.badRequest().body(new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("invalid.id")));
 			}
-		return ResponseEntity.ok(this.parkingBookingService.doneBooking(parkingLocId , userId , amount , vehicleTypeId , inTime , outTime));
+		return ResponseEntity.ok(this.parkingBookingService.doneBooking(doneBookingDto , userId ));
 	}
+	
 	
 	
 	@Override
@@ -64,23 +67,28 @@ public class ParkingBookingController implements IParkingBookingController {
 		return ResponseEntity.ok(this.parkingBookingService.getUserParkingHistory(userId));
 	}
 	
+	
+	
 	@Override
-	public ResponseEntity<EsResponse<PaymentDTO>> cancelBookingAmount(@RequestParam("bookingParkId") long  parkBookId,@RequestAttribute("Id")  long userId,double  latitude, double  longitude){
+	public ResponseEntity<EsResponse<PaymentDTO>> cancelBookingAmount(CancelBookingDTO  cancelBookingDto , @RequestAttribute("Id")  long userId ){
 		
-		if(parkBookId >0 ){
+		if(cancelBookingDto.getBookingId() >0 ){
 			   return ResponseEntity.badRequest().body(new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("invalid.id")));
 			}
-		return ResponseEntity.ok(this.parkingBookingService.cancelBookingAmount(parkBookId, userId,latitude,longitude));
+		return ResponseEntity.ok(this.parkingBookingService.cancelBookingAmount(cancelBookingDto , userId ));
 		
 	}
 
 	@Override
-	public ResponseEntity<EsResponse<?>> MonthlyBookingAmount(MonthlyBookingDTO monthlyBookingDto, @RequestAttribute("Id")  long userId) {
+	public ResponseEntity<EsResponse<PaymentDTO>> MonthlyBookingAmount(MonthlyBookingDTO monthlyBookingDto, @RequestAttribute("Id")  long userId) {
 		
 		if(monthlyBookingDto.getParkLocId()>0){
 			  return ResponseEntity.badRequest().body(new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("invalid.id")));
 		}
-		return null;
+		return ResponseEntity.ok(this.parkingBookingService.initMonthlyBooking(monthlyBookingDto, userId));
+		
+		
+		
 	}
 
 	

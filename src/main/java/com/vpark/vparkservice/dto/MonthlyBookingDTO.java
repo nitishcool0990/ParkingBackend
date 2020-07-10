@@ -16,4 +16,5 @@ public class MonthlyBookingDTO {
 	private long parkLocId ;
 	private long vehicleId ;
 	private double amt ;
+	
 }

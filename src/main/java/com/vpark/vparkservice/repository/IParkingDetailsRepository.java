@@ -19,5 +19,5 @@ public interface IParkingDetailsRepository extends JpaRepository<ParkingDetails,
 	List <ParkingDetails>findByparkingLocationId(long locationId) ;
 	
 	@Query("Select pd from ParkingDetails pd where pd.parkingLocation.id = ?1 and pd.vehicleType.id = ?2" )
-	Optional<ParkingDetails> findBylocationIdAndVehicleId(long parkingLOCId,long vehicleId);
+	Optional<ParkingDetails> findBylocationIdAndVehicleTypeId(long parkingLOCId,long vehicleTypeId);
 }
