@@ -123,8 +123,11 @@ public class ParkingBookingService {
 				
 				parkingLocDTO = new ParkingLocationDto((Long) obj[0], (double) obj[7],  (double) obj[5],
 						obj[4].toString(), obj[1].toString(), obj[2].toString(), obj[3].toString(), obj[8].toString()  ,  (double)  obj[9] , (double)  obj[10] , (byte[]) obj[11],hourlyTimeSlot);
-				
-				return new EsResponse<>(IConstants.RESPONSE_STATUS_OK, parkingLocDTO , this.ENV.getProperty("booking.parking.details"));
+				if((int)obj[13] >0) {
+					return new EsResponse<>(IConstants.RESPONSE_STATUS_OK, parkingLocDTO , this.ENV.getProperty("booking.parking.details"));
+				}else{
+					return new EsResponse<>(IConstants.RESPONSE_STATUS_OK, parkingLocDTO , this.ENV.getProperty("booking.parking.notavaible"));
+				}
 			} 
 			else {
 				return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR , this.ENV.getProperty("exception.internal.error"));
@@ -313,19 +316,20 @@ public class ParkingBookingService {
 						if (parkingDetails != null) {
 							
 							this.userWalletRepo.save(userWallet);
-							UserWallet agentWallet = this.userWalletRepo.findByUserId(parkingDetails.getParkingLocation().getUser().getId()).orElse(null);
-							double percentageAmt = doneBookingDto.getAmount() / parkingDetails.getAgentPercentage();
-							agentWallet.setReal(agentWallet.getReal() + percentageAmt);
-							this.userWalletRepo.save(agentWallet);
-
 							String remarks = "Parking Booked" ;
 							 if(doneBookingDto.isMonthlyBooking()){
 								 remarks = "Monthly Parking Booked";
+							 
+									UserWallet agentWallet = this.userWalletRepo.findByUserId(parkingDetails.getParkingLocation().getUser().getId()).orElse(null);
+									double percentageAmt = doneBookingDto.getAmount() / parkingDetails.getAgentPercentage();
+									agentWallet.setReal(agentWallet.getReal() + percentageAmt);
+									this.userWalletRepo.save(agentWallet);
+		
+									
+									// Monthly booking cut amount and provide to Agent and also set booking id 
+									AgentTransHistory agentHistoryVo = parkBookingMapper.createAgentHitsoryVo(percentageAmt , userId  , doneBookingDto.getParkingId() , -1 , remarks);
+									this.agentTransactionRepo.save(agentHistoryVo);
 							 }
-							// Monthly booking cut amount and provide to Agent and also set booking id 
-							AgentTransHistory agentHistoryVo = parkBookingMapper.createAgentHitsoryVo(percentageAmt , userId  , doneBookingDto.getParkingId() , -1 , remarks);
-							this.agentTransactionRepo.save(agentHistoryVo);
-
 							ParkTransHistory parkTransVo = parkBookingMapper.createParkingHitsoryVo(doneBookingDto.getAmount(), userId,"DR", remarks , "real");
 							this.parkingTransRepo.save(parkTransVo);
 
