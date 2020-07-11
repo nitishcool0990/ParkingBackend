@@ -34,14 +34,14 @@ public class ParkingBookingController implements IParkingBookingController {
 		return ResponseEntity.ok(this.parkingBookingService.getParkingInfo(parkingId,vehicleTypeId));
 	}
 	
-	public  ResponseEntity<EsResponse<PaymentDTO>> initBooking( long  parkingLocId, long userId,double amount,String  fromDate,String  toDate){
-		if(parkingLocId >0 ){
+	public  ResponseEntity<EsResponse<PaymentDTO>> initBooking( long  parkingLocId, long userId,double amount,String  fromDate,String  toDate,long vehicleTypeId){
+		if(parkingLocId <0 ){
 		   return ResponseEntity.badRequest().body(new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("invalid.id")));
 		}
 		LocalTime fromTime = LocalTime.of(Integer.parseInt(fromDate.split(":")[0]),Integer.parseInt(fromDate.split(":")[1]));
 		LocalTime toTime =  LocalTime.of(Integer.parseInt(toDate.split(":")[0]),Integer.parseInt(toDate.split(":")[1]));
 	
-		return ResponseEntity.ok(this.parkingBookingService.initBooking(parkingLocId, userId ,  amount , fromTime , toTime));
+		return ResponseEntity.ok(this.parkingBookingService.initBooking(parkingLocId, userId ,  amount , fromTime , toTime,vehicleTypeId));
 	}
 
 	@Override

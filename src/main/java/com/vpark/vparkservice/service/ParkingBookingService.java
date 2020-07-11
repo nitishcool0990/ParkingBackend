@@ -6,6 +6,7 @@ import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.BeanUtils;
@@ -95,35 +96,10 @@ public class ParkingBookingService {
 	public EsResponse<ParkingLocationDto> getParkingInfo(long parkingId, long vehicleTypeId) {
 		try {
 			List<Object[]> objList = parkingLocationRepository.getParkingInfo(parkingId, vehicleTypeId);
-			ParkingLocationDto parkingLocDTO = null;
 			
 			if (!objList.isEmpty()) {
-				Object[] obj = objList.get(0);
-				
-				HashMap<String,String> hourlyTimeSlot =new HashMap<String,String>();
-				
-				for(Object[] objArray :objList ) {
-					
-					hourlyTimeSlot.put(objArray[12].toString(), objArray[6].toString());
-				}
-				/*
-				 * parkingloc0_.id AS col_0_0_, parkingloc0_.park_name AS col_1_0_,
-				 * parkingloc0_.open_time AS col_2_0_, parkingloc0_.close_time AS col_3_0_,
-				 * parkingloc0_.description AS col_4_0_, parkingloc0_.rating AS col_5_0_,
-				 * parkingcha2_.hours AS col_6_0_, parkingcha2_.charges AS col_7_0_,
-				 * parkingdet1_.monthly_rate AS col_8_0_, parkingdet1_.booking_rate AS col_9_0_,
-				 * parkingloc0_.advance_booking_hr AS col_10_0_, parkingloc0_.booking_cancel_hr
-				 * AS col_11_0_, parkingloc0_.photo AS col_12_0_
-				 * 
-				 * Long bookingParkId, double monthlyRate, Double rating, String describe,String
-				 * parkingName, String openTime,String closeTime,String bookingRate , double
-				 * cancelBookingHr , double advanceBookingHr , byte[] image,HashMap
-				 * hourlyMoneyWithRate
-				 */
-				
-				parkingLocDTO = new ParkingLocationDto((Long) obj[0], (double) obj[7],  (double) obj[5],
-						obj[4].toString(), obj[1].toString(), obj[2].toString(), obj[3].toString(), obj[8].toString()  ,  (double)  obj[9] , (double)  obj[10] , (byte[]) obj[11],hourlyTimeSlot);
-				if((int)obj[13] >0) {
+				ParkingLocationDto parkingLocDTO = this.parkBookingMapper.convertToParkingLocationDTO(objList);
+				if(parkingLocDTO.getRemainingParking() >0) {
 					return new EsResponse<>(IConstants.RESPONSE_STATUS_OK, parkingLocDTO , this.ENV.getProperty("booking.parking.details"));
 				}else{
 					return new EsResponse<>(IConstants.RESPONSE_STATUS_OK, parkingLocDTO , this.ENV.getProperty("booking.parking.notavaible"));
@@ -138,6 +114,8 @@ public class ParkingBookingService {
 			return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR , this.ENV.getProperty("exception.internal.error"));
 		   }
 	 }
+	
+	
 	
 	
 	
@@ -172,15 +150,16 @@ public class ParkingBookingService {
 	
 	
 	
-	public EsResponse<PaymentDTO> initBooking( long  parkingLocId, long userId, double amount , LocalTime  fromDate  , LocalTime  toDate){
+	public EsResponse<PaymentDTO> initBooking( long  parkingLocId, long userId, double amount , LocalTime  fromDate  , LocalTime  toDate,long vehicleTypeId){
 		try {
 			
 			UserWallet userWallet = this.userWalletRepo.findByUserId(userId).orElse(null);
 			 //ParkedVehicleCount parkedVehicleCountVo  = this.parkedVehicleCountRepository.findByParkingLocationIdAndVehicleTypeId(  parkingLocId ,
                      //vehicleVo.get().getVehicleType().getId() ) ;
 			if(userWallet!=null  ) {
-				ParkingLocation location = this.parkingLocationRepository.findById(parkingLocId).orElse(null);
-				
+			//	ParkingLocation location = this.parkingLocationRepository.findById(parkingLocId).orElse(null);
+				  List<Object[]> objList = this.parkingLocationRepository.getParkingInfo(parkingLocId,vehicleTypeId);
+				  ParkingLocationDto location = this.parkBookingMapper.convertToParkingLocationDTO(objList);
 				LocalTime fromLOCDateTime = LocalTime.of(Integer.parseInt(location.getOpenTime().split(":")[0]),Integer.parseInt(location.getOpenTime().split(":")[1]));
 				LocalTime toLOCDateTime =  LocalTime.of(Integer.parseInt(location.getCloseTime().split(":")[0]),Integer.parseInt(location.getCloseTime().split(":")[1]));
 				
@@ -212,6 +191,34 @@ public class ParkingBookingService {
 						 return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("booking.not.allowed"));
 					}
 				}
+				
+              
+                double mins = fromDate.until( toDate, ChronoUnit.MINUTES );
+                long hourBooking = (long) (mins/60);
+                long minsBooking = (long) (mins%60);
+                if(minsBooking >0) {
+					hourBooking = hourBooking+1;
+				}
+				if(IConstants.ChargesType.PERHOUR.toString().equalsIgnoreCase(location.getChargesType())) {
+					double preHourVal =0;
+					for(double slotTimeValue : location.getHourlyTimeSlot().values() ) {
+						preHourVal = slotTimeValue;
+					}
+					if(preHourVal*hourBooking >= location.getMaxLimit()) {
+						amount =  location.getMaxLimit();
+					}else {
+						amount = preHourVal*hourBooking;
+					}
+				}else {
+					
+					for(Map.Entry<Double, Double> slotTime : location.getHourlyTimeSlot().entrySet() ) {
+						if(slotTime.getKey() >=hourBooking ) {
+							amount = slotTime.getValue();
+							break;
+						}
+					}
+				}
+				
 				PaymentDTO paymentDto = getWalletInfo(userWallet , amount , parkingLocId);
 				
 				  return new EsResponse<>(IConstants.RESPONSE_STATUS_OK ,  paymentDto , this.ENV.getProperty("booking.parking.init"));

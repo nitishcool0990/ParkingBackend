@@ -1,8 +1,13 @@
 package com.vpark.vparkservice.mapper;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.TreeMap;
+
 import org.springframework.stereotype.Component;
 import com.vpark.vparkservice.constants.IConstants;
 import com.vpark.vparkservice.dto.DoneBookingDTO;
+import com.vpark.vparkservice.dto.ParkingLocationDto;
 import com.vpark.vparkservice.entity.AgentTransHistory;
 import com.vpark.vparkservice.entity.ParkBookingHistory;
 import com.vpark.vparkservice.entity.ParkTransHistory;
@@ -62,5 +67,25 @@ public class ParkBookingMapper {
 
 		return bookingHistory;
 
+	}
+	
+	
+	public ParkingLocationDto convertToParkingLocationDTO(List<Object[]> objList) {
+		ParkingLocationDto parkingLocDTO = null;
+		if (!objList.isEmpty()) {
+			Object[] obj = objList.get(0);
+			
+			TreeMap<Double, Double> hourlyTimeSlot =new TreeMap<Double,Double>();
+			
+			for(Object[] objArray :objList ) {
+				
+				hourlyTimeSlot.put((double)objArray[12], (double)objArray[6]);
+			}
+			parkingLocDTO = new ParkingLocationDto((Long) obj[0], (double) obj[7],  (double) obj[5],
+					obj[4].toString(), obj[1].toString(), obj[2].toString(), obj[3].toString(), obj[8].toString()  ,  (double)  obj[10] , (double)  obj[9] , (byte[]) obj[11],hourlyTimeSlot,(int)obj[13]);
+			parkingLocDTO.setChargesType(obj[14].toString());
+			parkingLocDTO.setMaxLimit((double) obj[15]);
+		}
+		return parkingLocDTO;
 	}
 }

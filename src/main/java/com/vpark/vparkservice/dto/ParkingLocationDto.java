@@ -4,9 +4,12 @@ package com.vpark.vparkservice.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.vpark.vparkservice.constants.IConstants;
+
 import lombok.Data;
 import java.math.BigInteger;
 import java.util.HashMap;
+import java.util.TreeMap;
 
 @Data
 @JsonInclude(Include.NON_NULL)
@@ -23,7 +26,7 @@ public class ParkingLocationDto {
 	private Double charges;
 	private Double monthlyRate;
 	private Double hourlyRate;
-	private HashMap<String,String> hourlyTimeSlot =null;
+	private TreeMap<Double,Double> hourlyTimeSlot =null;
 	private Double rating;
 	private String describe;
 	private String parkingName;
@@ -33,6 +36,9 @@ public class ParkingLocationDto {
 	private Double canceBookingHr ;
 	private Double advanceBookingHr ;
 	private byte[] image ;
+	private int remainingParking;
+	private String chargesType= IConstants.ChargesType.PERHOUR.toString() ;
+	private double maxLimit;
 	
 	
 	public ParkingLocationDto(BigInteger parkingId, Object latitude, Object longitude, double distance, String color,
@@ -48,7 +54,7 @@ public class ParkingLocationDto {
 	}
 
 	public ParkingLocationDto(Long bookingParkId,  double monthlyRate, Double rating, String describe,String parkingName,
-			 String openTime,String closeTime,String bookingRate , double cancelBookingHr , double advanceBookingHr  ,  byte[] image,HashMap hourlyTimeSlot) {
+			 String openTime,String closeTime,String bookingRate , double cancelBookingHr , double advanceBookingHr  ,  byte[] image,TreeMap hourlyTimeSlot,int remainingParking) {
 		this.bookingParkId = bookingParkId;
 		this.monthlyRate = monthlyRate;
 		this.rating = rating;
@@ -61,6 +67,7 @@ public class ParkingLocationDto {
 		this.canceBookingHr = cancelBookingHr ;
 		this.image = image;
 		this.hourlyTimeSlot =hourlyTimeSlot;
+		this.remainingParking=remainingParking;
 	}
 	
 	public ParkingLocationDto(Long bookingParkId, Object latitude, Object longitude) {
