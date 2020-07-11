@@ -23,10 +23,10 @@ public class ParkingDetails extends Savable {
     private VehicleType vehicleType;
 
     @Column(name = "CAPACITY")
-    private Integer capacity;
+    private Integer capacity = 0;
     
     @Column(name = "HOURLY_RATE")
-    private double hourlyRate;
+    private double hourlyRate = 0;
     
     @Column(name = "MONTHLY_RATE")
     private double monthlyRate =0 ;
@@ -36,7 +36,7 @@ public class ParkingDetails extends Savable {
     
     @Column(name = "CHARGES_TYPE", nullable = false, length = 10)
     @Enumerated(EnumType.STRING)
-    private IConstants.ChargesType chargesType = IConstants.ChargesType.PERHOUR ;
+    private IConstants.ChargesType chargesType = null ;
     
     
     @Column(name = "STATUS", nullable = false, length = 10)
@@ -49,7 +49,7 @@ public class ParkingDetails extends Savable {
      private ParkingLocation parkingLocation;
     
     
-    @OneToMany(  cascade = CascadeType.ALL, orphanRemoval = true  )
+    @OneToMany(  cascade = CascadeType.ALL, fetch = FetchType.LAZY , orphanRemoval = true  )
     private List<ParkingCharges> parkingCharges = new ArrayList<ParkingCharges>();
     
 
@@ -61,6 +61,6 @@ public class ParkingDetails extends Savable {
     private double agentPercentage  = 10 ;
     
     @Column(name = "MAX_LIMIT")
-    private double maxLimit;
+    private double maxLimit = 0;
 
 }

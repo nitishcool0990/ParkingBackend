@@ -28,7 +28,7 @@ public interface IParkingBookingController {
 	    ResponseEntity<EsResponse<ParkingLocationDto>> getParkingInfo(@PathVariable long  parkingId,@PathVariable long vehicleTypeId);
 	 
 	 @PostMapping(value=IConstants.VERSION_1 + "/initBooking")
-	    ResponseEntity<EsResponse<PaymentDTO>> initBooking(@RequestParam("parkingLocId") long  parkingId,@RequestAttribute("Id") long id,@RequestParam("amount") double amount,@RequestParam("fromTime")  String  fromDate,@RequestParam("toTime") String  toDate,@RequestParam("vehicleTypeId") long vehicleTypeId  );
+	    ResponseEntity<EsResponse<PaymentDTO>> initBooking(@RequestParam("parkingLocId") long  parkingId,@RequestAttribute("Id") long id,@RequestParam("amount") double amount,@RequestParam("fromTime")  String  fromDate ,@RequestParam("toTime") String  toDate,@RequestParam("vehicleTypeId") long vehicleTypeId  );
 	 
 	 @PostMapping(value=IConstants.VERSION_1 + "/addAmount")
 	 ResponseEntity<EsResponse<PaymentDTO>> addBookingAmount(@RequestBody CashFreeDTO cashFreeDto,@RequestAttribute("Id")  long id);
@@ -40,7 +40,7 @@ public interface IParkingBookingController {
 	    ResponseEntity<EsResponse<List<MyParkingHistoryDTO>>> getUserParkingHistory(@RequestAttribute("Id")  long userId);
 	 
 	 @PostMapping(value=IConstants.VERSION_1 + "/monthlyBooking")
-	 ResponseEntity<EsResponse<PaymentDTO>> MonthlyBookingAmount(@RequestBody  MonthlyBookingDTO  monthlyBookingDto ,  @RequestAttribute("Id")  long id);
+	 ResponseEntity<EsResponse<PaymentDTO>> initMonthlyBooking(@RequestBody  MonthlyBookingDTO  monthlyBookingDto ,  @RequestAttribute("Id")  long id);
 	 
 	 @PostMapping(value=IConstants.VERSION_1 + "/cancelBooking")
 	 ResponseEntity<EsResponse<PaymentDTO>> cancelBookingAmount(@RequestBody  CancelBookingDTO  cancelBookingDto ,  @RequestAttribute("Id")  long id );

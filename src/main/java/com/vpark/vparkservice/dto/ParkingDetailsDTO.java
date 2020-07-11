@@ -3,6 +3,7 @@ package com.vpark.vparkservice.dto;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.vpark.vparkservice.constants.IConstants;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -20,11 +21,13 @@ public class ParkingDetailsDTO {
     
 	private long vehicleTypeId ;
 	
-	private  String chargesType ;
+	private  IConstants.ChargesType chargesType ;
 	
 	private double monthlyRate ;
 	
 	private double nightCharges ;
+	
+	private double maxLimit ;
 	
 	private List<ParkingChargesDTO> parkingChargesDtos ; 
 }

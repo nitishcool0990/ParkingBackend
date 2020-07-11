@@ -7,7 +7,6 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
 import com.vpark.vparkservice.dto.AgentParkingLocationDTO;
 import com.vpark.vparkservice.entity.ParkedVehicleCount;
 import com.vpark.vparkservice.entity.ParkingCharges;
@@ -35,8 +34,8 @@ public class ParkingLocMapper {
     			  .map(parkingDetailsDto -> {
     				  ParkingDetails  ParkingDetailsVo  = new ParkingDetails() ;
     				  BeanUtils.copyProperties(parkingDetailsDto, ParkingDetailsVo);
-    				  //ParkingDetails  ParkingDetailsVo =  modelMapper.map(parkingDetailsDto , ParkingDetails.class);
     				  
+    			
     				  VehicleType  vehicleTypeVo = new VehicleType() ;
     				  vehicleTypeVo.setId(parkingDetailsDto.getVehicleTypeId());
     				  ParkingDetailsVo.setVehicleType(vehicleTypeVo);
@@ -46,6 +45,10 @@ public class ParkingLocMapper {
     			List<ParkingCharges> parkingChargesVos =  parkingDetailsDto.getParkingChargesDtos().stream().map(
     					  parkingChargesDto ->{
     						  ParkingCharges   parkingChargesVo = modelMapper.map(parkingChargesDto , ParkingCharges.class);
+    						  
+    						  if(ParkingDetailsVo.getHourlyRate() == 0 ||  ParkingDetailsVo.getHourlyRate() > parkingChargesVo.getCharges())
+    						       ParkingDetailsVo.setHourlyRate(parkingChargesVo.getCharges());
+    						  
     						  parkingChargesVo.setParkingDetails(ParkingDetailsVo);
     						  return parkingChargesVo;
     						  
@@ -79,6 +82,7 @@ public class ParkingLocMapper {
     	
     	    return parkedVehicleCountVos ;
 	}
+    
     
     
     

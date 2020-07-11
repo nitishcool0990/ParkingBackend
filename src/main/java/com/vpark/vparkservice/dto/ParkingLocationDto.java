@@ -5,10 +5,8 @@ package com.vpark.vparkservice.dto;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.vpark.vparkservice.constants.IConstants;
-
 import lombok.Data;
 import java.math.BigInteger;
-import java.util.HashMap;
 import java.util.TreeMap;
 
 @Data
@@ -38,7 +36,7 @@ public class ParkingLocationDto {
 	private byte[] image ;
 	private int remainingParking;
 	private String chargesType= IConstants.ChargesType.PERHOUR.toString() ;
-	private double maxLimit;
+	private Double maxLimit;
 	
 	
 	public ParkingLocationDto(BigInteger parkingId, Object latitude, Object longitude, double distance, String color,

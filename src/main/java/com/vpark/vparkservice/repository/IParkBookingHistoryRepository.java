@@ -31,6 +31,12 @@ public interface IParkBookingHistoryRepository  extends JpaRepository<ParkBookin
 	@Query("select pbh from ParkBookingHistory pbh where id = ?1 and userId =?2" )
 	Optional<ParkBookingHistory>  findByParkingBookingIdAndUserId(long parkBookId,long userId) ;
 	
+	@Query("SELECT pbh FROM ParkBookingHistory  pbh WHERE YEAR(pbh.fromDate) = YEAR(CURRENT_DATE()) "
+			+ " AND   MONTH(pbh.fromDate) = MONTH(CURRENT_DATE()) and pbh.status = 'RUNNING' and pbh.remarks Like 'Monthly Parking Booked'  and pbh.parkingLocationId = ?1")
+	List<ParkBookingHistory>  findMonthlyBookingTransactionHistoryOfCurrenMonthByLocationId(long locId);
+	
+	
+	
 	
 	
 }
