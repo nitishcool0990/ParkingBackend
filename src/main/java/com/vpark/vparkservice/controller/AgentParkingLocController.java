@@ -11,8 +11,10 @@ import org.springframework.web.multipart.MultipartFile;
 import com.google.gson.Gson;
 import com.vpark.vparkservice.constants.IConstants;
 import com.vpark.vparkservice.dto.AgentParkingLocationDTO;
+import com.vpark.vparkservice.dto.AgentWalletDTO;
 import com.vpark.vparkservice.dto.BookedVehicleDetailsDTO;
 import com.vpark.vparkservice.dto.CheckInAndCheckOutDTO;
+import com.vpark.vparkservice.dto.MyParkingHistoryDTO;
 import com.vpark.vparkservice.dto.ParkingDetailsDTO;
 import com.vpark.vparkservice.dto.ParkingTypeDTO;
 import com.vpark.vparkservice.model.EsResponse;
@@ -49,16 +51,16 @@ public class AgentParkingLocController implements  IAgentParkingLocController {
    
 		
 		@Override
-		public ResponseEntity<EsResponse<List<ParkingDetailsDTO>>> findParkingStatusById(long locId) {
+		public ResponseEntity<EsResponse<AgentWalletDTO>> findAgentEarning(long locId   , long userId) {
 			 if ( locId < 0) {
 		            return ResponseEntity.badRequest().body(new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("invalid.id")));
 		        }
-		        return ResponseEntity.ok(this.agentParkingService.findParkingDetailsById( locId ));
+		        return ResponseEntity.ok(this.agentParkingService.findAgentEarnAmount( locId  , userId));
 			
 		}
 		
 	public ResponseEntity<EsResponse<List<ParkingDetailsDTO>>> findParkingDetailsById(@PathVariable long locId ){
-		 if ( locId < 0) {
+		 if ( locId <= 0) {
 	            return ResponseEntity.badRequest().body(new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("invalid.id")));
 	        }
 	        return ResponseEntity.ok(this.agentParkingService.findParkingDetailsById( locId ));
@@ -96,7 +98,7 @@ public class AgentParkingLocController implements  IAgentParkingLocController {
 
 		@Override
 		public ResponseEntity<EsResponse<List<BookedVehicleDetailsDTO>>> findUpcomingVehicles(long locId) {
-			 if ( locId < 0) {
+			 if ( locId <= 0) {
 		            return ResponseEntity.badRequest().body(new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("invalid.id")));
 		        }
 		        return ResponseEntity.ok(this.agentParkingService.findUpcomingVehicleDetails( locId ));
@@ -105,7 +107,7 @@ public class AgentParkingLocController implements  IAgentParkingLocController {
 
 		@Override
 		public ResponseEntity<EsResponse<?>> checkInVehicle(CheckInAndCheckOutDTO checkInDto  , @RequestAttribute("Id")  long userId) {
-			 if ( checkInDto.getLocationId() < 0) {
+			 if ( checkInDto.getLocationId() <= 0) {
 		            return ResponseEntity.badRequest().body(new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("invalid.id")));
 		        }
 		        return ResponseEntity.ok(this.agentParkingService.checkInVehicle(checkInDto  , userId));
@@ -115,7 +117,7 @@ public class AgentParkingLocController implements  IAgentParkingLocController {
 
 		@Override
 		public ResponseEntity<EsResponse<?>> checkOutVehicle(CheckInAndCheckOutDTO checkOutDto) {
-			 if ( checkOutDto.getLocationId() < 0) {
+			 if ( checkOutDto.getLocationId() <= 0) {
 		            return ResponseEntity.badRequest().body(new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("invalid.id")));
 		        }
 		        return ResponseEntity.ok(this.agentParkingService.checkOutVehicle(checkOutDto));
@@ -128,6 +130,15 @@ public class AgentParkingLocController implements  IAgentParkingLocController {
 		            return ResponseEntity.badRequest().body(new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("invalid.id")));
 		        }
 		        return ResponseEntity.ok(this.agentParkingService.findParkedVehicleDetails( locId ));
+		}
+
+
+		@Override
+		public ResponseEntity<EsResponse<List<MyParkingHistoryDTO>>> findMonthlyBookings(long locId) {
+			 if ( locId <= 0) {
+		            return ResponseEntity.badRequest().body(new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("invalid.id")));
+		        }
+		        return ResponseEntity.ok(this.agentParkingService.findMonthlyBookings( locId ));
 		}
 
 

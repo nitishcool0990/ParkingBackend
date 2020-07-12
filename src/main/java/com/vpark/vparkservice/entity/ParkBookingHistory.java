@@ -1,6 +1,8 @@
 package com.vpark.vparkservice.entity;
 
 
+
+import java.time.LocalDate;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -45,20 +47,26 @@ public class ParkBookingHistory extends Savable{
 	private String cr_dr ;
 	
 	@Column(name = "IN_TIME")
-	private String inTime ;
+	private String inTime = null ;
 	
 	@Column(name = "OUT_TIME")
-	private String outTime ;
+	private String outTime = null ;
 	
 	@Column(name = "remarks")
 	private String remarks ;
+	
+	@Column(name = "FROM_DATE", nullable = false )
+     private LocalDate fromDate = LocalDate.now();
+
+    @Column(name = "END_DATE", nullable = false )
+     private LocalDate endDate = LocalDate.now();
 	
 	@Column(name = "status", nullable = false, length = 10)
 	@Enumerated(EnumType.STRING)
 	private IConstants.ParkingStatus status = IConstants.ParkingStatus.RUNNING;
 
 	
-	
+ 
 
 
 }

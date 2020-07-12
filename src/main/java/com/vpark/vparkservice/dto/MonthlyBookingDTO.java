@@ -13,8 +13,11 @@ import lombok.NoArgsConstructor;
 public class MonthlyBookingDTO {
 
 	private String  fromDate ;
+	
 	private long parkLocId ;
+	
 	private long vehicleId ;
+	
 	private double amt ;
 	
 }

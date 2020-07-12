@@ -2,7 +2,6 @@ package com.vpark.vparkservice.entity;
 
 import lombok.Data;
 import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -24,7 +23,6 @@ public abstract class Savable implements Serializable {
 
     
     @Column(name = "MODIFIED_DATE", nullable = false)
-    @LastModifiedDate
     private LocalDateTime modifiedDate = LocalDateTime.now();
     
     

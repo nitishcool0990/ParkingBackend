@@ -13,8 +13,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import com.vpark.vparkservice.constants.IConstants;
 import com.vpark.vparkservice.dto.AgentParkingLocationDTO;
+import com.vpark.vparkservice.dto.AgentWalletDTO;
 import com.vpark.vparkservice.dto.BookedVehicleDetailsDTO;
 import com.vpark.vparkservice.dto.CheckInAndCheckOutDTO;
+import com.vpark.vparkservice.dto.MyParkingHistoryDTO;
 import com.vpark.vparkservice.dto.ParkingChargesDTO;
 import com.vpark.vparkservice.dto.ParkingDetailsDTO;
 import com.vpark.vparkservice.dto.ParkingTypeDTO;
@@ -42,6 +44,7 @@ import com.vpark.vparkservice.repository.IParkingTypeRepository;
 import com.vpark.vparkservice.repository.IReferalCodeHistoryRepository;
 import com.vpark.vparkservice.repository.IUserRepository;
 import com.vpark.vparkservice.repository.IUserWalletRepository;
+import com.vpark.vparkservice.repository.IVehicleRepository;
 
 @Service
 public class AgentParkingLocService  {
@@ -89,7 +92,7 @@ public class AgentParkingLocService  {
 	 private IUserWalletRepository  userWalletRepository ;
 	 
 	 @Autowired
-	 private IUserWalletRepository userWalletRepo;
+	 private IVehicleRepository vehicleRepository; 
 
 	  
 	  
@@ -99,10 +102,31 @@ public class AgentParkingLocService  {
 	        	ParkingLocation parkLocEntity  = this.parkingLocationRepository.findBylatitudeAndlongitudeAndparkName(parkingLocationDto.getLatitude() , 
 	        			 parkingLocationDto.getLongitude() , parkingLocationDto.getParkName());
 	        	
-	        	if(null != parkLocEntity){
+	        	if(null != parkLocEntity  && parkLocEntity.getUser().getId() != userId){
 	        		return new EsResponse<>(IConstants.RESPONSE_DUPLICATE_LOCATION  , this.ENV.getProperty("parking.location.already.exist"));
 	        	}
 	        	
+			if (null != parkLocEntity && parkLocEntity.getUser().getId() == userId  && parkLocEntity.getStatus().equals(IConstants.Status.INACTIVE)   ) {
+
+				BeanUtils.copyProperties(parkingLocationDto, parkLocEntity);
+				parkingLocMapper.mapAgentParkingLocToVo(parkingLocationDto, parkLocEntity);
+				
+				User user = new User();
+				user.setId(userId);
+				parkLocEntity.setUser(user);
+
+				for (MultipartFile image : parkingImages) {
+					byte[] photoBytes = image.getBytes();
+					parkLocEntity.setPhoto(photoBytes);
+				}
+				ParkingLocation savedParkingLocVo = this.parkingLocationRepository.save(parkLocEntity);
+				List<ParkedVehicleCount> parkedVehicleVos = parkingLocMapper.createParkedVehicleVo(parkingLocationDto , savedParkingLocVo.getId());
+
+				this.parkedVehicleCountRepository.saveAll(parkedVehicleVos);
+				return new EsResponse<>(IConstants.RESPONSE_STATUS_OK , this.ENV.getProperty("parking.location.creation.success"));
+
+			}
+
 	        	ParkingLocation parkingLocVo = new ParkingLocation () ;
 	        	BeanUtils.copyProperties(parkingLocationDto, parkingLocVo);
 	       
@@ -235,7 +259,6 @@ public class AgentParkingLocService  {
         	 return new EsResponse<>(IConstants.RESPONSE_STATUS_OK  , this.ENV.getProperty("parking.location.update.success"));
         	
         	}
-
         	 return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR  , this.ENV.getProperty("parking.location.not.found")); 
       
         } catch (Exception e) {
@@ -245,33 +268,31 @@ public class AgentParkingLocService  {
   }
  
 
-	  public EsResponse<?> find(long locId , long userId){
+	  public EsResponse<AgentWalletDTO> findAgentEarnAmount(long locId , long userId){
 		try{
-			UserWallet agentWallet  =  this.userWalletRepo.findByUserId(userId).orElse(null);
-			List<AgentTransHistory> agentHistoryVos  = this.agentTransHistoryRepo.findByLocationId(locId ); 
-			double agentAmt = 0;
+			AgentWalletDTO agentWalletDto  = new AgentWalletDTO();
+			UserWallet agentWallet  =  this.userWalletRepository.findByUserId(userId).orElse(null);
+			double agentMonthlyAmt  = this.agentTransHistoryRepo.findCurrentMonthAmtByLocationId(locId ); 
 			
 			if(null != agentWallet ){
-			 if(  null !=  agentHistoryVos  &&  agentHistoryVos.size() > 0){
-			
-				agentHistoryVos.stream().forEach(agentHistoryVo  ->{
 				
-					agentHistoryVo.getAmt();
-				}) ;
-			 }
+				agentWalletDto.setMonthlyEarnAmt(agentMonthlyAmt);
+				agentWalletDto.setTotalEarnAmt(agentWallet.getReal());
+				
+				 return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, agentWalletDto , this.ENV.getProperty("user.wallet.found"));	
 			}
 			else{
 				 return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("user.not.found"));	
 			}
 			
-			
 	  } catch (Exception e) {
 			e.printStackTrace();
-			  return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("parking.location.update.failed"));
+			  return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("exception.internal.error"));
 		}
-		return null;
 	 }
 
+	  
+	  
 	
 	public EsResponse<List<BookedVehicleDetailsDTO>> findUpcomingVehicleDetails(long locId) {
 		try {
@@ -366,7 +387,7 @@ public class AgentParkingLocService  {
 			if(checkInDto.getBookingId() >0 ){
 				
 				Optional<ParkBookingHistory> parkBookingHistoryVo =  this.parkBookingHistoryRepository.findById(checkInDto.getBookingId() );
-				UserWallet agentWallet = this.userWalletRepo.findByUserId(userId).orElse(null); 
+				UserWallet agentWallet = this.userWalletRepository.findByUserId(userId).orElse(null); 
 				
 				Optional<ParkingDetails>  parkingDetailsVo = parkingDetailsRepository.findBylocationIdAndVehicleTypeId(checkInDto.getLocationId(), checkInDto.getVehicleTypeId());
 				
@@ -378,9 +399,9 @@ public class AgentParkingLocService  {
 					double amt = parkBookingHistory.getBonusAmt() + parkBookingHistory.getRealAmt() + parkBookingHistory.getDepositAmt() ;
 					double percentageAmt = amt / parkingDetailsVo.get().getAgentPercentage();
 					agentWallet.setReal(percentageAmt);
-					String remarks = "parking booking" ;
+					String remarks = "Parking Booked" ;
 					
-					AgentTransHistory agentHistoryVo = parkBookingMapper.createAgentHitsoryVo(percentageAmt , userId  , checkInDto.getLocationId()  ,  parkBookingHistory.getId() ,  remarks);
+					AgentTransHistory agentHistoryVo = parkBookingMapper.createAgentHitsoryVo(percentageAmt , parkBookingHistory.getUserId() ,   userId  , checkInDto.getLocationId()  ,  parkBookingHistory.getId() ,  remarks);
 					 this.agentTransHistoryRepo.save(agentHistoryVo);
 					
 					this.parkBookingHistoryRepository.save(parkBookingHistoryVo.get());
@@ -471,7 +492,46 @@ public class AgentParkingLocService  {
 	       }
 	}
 	
+	
+	
+	public EsResponse<List<MyParkingHistoryDTO>> findMonthlyBookings(long locId){
+		try{
+			
+			List<ParkBookingHistory> parkBookingHistoryVos  = this.parkBookingHistoryRepository.findMonthlyBookingTransactionHistoryOfCurrenMonthByLocationId(locId);
+			
+			if(null !=parkBookingHistoryVos  && parkBookingHistoryVos.size() >0 )
+			{
+				List<MyParkingHistoryDTO> myParkingHistoryDtos   = parkBookingHistoryVos.stream().map((parkBookingHistoryVo)  ->{
+					
+					MyParkingHistoryDTO monthlyParkingHistoryDto  = new MyParkingHistoryDTO() ;
+					
+					monthlyParkingHistoryDto.setBookingId(parkBookingHistoryVo.getId());
+					monthlyParkingHistoryDto.setBookingDate(parkBookingHistoryVo.getCreatedDate());
+					monthlyParkingHistoryDto.setStartDate(parkBookingHistoryVo.getFromDate());
+					monthlyParkingHistoryDto.setEndDate(parkBookingHistoryVo.getEndDate());
+					
+					Optional<Vehicle> vehicleVo  = vehicleRepository.findById(parkBookingHistoryVo.getVehicleId());
+					
+					if(vehicleVo.isPresent()){
+						monthlyParkingHistoryDto.setVehicleNo(vehicleVo.get().getVehicleNo());
+						monthlyParkingHistoryDto.setVehicleType(vehicleVo.get().getVehicleType().getVehicleName());
+					}
+		
+					return monthlyParkingHistoryDto ;
+					
+				}) .collect(Collectors.toList());
+				
+				 return  new EsResponse<>(IConstants.RESPONSE_STATUS_OK, myParkingHistoryDtos, this.ENV.getProperty("booking.parking.history.found"));
+			}
+		}
+		catch (Exception e) {
+	        e.printStackTrace();
+	        return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("exception.internal.error"));
+	    }
+		return null;
+	}
 	  
+	
 	
 	 public EsResponse<List<ParkingTypeDTO>> findAllParkingType() {
 	     try{

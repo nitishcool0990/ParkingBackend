@@ -1,5 +1,6 @@
 package com.vpark.vparkservice.dto;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -31,6 +32,10 @@ public class MyParkingHistoryDTO {
 	private String vehicleNo ;
 	
 	private LocalDateTime bookingDate; 
+	
+	private LocalDate StartDate; 
+	
+	private LocalDate endDate; 
 	
 	
 

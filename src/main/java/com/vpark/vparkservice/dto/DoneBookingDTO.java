@@ -19,5 +19,7 @@ public class DoneBookingDTO {
 	
 	private  String  outTime ;
 	
-	private boolean isMonthlyBooking ;
+	private boolean monthlyBookingFlag  ;
+	
+	private String  fromDate ; 
 }

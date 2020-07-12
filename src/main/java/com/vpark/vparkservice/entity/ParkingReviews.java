@@ -33,9 +33,8 @@ public class ParkingReviews extends Savable {
     @Column(name = "REPLY")
     private String reply;
     
-    
     @ManyToOne( fetch = FetchType.LAZY)
-   @JoinColumn(name = "PARK_LOC_ID", referencedColumnName = "ID", foreignKey = @ForeignKey(name = "FK_REVIEW2PARK_LOC"))
+   @JoinColumn(name = "PARK_LOC_ID")
     private ParkingLocation parkingLocId ;
 
 }

@@ -4,10 +4,10 @@ package com.vpark.vparkservice.service;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,10 +15,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.RequestParam;
 
-import java.util.stream.Collectors;
-import org.modelmapper.ModelMapper;
 import com.vpark.vparkservice.constants.IConstants;
 import com.vpark.vparkservice.dto.CancelBookingDTO;
 import com.vpark.vparkservice.dto.CashFreeDTO;
@@ -28,18 +25,17 @@ import com.vpark.vparkservice.dto.MyParkingHistoryDTO;
 import com.vpark.vparkservice.dto.ParkingLocationDto;
 import com.vpark.vparkservice.dto.PaymentDTO;
 import com.vpark.vparkservice.dto.PaymetGateWayDTO;
-import com.vpark.vparkservice.entity.ParkingLocation;
-import com.vpark.vparkservice.entity.UserWallet;
-import com.vpark.vparkservice.entity.Vehicle;
-import com.vpark.vparkservice.mapper.ParkBookingMapper;
 import com.vpark.vparkservice.entity.AgentTransHistory;
 import com.vpark.vparkservice.entity.CashFreeTransHistory;
 import com.vpark.vparkservice.entity.ParkBookingHistory;
 import com.vpark.vparkservice.entity.ParkTransHistory;
 import com.vpark.vparkservice.entity.ParkedVehicleCount;
 import com.vpark.vparkservice.entity.ParkingDetails;
+import com.vpark.vparkservice.entity.ParkingLocation;
+import com.vpark.vparkservice.entity.UserWallet;
+import com.vpark.vparkservice.entity.Vehicle;
+import com.vpark.vparkservice.mapper.ParkBookingMapper;
 import com.vpark.vparkservice.model.EsResponse;
-import com.vpark.vparkservice.model.RequestAttribute;
 import com.vpark.vparkservice.repository.IAgentTransHistoryRepository;
 import com.vpark.vparkservice.repository.ICashFreeTransHistory;
 import com.vpark.vparkservice.repository.IParkBookingHistoryRepository;
@@ -47,7 +43,6 @@ import com.vpark.vparkservice.repository.IParkTransHistoryRepository;
 import com.vpark.vparkservice.repository.IParkedVehicleCountRepository;
 import com.vpark.vparkservice.repository.IParkingDetailsRepository;
 import com.vpark.vparkservice.repository.IParkingLocationRepository;
-import com.vpark.vparkservice.repository.IUserRepository;
 import com.vpark.vparkservice.repository.IUserWalletRepository;
 import com.vpark.vparkservice.repository.IVehicleRepository;
 import com.vpark.vparkservice.test.GFGTest;
@@ -281,7 +276,7 @@ public class ParkingBookingService {
 	
 	
 	@Synchronized
-	@Transactional(readOnly = false,   propagation = Propagation.REQUIRES_NEW)
+	@Transactional(readOnly = false,   propagation = Propagation.REQUIRED)
 	public EsResponse<ParkingLocationDto> doneBooking(DoneBookingDTO  doneBookingDto , long userId ) {
 		try {
 		Optional<Vehicle>  vehicleVo   = this.vehicleRepository.findById(doneBookingDto.getVehicleId());
@@ -322,27 +317,33 @@ public class ParkingBookingService {
 		        ParkingDetails parkingDetails = this.parkingDetailsRepository.findBylocationIdAndVehicleTypeId(doneBookingDto.getParkingId(), vehicleVo.get().getVehicleType().getId()).orElse(null);
 						if (parkingDetails != null) {
 							
-							this.userWalletRepo.save(userWallet);
 							String remarks = "Parking Booked" ;
-							 if(doneBookingDto.isMonthlyBooking()){
+							
+							if(doneBookingDto.isMonthlyBookingFlag())
 								 remarks = "Monthly Parking Booked";
-							 
-									UserWallet agentWallet = this.userWalletRepo.findByUserId(parkingDetails.getParkingLocation().getUser().getId()).orElse(null);
-									double percentageAmt = doneBookingDto.getAmount() / parkingDetails.getAgentPercentage();
-									agentWallet.setReal(agentWallet.getReal() + percentageAmt);
-									this.userWalletRepo.save(agentWallet);
-		
-									
-									// Monthly booking cut amount and provide to Agent and also set booking id 
-									AgentTransHistory agentHistoryVo = parkBookingMapper.createAgentHitsoryVo(percentageAmt , userId  , doneBookingDto.getParkingId() , -1 , remarks);
-									this.agentTransactionRepo.save(agentHistoryVo);
-							 }
+							
 							ParkTransHistory parkTransVo = parkBookingMapper.createParkingHitsoryVo(doneBookingDto.getAmount(), userId,"DR", remarks , "real");
 							this.parkingTransRepo.save(parkTransVo);
+							
+							ParkBookingHistory bookingHistoryVo = parkBookingMapper .createParkingBookingHitsoryVo(doneBookingDto, parkingDetails, depositAmt,
+                                    realAmt, bonusAmt, userId, remarks);
+                             ParkBookingHistory savedParkBookingHistoryVo = this.parkBookingHistoryRepository.save(bookingHistoryVo);
+							
+								if (doneBookingDto.isMonthlyBookingFlag()) {
 
-							ParkBookingHistory bookingHistoryVo = parkBookingMapper.createParkingBookingHitsoryVo( doneBookingDto ,  parkingDetails ,  depositAmt, realAmt , bonusAmt, userId , remarks ) ;
-							this.parkBookingHistoryRepository.save(bookingHistoryVo);
-
+								UserWallet agentWallet = this.userWalletRepo.findByUserId(parkingDetails.getParkingLocation().getUser().getId()).orElse(null);
+								// double percentageAmt = doneBookingDto.getAmount() /  parkingDetails.getAgentPercentage();
+								agentWallet.setReal(agentWallet.getReal() + doneBookingDto.getAmount());
+									
+								// Monthly booking cut amount and provide to Agent
+								AgentTransHistory agentHistoryVo = parkBookingMapper.createAgentHitsoryVo( doneBookingDto.getAmount(), userId ,  parkingDetails.getParkingLocation().getUser().getId(),
+											                                                         doneBookingDto.getParkingId(), savedParkBookingHistoryVo.getId(), remarks);
+								this.agentTransactionRepo.save(agentHistoryVo);
+								this.userWalletRepo.save(agentWallet);
+								
+								}
+								
+								this.userWalletRepo.save(userWallet);
 							ParkingLocationDto sendLoc = new ParkingLocationDto(doneBookingDto.getParkingId() , parkingDetails.getParkingLocation().getLatitude(),
 									                                  parkingDetails.getParkingLocation().getLongitude());
 
@@ -379,42 +380,51 @@ public class ParkingBookingService {
 	
 	
 	
-	@Transactional(readOnly = false,   propagation = Propagation.REQUIRES_NEW)
+	@Transactional(readOnly = false,   propagation = Propagation.REQUIRED)
 	public EsResponse<PaymentDTO> cancelBookingAmount( CancelBookingDTO  cancelBookingDto , long userId){
 		try {
-			ParkBookingHistory parkingHistory =  parkBookingHistoryRepository.findByParkingBookingIdAndUserId(cancelBookingDto.getBookingId() ,userId).orElse(null);
+			ParkBookingHistory parkingBookingHistory =  parkBookingHistoryRepository.findByParkingBookingIdAndUserId(cancelBookingDto.getBookingId() ,userId).orElse(null);
 		
-			if(parkingHistory!=null) {
+			if(parkingBookingHistory!=null) {
 				
-				ParkingLocation location =this.parkingLocationRepository.findByParkingLocId(parkingHistory.getParkingLocationId()).orElse(null);
+				ParkingLocation location =this.parkingLocationRepository.findByParkingLocId(parkingBookingHistory.getParkingLocationId()).orElse(null);
 				
 				double distance =GFGTest.distance(Double.parseDouble(location.getLatitude()), cancelBookingDto.getLatitude(), Double.parseDouble(location.getLongitude()), cancelBookingDto.getLongitude());
 				
 				System.out.println("distance "+distance);
 				
-				if(distance>0.100) {
+				if(distance>0.100  || parkingBookingHistory.getRemarks().equals("Monthly Parking Booked")) {
+					
 					UserWallet userWallet = this.userWalletRepo.findByUserId(userId).orElse(null);
-					 Optional<Vehicle>  vehicleVo   = this.vehicleRepository.findById(parkingHistory.getVehicleId());
+					 Optional<Vehicle>  vehicleVo   = this.vehicleRepository.findById(parkingBookingHistory.getVehicleId());
 			
 					if(userWallet!=null  &&  vehicleVo.isPresent()) {
 						
-						ParkTransHistory parkTransVo = parkBookingMapper.createParkingHitsoryVo(parkingHistory.getBonusAmt()+parkingHistory.getDepositAmt()+parkingHistory.getRealAmt(), userId,"CR","Parking Cancelled" , "real");
+						ParkTransHistory parkTransVo = parkBookingMapper.createParkingHitsoryVo(parkingBookingHistory.getBonusAmt()+parkingBookingHistory.getDepositAmt()+parkingBookingHistory.getRealAmt(), userId,"CR","Parking Cancelled" , "real");
 						
-						ParkedVehicleCount parkedVehicleCountVo  = this.parkedVehicleCountRepository.findByParkingLocationIdAndVehicleTypeId(  parkingHistory.getParkingLocationId() ,
+						ParkedVehicleCount parkedVehicleCountVo  = this.parkedVehicleCountRepository.findByParkingLocationIdAndVehicleTypeId(  parkingBookingHistory.getParkingLocationId() ,
 		                        vehicleVo.get().getVehicleType().getId() ) ;
 						
-						userWallet.setBonus(userWallet.getBonus()+parkingHistory.getBonusAmt());
-						userWallet.setDeposit(userWallet.getDeposit()+parkingHistory.getDepositAmt());
-						userWallet.setReal(userWallet.getReal()+parkingHistory.getRealAmt());
-						parkingHistory.setStatus(IConstants.ParkingStatus.CANCEL);
+                       if(parkingBookingHistory.getRemarks().equals("Monthly Parking Booked")){
+							
+							monthlyBookingCancel(parkingBookingHistory.getId());
+						}
+						
+						userWallet.setBonus(userWallet.getBonus()+parkingBookingHistory.getBonusAmt());
+						userWallet.setDeposit(userWallet.getDeposit()+parkingBookingHistory.getDepositAmt());
+						userWallet.setReal(userWallet.getReal()+parkingBookingHistory.getRealAmt());
+						
+						parkingBookingHistory.setStatus(IConstants.ParkingStatus.CANCEL);
 						
 						parkedVehicleCountVo.setTotalOccupied(parkedVehicleCountVo.getTotalOccupied()-1);
 						parkedVehicleCountVo.setRemainingSpace(parkedVehicleCountVo.getRemainingSpace()+1);
 						
-						this.parkBookingHistoryRepository.save(parkingHistory);
+						
+						this.parkBookingHistoryRepository.save(parkingBookingHistory);
 						this.userWalletRepo.save(userWallet);
 						this.parkingTransRepo.save(parkTransVo);
 						this.parkedVehicleCountRepository.save(parkedVehicleCountVo);
+						
 						return new EsResponse<>(IConstants.RESPONSE_STATUS_OK, this.ENV.getProperty("booking.cancel.success"));
 					}
 				}else {
@@ -432,6 +442,25 @@ public class ParkingBookingService {
 		
 	}
 	
+	
+	public void monthlyBookingCancel( long bookingId){
+		
+		AgentTransHistory agentTransHitoryVo  = this.agentTransactionRepo.findByBookingId(bookingId);
+		
+		 UserWallet agentWallet = this.userWalletRepo.findByUserId(agentTransHitoryVo.getAgentId()).orElse(null);
+		 agentWallet.setReal(agentWallet.getReal() - agentTransHitoryVo.getAmt());
+		 this.userWalletRepo.save(agentWallet);
+		 
+		 AgentTransHistory agentTranxHistoryEntity = new AgentTransHistory() ;
+		 
+		 BeanUtils.copyProperties(agentTransHitoryVo, agentTranxHistoryEntity);
+		 agentTranxHistoryEntity.setId(0);
+		 agentTranxHistoryEntity.setCrdr("DR");
+		 agentTranxHistoryEntity.setRemarks("Monthly booking Canceled");
+		  
+		this.agentTransactionRepo.save(agentTranxHistoryEntity);
+		  
+	}
 	
 	
 	

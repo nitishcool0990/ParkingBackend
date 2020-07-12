@@ -1,9 +1,9 @@
 package com.vpark.vparkservice.mapper;
 
-import java.util.HashMap;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.TreeMap;
-
 import org.springframework.stereotype.Component;
 import com.vpark.vparkservice.constants.IConstants;
 import com.vpark.vparkservice.dto.DoneBookingDTO;
@@ -16,18 +16,21 @@ import com.vpark.vparkservice.entity.ParkingDetails;
 @Component("ParkBookingMapper")
 public class ParkBookingMapper {
 
-	
-	public AgentTransHistory createAgentHitsoryVo( double percentageAmt  , long userId  , long ParkLocId , long bookingId , String remarks  ){
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+
+    
+	public AgentTransHistory createAgentHitsoryVo( double amt  , long userId  ,  long agentId ,long ParkLocId , long bookingId , String remarks  ){
 		
 		AgentTransHistory agentHistory = new AgentTransHistory();
-		agentHistory.setAmt(percentageAmt);
+		agentHistory.setAmt(amt);
 		agentHistory.setLocId(ParkLocId);
 		agentHistory.setBookingId(bookingId);
-		agentHistory.setChipType("real");
+		agentHistory.setChipType("Real");
 		agentHistory.setCrdr("CR");
 		agentHistory.setRemarks(remarks);
 		agentHistory.setStatus(IConstants.TransStatus.APPROVED);
-		agentHistory.setUser(userId);
+		agentHistory.setUserId(userId);
+		agentHistory.setAgentId(agentId);
 		
 		return agentHistory ;
 		
@@ -59,6 +62,16 @@ public class ParkBookingMapper {
 		bookingHistory.setCr_dr("DR");
 		bookingHistory.setInTime(doneBookingDto.getInTime());
 		bookingHistory.setOutTime(doneBookingDto.getOutTime());
+		
+
+        if(doneBookingDto.isMonthlyBookingFlag()){
+            
+            LocalDate   fromDate = LocalDate.parse(doneBookingDto.getFromDate(), formatter);
+            LocalDate  endDate  = fromDate.plusDays(30);
+            bookingHistory.setFromDate(fromDate);
+            bookingHistory.setEndDate(endDate);
+        }
+
 		bookingHistory.setParkingDetailsId(parkingDetails.getId());
 		bookingHistory.setParkingLocationId(doneBookingDto.getParkingId());
 		bookingHistory.setRemarks(remark);

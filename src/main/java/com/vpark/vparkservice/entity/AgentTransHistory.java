@@ -18,8 +18,11 @@ import lombok.Data;
 public class AgentTransHistory extends Savable{
 
 
+	@Column(name = "AGENT_ID")
+	private long agentId;
+	
 	@Column(name = "USER_ID")
-	private long user;
+	private long userId;
 	
 	@Column(name = "LOCATION_ID")
 	private long  locId ;
