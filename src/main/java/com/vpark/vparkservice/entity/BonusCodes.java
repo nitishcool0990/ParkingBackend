@@ -18,13 +18,13 @@ import lombok.Data;
 public class BonusCodes extends Savable{
 
 	@Column(name = "CODE"  , nullable = false)
-	private double code ;
+	private String code ;
 	
 	@Column(name = "DISCOUNT_PERC")
-	private String discountPerc ;
+	private double discountPerc ;
 	
 	@Column(name = "DISCOUNT_AMT")
-	private String discountAmt ;
+	private double discountAmt ;
 	
 	@Column(name = "IS_BOOKING_PAYMENT_CODE")
 	private boolean isbookingPaymentCode ;

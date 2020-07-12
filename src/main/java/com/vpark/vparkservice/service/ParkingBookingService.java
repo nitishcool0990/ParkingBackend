@@ -26,6 +26,7 @@ import com.vpark.vparkservice.dto.ParkingLocationDto;
 import com.vpark.vparkservice.dto.PaymentDTO;
 import com.vpark.vparkservice.dto.PaymetGateWayDTO;
 import com.vpark.vparkservice.entity.AgentTransHistory;
+import com.vpark.vparkservice.entity.BonusCodes;
 import com.vpark.vparkservice.entity.CashFreeTransHistory;
 import com.vpark.vparkservice.entity.ParkBookingHistory;
 import com.vpark.vparkservice.entity.ParkTransHistory;
@@ -37,6 +38,8 @@ import com.vpark.vparkservice.entity.Vehicle;
 import com.vpark.vparkservice.mapper.ParkBookingMapper;
 import com.vpark.vparkservice.model.EsResponse;
 import com.vpark.vparkservice.repository.IAgentTransHistoryRepository;
+import com.vpark.vparkservice.repository.IBonusCodeRepository;
+import com.vpark.vparkservice.repository.IBonusCodeUserRepository;
 import com.vpark.vparkservice.repository.ICashFreeTransHistory;
 import com.vpark.vparkservice.repository.IParkBookingHistoryRepository;
 import com.vpark.vparkservice.repository.IParkTransHistoryRepository;
@@ -85,6 +88,12 @@ public class ParkingBookingService {
 	 
 	 @Autowired
 	  private IParkedVehicleCountRepository parkedVehicleCountRepository ;
+	 
+	 @Autowired
+	 private IBonusCodeRepository bonusCodeRepo;
+	 
+	 @Autowired
+	 private IBonusCodeUserRepository bonusCodeUserRepo;
 	    
 	
 	 
@@ -145,7 +154,7 @@ public class ParkingBookingService {
 	
 	
 	
-	public EsResponse<PaymentDTO> initBooking( long  parkingLocId, long userId, double amount , LocalTime  fromDate  , LocalTime  toDate,long vehicleTypeId){
+	public EsResponse<PaymentDTO> initBooking( long  parkingLocId, long userId, double amount , LocalTime  fromDate  , LocalTime  toDate,long vehicleTypeId,String bonusCode){
 		try {
 			
 			UserWallet userWallet = this.userWalletRepo.findByUserId(userId).orElse(null);
@@ -212,6 +221,31 @@ public class ParkingBookingService {
 							break;
 						}
 					}
+				}
+				
+				//bonus check
+				double bonusAmt =0;
+				boolean bonusUseFlag =false;
+				BonusCodes bonus = this.bonusCodeRepo.findByBonusCode(bonusCode).orElse(null);
+				if(null != bonus) {
+					List<Object[]> userBonusList = this.bonusCodeUserRepo.findByBonusCodeByuserId(userId, bonus.getId());
+					if(null !=userBonusList) {
+						Object[] userBonusUses = userBonusList.get(0);
+						if(bonus.getMaxUsedCount() > (long)userBonusUses[2]) {
+							bonusUseFlag =true;
+						}
+						
+					}else {
+						bonusUseFlag =true;
+					}
+					if(bonusUseFlag) {
+						if(bonus.getDiscountAmt()>0) {
+							bonusAmt = bonus.getDiscountAmt();
+						}else {
+							bonusAmt = bonusAmt*(bonus.getDiscountPerc()/100);
+						}
+					}
+					amount =amount-bonusAmt;
 				}
 				
 				PaymentDTO paymentDto = getWalletInfo(userWallet , amount , parkingLocId);
