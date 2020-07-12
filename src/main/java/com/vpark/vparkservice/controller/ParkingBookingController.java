@@ -11,7 +11,7 @@ import com.vpark.vparkservice.constants.IConstants;
 import com.vpark.vparkservice.dto.CancelBookingDTO;
 import com.vpark.vparkservice.dto.CashFreeDTO;
 import com.vpark.vparkservice.dto.DoneBookingDTO;
-import com.vpark.vparkservice.dto.MonthlyBookingDTO;
+import com.vpark.vparkservice.dto.InitBookingDTO;
 import com.vpark.vparkservice.dto.MyParkingHistoryDTO;
 import com.vpark.vparkservice.dto.ParkingLocationDto;
 import com.vpark.vparkservice.dto.PaymentDTO;
@@ -34,14 +34,17 @@ public class ParkingBookingController implements IParkingBookingController {
 		return ResponseEntity.ok(this.parkingBookingService.getParkingInfo(parkingId,vehicleTypeId));
 	}
 	
-	public  ResponseEntity<EsResponse<PaymentDTO>> initBooking( long  parkingLocId, long userId,double amount,String  fromDate,String  toDate,long vehicleTypeId,String bonusCode){
-		if(parkingLocId <= 0 ){
+	public  ResponseEntity<EsResponse<PaymentDTO>> initBooking( InitBookingDTO  initBookingDto , long userId ){
+		if(initBookingDto.getParkLocId() <= 0 ){
 		   return ResponseEntity.badRequest().body(new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("invalid.id")));
 		}
-		LocalTime fromTime = LocalTime.of(Integer.parseInt(fromDate.split(":")[0]),Integer.parseInt(fromDate.split(":")[1]));
-		LocalTime toTime =  LocalTime.of(Integer.parseInt(toDate.split(":")[0]),Integer.parseInt(toDate.split(":")[1]));
+		LocalTime fromTime = LocalTime.of(Integer.parseInt(initBookingDto.getFromTime().split(":")[0]),Integer.parseInt(initBookingDto.getFromTime().split(":")[1]));
+		LocalTime toTime =  LocalTime.of(Integer.parseInt(initBookingDto.getToTime().split(":")[0]),Integer.parseInt(initBookingDto.getToTime().split(":")[1]));
+		
+		initBookingDto.setFromDate(fromTime);
+		initBookingDto.setToDate(toTime);
 	
-		return ResponseEntity.ok(this.parkingBookingService.initBooking(parkingLocId, userId ,  amount , fromTime , toTime,vehicleTypeId,bonusCode));
+		return ResponseEntity.ok(this.parkingBookingService.initBooking( initBookingDto , userId ));
 	}
 
 	@Override
@@ -80,7 +83,7 @@ public class ParkingBookingController implements IParkingBookingController {
 	}
 
 	@Override
-	public ResponseEntity<EsResponse<PaymentDTO>> initMonthlyBooking(MonthlyBookingDTO monthlyBookingDto, @RequestAttribute("Id")  long userId) {
+	public ResponseEntity<EsResponse<PaymentDTO>> initMonthlyBooking(InitBookingDTO monthlyBookingDto, @RequestAttribute("Id")  long userId) {
 		
 		if(monthlyBookingDto.getParkLocId() <= 0){
 			  return ResponseEntity.badRequest().body(new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("invalid.id")));

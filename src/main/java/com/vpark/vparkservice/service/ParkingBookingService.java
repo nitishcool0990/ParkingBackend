@@ -9,19 +9,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-
 import com.vpark.vparkservice.constants.IConstants;
 import com.vpark.vparkservice.dto.CancelBookingDTO;
 import com.vpark.vparkservice.dto.CashFreeDTO;
 import com.vpark.vparkservice.dto.DoneBookingDTO;
-import com.vpark.vparkservice.dto.MonthlyBookingDTO;
+import com.vpark.vparkservice.dto.InitBookingDTO;
 import com.vpark.vparkservice.dto.MyParkingHistoryDTO;
 import com.vpark.vparkservice.dto.ParkingLocationDto;
 import com.vpark.vparkservice.dto.PaymentDTO;
@@ -155,45 +153,51 @@ public class ParkingBookingService {
 	
 	
 	
-	public EsResponse<PaymentDTO> initBooking( long  parkingLocId, long userId, double amount , LocalTime  fromDate  , LocalTime  toDate ,
-			                                                                             long vehicleTypeId , String bonusCode){
+	public EsResponse<PaymentDTO> initBooking( InitBookingDTO  initBookingDto , long userId ){
 		try {
 			
 			UserWallet userWallet = this.userWalletRepo.findByUserId(userId).orElse(null);
-			 ParkedVehicleCount parkedVehicleCountVo  = this.parkedVehicleCountRepository.findByParkingLocationIdAndVehicleTypeId(  parkingLocId ,
-					 vehicleTypeId ) ;
+			 Optional<Vehicle>  vehicleVo   = this.vehicleRepository.findById(initBookingDto.getVehicleId());
+			 
+			 if(vehicleVo.isPresent()   &&  userWallet!=null ){
+				 
+			 ParkedVehicleCount parkedVehicleCountVo  = this.parkedVehicleCountRepository.findByParkingLocationIdAndVehicleTypeId(  initBookingDto.getParkLocId() ,
+					 vehicleVo.get().getVehicleType().getId() ) ;
 			 
 			 if(parkedVehicleCountVo.getRemainingSpace() == 0)
 			        return new EsResponse<>(IConstants.RESPONSE_STATUS_OK , this.ENV.getProperty("booking.parking.notavaible"));
-			 
-			if(userWallet!=null  ) {
-			
-			     List<Object[]> objList = this.parkingLocationRepository.getParkingInfo(parkingLocId,vehicleTypeId);
+			 }
+			 else {
+				  return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("user.not.found"));
+			}
+				 
+		
+			   List<Object[]> objList = this.parkingLocationRepository.getParkingInfo(initBookingDto.getParkLocId() ,vehicleVo.get().getVehicleType().getId());
 		        ParkingLocationDto location = this.parkBookingMapper.convertToParkingLocationDTO(objList);
 		        
-				LocalTime fromLOCDateTime = LocalTime.of(Integer.parseInt(location.getOpenTime().split(":")[0]),Integer.parseInt(location.getOpenTime().split(":")[1]));
+				LocalTime fromLOCDateTime = LocalTime.of(Integer.parseInt(location.getOpenTime().split(":")[0]), Integer.parseInt(location.getOpenTime().split(":")[1]));
 				LocalTime toLOCDateTime =  LocalTime.of(Integer.parseInt(location.getCloseTime().split(":")[0]),Integer.parseInt(location.getCloseTime().split(":")[1]));
 				
-				long hours = fromLOCDateTime.until( fromDate, ChronoUnit.HOURS );
+				long hours = fromLOCDateTime.until( initBookingDto.getFromDate(), ChronoUnit.HOURS );
 				fromLOCDateTime = fromLOCDateTime.plusHours( hours );
-				long minutes = fromLOCDateTime.until( fromDate, ChronoUnit.MINUTES );
+				long minutes = fromLOCDateTime.until( initBookingDto.getToDate(), ChronoUnit.MINUTES );
 				
 				if(hours<0 || minutes<0) {
 					 return new EsResponse<>(IConstants.RESPONSE_STATUS_OK, this.ENV.getProperty("booking.parking.open"));
 				}
 				
-				hours = toLOCDateTime.until( toDate, ChronoUnit.HOURS );
+				hours = toLOCDateTime.until( initBookingDto.getToDate(), ChronoUnit.HOURS );
 				toLOCDateTime = toLOCDateTime.plusHours( hours );
-				minutes = toLOCDateTime.until( toDate, ChronoUnit.MINUTES );
+				minutes = toLOCDateTime.until( initBookingDto.getToDate(), ChronoUnit.MINUTES );
 				if(hours>0|| minutes >0) {
 					return new EsResponse<>(IConstants.RESPONSE_STATUS_OK, this.ENV.getProperty("booking.parking.close"));
 				}
 			
 				LocalTime currentTime =LocalTime.now();
 				
-				hours = currentTime.until( fromDate, ChronoUnit.HOURS );
+				hours = currentTime.until( initBookingDto.getFromDate(), ChronoUnit.HOURS );
 				fromLOCDateTime = currentTime.plusHours( hours );
-				minutes = currentTime.until( fromDate, ChronoUnit.MINUTES );
+				minutes = currentTime.until( initBookingDto.getFromDate(), ChronoUnit.MINUTES );
 				
 				if(hours<0|| minutes <0) {
 					  return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("booking.time.old"));
@@ -204,7 +208,7 @@ public class ParkingBookingService {
 				}
 				
               
-                double mins = fromDate.until( toDate, ChronoUnit.MINUTES );
+                double mins = initBookingDto.getFromDate().until( initBookingDto.getToDate(), ChronoUnit.MINUTES );
                 long hourBooking = (long) (mins/60);
                 long minsBooking = (long) (mins%60);
                 if(minsBooking >0) {
@@ -216,15 +220,15 @@ public class ParkingBookingService {
 						preHourVal = slotTimeValue;
 					}
 					if(preHourVal*hourBooking >= location.getMaxLimit()) {
-						amount =  location.getMaxLimit();
+						initBookingDto.setAmt( location.getMaxLimit());
 					}else {
-						amount = preHourVal*hourBooking;
+						initBookingDto.setAmt(preHourVal*hourBooking);
 					}
 				}else {
 					
 					for(Map.Entry<Double, Double> slotTime : location.getHourlyTimeSlot().entrySet() ) {
 						if(slotTime.getKey() >=hourBooking ) {
-							amount = slotTime.getValue();
+							initBookingDto.setAmt( slotTime.getValue());
 							break;
 						}
 					}
@@ -233,7 +237,7 @@ public class ParkingBookingService {
 				//bonus check
 				double bonusAmt =0;
 				boolean bonusUseFlag =false;
-				BonusCodes bonus = this.bonusCodeRepo.findByBonusCode(bonusCode).orElse(null);
+				BonusCodes bonus = this.bonusCodeRepo.findByBonusCode(initBookingDto.getBonusCode()).orElse(null);
 				if(null != bonus) {
 					List<Object[]> userBonusList = this.bonusCodeUserRepo.findByBonusCodeByuserId(userId, bonus.getId());
 					if(null !=userBonusList) {
@@ -252,15 +256,13 @@ public class ParkingBookingService {
 							bonusAmt = bonusAmt*(bonus.getDiscountPerc()/100);
 						}
 					}
-					amount =amount-bonusAmt;
+					initBookingDto.setAmt(initBookingDto.getAmt()-bonusAmt );
 				}
 				
-				PaymentDTO paymentDto = getWalletInfo(userWallet , amount , parkingLocId);
+				PaymentDTO paymentDto = getWalletInfo(userWallet , initBookingDto.getAmt()  , initBookingDto.getParkLocId());
 				
 				  return new EsResponse<>(IConstants.RESPONSE_STATUS_OK ,  paymentDto , this.ENV.getProperty("booking.parking.init"));
-			}else {
-				  return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("user.not.found"));
-			}
+			
 		}catch(Exception e) {
 			e.printStackTrace();
 			  return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("exception.internal.error"));
@@ -587,7 +589,7 @@ public  void monthlyBookingCancel( long bookingId , double amtDeduct){
 	
 	
 	
-	public EsResponse<PaymentDTO> initMonthlyBooking(MonthlyBookingDTO   monthlyBookingDto  , long userId ){
+	public EsResponse<PaymentDTO> initMonthlyBooking(InitBookingDTO   monthlyBookingDto  , long userId ){
 		try{
 	    Optional<Vehicle>  vehicleVo   = this.vehicleRepository.findById(monthlyBookingDto.getVehicleId());
 	    

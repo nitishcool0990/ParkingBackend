@@ -8,12 +8,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import com.vpark.vparkservice.constants.IConstants;
 import com.vpark.vparkservice.dto.CancelBookingDTO;
 import com.vpark.vparkservice.dto.CashFreeDTO;
 import com.vpark.vparkservice.dto.DoneBookingDTO;
-import com.vpark.vparkservice.dto.MonthlyBookingDTO;
+import com.vpark.vparkservice.dto.InitBookingDTO;
 import com.vpark.vparkservice.dto.MyParkingHistoryDTO;
 import com.vpark.vparkservice.dto.ParkingLocationDto;
 import com.vpark.vparkservice.dto.PaymentDTO;
@@ -28,7 +27,7 @@ public interface IParkingBookingController {
 	    ResponseEntity<EsResponse<ParkingLocationDto>> getParkingInfo(@PathVariable long  parkingId,@PathVariable long vehicleTypeId);
 	 
 	 @PostMapping(value=IConstants.VERSION_1 + "/initBooking")
-	    ResponseEntity<EsResponse<PaymentDTO>> initBooking(@RequestParam("parkingLocId") long  parkingId,@RequestAttribute("Id") long id,@RequestParam("amount") double amount,@RequestParam("fromTime")  String  fromDate ,@RequestParam("toTime") String  toDate,@RequestParam("vehicleTypeId") long vehicleTypeId,@RequestParam("bonusCode") String bonusCode );
+	    ResponseEntity<EsResponse<PaymentDTO>> initBooking( @RequestBody  InitBookingDTO  initBookingDto ,@RequestAttribute("Id") long id );
 	 
 	 @PostMapping(value=IConstants.VERSION_1 + "/addAmount")
 	 ResponseEntity<EsResponse<PaymentDTO>> addBookingAmount(@RequestBody CashFreeDTO cashFreeDto,@RequestAttribute("Id")  long id);
@@ -40,7 +39,7 @@ public interface IParkingBookingController {
 	    ResponseEntity<EsResponse<List<MyParkingHistoryDTO>>> getUserParkingHistory(@RequestAttribute("Id")  long userId);
 	 
 	 @PostMapping(value=IConstants.VERSION_1 + "/monthlyBooking")
-	 ResponseEntity<EsResponse<PaymentDTO>> initMonthlyBooking(@RequestBody  MonthlyBookingDTO  monthlyBookingDto ,  @RequestAttribute("Id")  long id);
+	 ResponseEntity<EsResponse<PaymentDTO>> initMonthlyBooking(@RequestBody  InitBookingDTO  monthlyBookingDto ,  @RequestAttribute("Id")  long id);
 	 
 	 @PostMapping(value=IConstants.VERSION_1 + "/cancelBooking")
 	 ResponseEntity<EsResponse<PaymentDTO>> cancelBookingAmount(@RequestBody  CancelBookingDTO  cancelBookingDto ,  @RequestAttribute("Id")  long id );
