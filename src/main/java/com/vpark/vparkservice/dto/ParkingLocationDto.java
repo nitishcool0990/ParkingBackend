@@ -36,9 +36,9 @@ public class ParkingLocationDto {
 	private Double canceBookingHr ;
 	private Double advanceBookingHr ;
 	private byte[] image ;
-	private int remainingParking;
-	private String chargesType= IConstants.ChargesType.PERHOUR.toString() ;
-	private double maxLimit;
+	private Integer remainingParking;
+	private String chargesType ;
+	private Double maxLimit;
 	
 	
 	public ParkingLocationDto(BigInteger parkingId, Object latitude, Object longitude, double distance, String color,

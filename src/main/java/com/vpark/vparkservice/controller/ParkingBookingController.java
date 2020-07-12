@@ -52,7 +52,7 @@ public class ParkingBookingController implements IParkingBookingController {
 
 	@Override
 	public ResponseEntity<EsResponse<ParkingLocationDto>> doneBooking(DoneBookingDTO  doneBookingDto , long userId ) {
-		if(doneBookingDto.getParkingId() >0 ){
+		if(doneBookingDto.getParkingId() <0 ){
 			   return ResponseEntity.badRequest().body(new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("invalid.id")));
 			}
 		return ResponseEntity.ok(this.parkingBookingService.doneBooking(doneBookingDto , userId ));
@@ -70,7 +70,7 @@ public class ParkingBookingController implements IParkingBookingController {
 	@Override
 	public ResponseEntity<EsResponse<PaymentDTO>> cancelBookingAmount(CancelBookingDTO  cancelBookingDto , @RequestAttribute("Id")  long userId ){
 		
-		if(cancelBookingDto.getBookingId() >0 ){
+		if(cancelBookingDto.getBookingId() <0 ){
 			   return ResponseEntity.badRequest().body(new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("invalid.id")));
 			}
 		return ResponseEntity.ok(this.parkingBookingService.cancelBookingAmount(cancelBookingDto , userId ));

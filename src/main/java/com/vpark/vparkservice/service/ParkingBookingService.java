@@ -297,23 +297,23 @@ public class ParkingBookingService {
 				if (userWallet.getDeposit() + userWallet.getReal() + userWallet.getBonus() >= doneBookingDto.getAmount()) {
 					boolean saveFlag = true;
 					if (userWallet.getDeposit() >= doneBookingDto.getAmount()) {
-						depositAmt = userWallet.getDeposit() - doneBookingDto.getAmount();
-						userWallet.setDeposit(depositAmt);
+						depositAmt =  doneBookingDto.getAmount();
+						userWallet.setDeposit(userWallet.getDeposit() - doneBookingDto.getAmount());
 					} 
 					else {
 						depositAmt = userWallet.getDeposit();
 						double remainingAmount = doneBookingDto.getAmount() - userWallet.getDeposit();
 						userWallet.setDeposit(0);
 						if (userWallet.getReal() >= remainingAmount) {
-							realAmt = userWallet.getReal() - remainingAmount;
-							userWallet.setReal(realAmt);
+							realAmt =  remainingAmount;
+							userWallet.setReal(userWallet.getReal() - remainingAmount);
 						} else {
 							realAmt = userWallet.getReal();
 							remainingAmount = remainingAmount - userWallet.getReal();
 							userWallet.setReal(0);
 							if (userWallet.getBonus() >= remainingAmount) {
-								bonusAmt = userWallet.getBonus() - remainingAmount;
-								userWallet.setBonus(bonusAmt);
+								bonusAmt =  remainingAmount;
+								userWallet.setBonus(userWallet.getBonus() - remainingAmount);
 							} 
 						}
 					}
