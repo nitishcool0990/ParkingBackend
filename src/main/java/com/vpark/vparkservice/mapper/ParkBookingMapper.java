@@ -73,7 +73,7 @@ public class ParkBookingMapper {
         }
 
 		bookingHistory.setParkingDetailsId(parkingDetails.getId());
-		bookingHistory.setParkingLocationId(doneBookingDto.getParkingId());
+		bookingHistory.setParkingLocationId(doneBookingDto.getParkingLocId());
 		bookingHistory.setRemarks(remark);
 		bookingHistory.setStatus(IConstants.ParkingStatus.RUNNING);
 		bookingHistory.setUserId(userId);

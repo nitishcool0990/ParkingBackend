@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class DoneBookingDTO {
 
-	private long  parkingId; 
+	private long  parkingLocId; 
 	
 	private double amount ;
 	
