@@ -25,6 +25,7 @@ import com.vpark.vparkservice.dto.ParkingLocationDto;
 import com.vpark.vparkservice.dto.PaymentDTO;
 import com.vpark.vparkservice.dto.PaymetGateWayDTO;
 import com.vpark.vparkservice.entity.AgentTransHistory;
+import com.vpark.vparkservice.entity.BonusCodeUsers;
 import com.vpark.vparkservice.entity.BonusCodes;
 import com.vpark.vparkservice.entity.CashFreeTransHistory;
 import com.vpark.vparkservice.entity.ParkBookingHistory;
@@ -391,6 +392,15 @@ public class ParkingBookingService {
 								
 								}
 								
+								BonusCodes bonusCode = this.bonusCodeRepo.findByBonusCode(doneBookingDto.getBonusCode()).orElse(null);
+								if(null != bonusCode) {
+									BonusCodeUsers userBonusCode = new BonusCodeUsers();
+									userBonusCode.setBonusCodeId(bonusCode.getId());
+									userBonusCode.setUserId(userId);
+									userBonusCode.setStatus(IConstants.Status.ACTIVE);
+									userBonusCode.setParkedBookId(savedParkBookingHistoryVo.getId());
+									this.bonusCodeUserRepo.save(userBonusCode);
+								}
 								this.userWalletRepo.save(userWallet);
 							ParkingLocationDto sendLoc = new ParkingLocationDto(savedParkBookingHistoryVo.getId(), parkingDetails.getParkingLocation().getLatitude(),
 									                                  parkingDetails.getParkingLocation().getLongitude());
@@ -526,6 +536,12 @@ public class ParkingBookingService {
 						parkedVehicleCountVo.setTotalOccupied(parkedVehicleCountVo.getTotalOccupied()-1);
 						parkedVehicleCountVo.setRemainingSpace(parkedVehicleCountVo.getRemainingSpace()+1);
 						
+						BonusCodeUsers userBonus = this.bonusCodeUserRepo.findByParkedBookId(parkingBookingHistory.getId()).orElse(null);
+						if(null !=userBonus) {
+							userBonus.setStatus( IConstants.Status.INACTIVE);
+							userBonus.setModifiedDate( LocalDateTime.now());
+							this.bonusCodeUserRepo.save(userBonus);
+						}
 						
 						this.parkBookingHistoryRepository.save(parkingBookingHistory);
 						this.userWalletRepo.save(userWallet);

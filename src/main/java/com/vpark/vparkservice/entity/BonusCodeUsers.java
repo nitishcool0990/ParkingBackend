@@ -24,6 +24,9 @@ public class BonusCodeUsers extends Savable{
 	@Column(name = "USER_ID"  , nullable = false)
 	private long userId ;
 	
+	@Column(name = "PARKED_BOOK_ID"  , nullable = false)
+	private long parkedBookId ;
+	
 	 @Column(name = "STATUS", nullable = false, length = 10)
 	    @Enumerated(EnumType.STRING)
 	    private IConstants.Status status = IConstants.Status.INACTIVE;

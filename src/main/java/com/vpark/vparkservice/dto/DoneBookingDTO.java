@@ -22,4 +22,6 @@ public class DoneBookingDTO {
 	private boolean monthlyBookingFlag  ;
 	
 	private String  fromDate ; 
+	
+	private String bonusCode;
 }
