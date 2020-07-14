@@ -13,10 +13,10 @@ import lombok.Data;
 public class ParkingSearchLocation extends Savable{
 	
 
-	@Column(name = "LATITUDE", unique = true, nullable = false)
+	@Column(name = "LATITUDE", nullable = false)
 	  private Double latitude;
 
-	 @Column(name = "LONGITUDE", unique = true, nullable = false)
+	 @Column(name = "LONGITUDE",  nullable = false)
 	  private Double longitude;
 	 
 	 @Column(name = "USER_ID")
