@@ -24,14 +24,15 @@ public class SpringSecurityUserDetails implements UserDetails {
     private boolean credentialsNonExpired = true;
     private List<GrantedAuthority> authorities;
     private List<Vehicle> vehicleList;
+    private String userRoles;
 
 
-    public SpringSecurityUserDetails(Long userId, String username, String password, List<GrantedAuthority> authorities,List<Vehicle> vehicleList) {
+    public SpringSecurityUserDetails(Long userId, String username, String password, List<GrantedAuthority> authorities,List<Vehicle> vehicleList,String userRoles) {
         super();
         this.userId = userId;
         this.username = username;
         this.password = password;
-
+        this.userRoles=userRoles;
         this.authorities = authorities;
         this.vehicleList =vehicleList;
     }
@@ -115,6 +116,15 @@ public class SpringSecurityUserDetails implements UserDetails {
 	public void setVehicleList(List<Vehicle> vehicleList) {
 		this.vehicleList = vehicleList;
 	}
+
+	public String getUserRoles() {
+		return userRoles;
+	}
+
+	public void setUserRoles(String userRoles) {
+		this.userRoles = userRoles;
+	}
+	
 
 
 }
