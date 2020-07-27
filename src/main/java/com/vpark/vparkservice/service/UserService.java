@@ -149,6 +149,11 @@ public class UserService {
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
     public EsResponse<?> createNewUser(User user) {
 		try {
+			UserProfile userProfileObj = this.userProfileRepository.findByEmail( user.getUserProfile().getEmail());
+			if(null != userProfileObj){
+				return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("user.email.already.exist"));
+			}
+			
 			User userObj = this.userRepository.findByMobileNo(user.getMobileNo());
 			if (userObj != null) {
 				
@@ -156,7 +161,7 @@ public class UserService {
 				user.setId(userObj.getId());
 				user.setStatus(IConstants.Status.ACTIVE);
 				
-				if(null != user.getUserProfile().getReferalCode()){
+				if(null != user.getUserProfile().getReferalCode()  &&  !user.getUserProfile().getReferalCode().isEmpty() ){
 					
 					User referUserObj  = this.userRepository.findByReferalCodeLike(Utility.queryLikeAny(user.getUserProfile().getReferalCode()));
 					if(null == referUserObj){
