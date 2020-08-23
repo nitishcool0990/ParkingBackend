@@ -129,6 +129,8 @@ public class ParkingLocationService {
     
     public EsResponse<List<ParkingLocationDto>> findLocationByCoordinates(double  latitude,double  longitude,int  vehicleTypeId  , long userId) {
     	try {
+    		
+    		System.out.println("latitude " +latitude+" longitude "+longitude+" vehicleTypeId "+vehicleTypeId+" userId "+userId);
     		 List<Object[]> closestParkingList = parkingLocationRepository.getClosestParkingArea("KM",latitude, longitude, 2, 20,vehicleTypeId);
     		
     		 if(closestParkingList!=null && closestParkingList.size()>0) {
