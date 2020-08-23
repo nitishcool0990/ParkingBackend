@@ -15,4 +15,7 @@ public class CheckInAndCheckOutDTO {
 	
 	public long vehicleTypeId ;
 	
+	public String vehicleNum;
+	
+	
 }

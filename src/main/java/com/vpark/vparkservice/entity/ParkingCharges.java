@@ -26,7 +26,7 @@ public class ParkingCharges  extends Savable {
     private double charges = 0;
 
     
-    @ManyToOne( cascade = CascadeType.DETACH , fetch = FetchType.LAZY)
+    @ManyToOne( cascade = CascadeType.ALL , fetch = FetchType.LAZY)
     @JoinColumn(name = "PARK_DETAILS_ID")
      private ParkingDetails parkingDetails;
 	

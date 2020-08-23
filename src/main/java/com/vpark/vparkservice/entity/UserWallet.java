@@ -16,7 +16,7 @@ import lombok.Data;
 public class UserWallet extends Savable {
 	
 	@ManyToOne(cascade = CascadeType.DETACH)
-	@JoinColumn(name = "USER_ID", referencedColumnName = "ID")
+	@JoinColumn(name = "USER_ID", unique = true, nullable = false , referencedColumnName = "ID")
 	private User user;
 	
 	@Column(name = "DEPOSIT_AMT")

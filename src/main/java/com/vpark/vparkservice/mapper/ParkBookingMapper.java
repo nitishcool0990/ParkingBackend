@@ -2,10 +2,12 @@ package com.vpark.vparkservice.mapper;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.List;
 import java.util.TreeMap;
 import org.springframework.stereotype.Component;
 import com.vpark.vparkservice.constants.IConstants;
+import com.vpark.vparkservice.dto.CheckInAndCheckOutDTO;
 import com.vpark.vparkservice.dto.DoneBookingDTO;
 import com.vpark.vparkservice.dto.ParkingLocationDto;
 import com.vpark.vparkservice.entity.AgentTransHistory;
@@ -101,4 +103,27 @@ public class ParkBookingMapper {
 		}
 		return parkingLocDTO;
 	}
+	
+	
+	public ParkBookingHistory createManualParkingBookingHitsoryVo( CheckInAndCheckOutDTO  checkInDto) {
+
+		ParkBookingHistory bookingHistory = new ParkBookingHistory();
+		bookingHistory.setDepositAmt(0);
+		bookingHistory.setRealAmt(0);
+		bookingHistory.setBonusAmt(0);
+		bookingHistory.setVehicleId(checkInDto.getVehicleTypeId());  // on manual checking ,putting here vehicle type id instead of vehicle id
+		bookingHistory.setBookingType("Manual");
+		bookingHistory.setCr_dr("DR");
+		bookingHistory.setInTime(null);
+		bookingHistory.setOutTime(null);
+		bookingHistory.setParkingDetailsId(-1);
+		bookingHistory.setParkingLocationId(checkInDto.getLocationId());
+		bookingHistory.setRemarks(checkInDto.getVehicleNum());
+		bookingHistory.setStatus(IConstants.ParkingStatus.PARKED);
+		bookingHistory.setUserId(-1);
+
+		return bookingHistory;
+
+	}
+	
 }

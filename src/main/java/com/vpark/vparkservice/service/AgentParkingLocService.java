@@ -107,24 +107,10 @@ public class AgentParkingLocService  {
 	        	}
 	        	
 			if (null != parkLocEntity && parkLocEntity.getUser().getId() == userId  && parkLocEntity.getStatus().equals(IConstants.Status.INACTIVE)   ) {
-
-				BeanUtils.copyProperties(parkingLocationDto, parkLocEntity);
-				parkingLocMapper.mapAgentParkingLocToVo(parkingLocationDto, parkLocEntity);
 				
-				User user = new User();
-				user.setId(userId);
-				parkLocEntity.setUser(user);
-
-				for (MultipartFile image : parkingImages) {
-					byte[] photoBytes = image.getBytes();
-					parkLocEntity.setPhoto(photoBytes);
-				}
-				ParkingLocation savedParkingLocVo = this.parkingLocationRepository.save(parkLocEntity);
-				List<ParkedVehicleCount> parkedVehicleVos = parkingLocMapper.createParkedVehicleVo(parkingLocationDto , savedParkingLocVo.getId());
-
-				this.parkedVehicleCountRepository.saveAll(parkedVehicleVos);
+				updateParkingLocation(parkingImages, parkingLocationDto, userId);
+	
 				return new EsResponse<>(IConstants.RESPONSE_STATUS_OK , this.ENV.getProperty("parking.location.creation.success"));
-
 			}
 
 	        	ParkingLocation parkingLocVo = new ParkingLocation () ;
@@ -256,6 +242,15 @@ public class AgentParkingLocService  {
         	
         	this.parkingLocationRepository.save(updateParkingLocVo);
         	
+        	List<ParkedVehicleCount> parkedVehicleCountVos  = this.parkedVehicleCountRepository.findByParkingLocationId( parkingLocationDto.getParkingLocid());
+        	if(null !=parkedVehicleCountVos  && parkedVehicleCountVos.size() >0 ){
+        		this.parkedVehicleCountRepository.deleteInBatch(parkedVehicleCountVos);
+        	}
+        	
+        	List<ParkedVehicleCount>  parkedVehicleVos = parkingLocMapper.createParkedVehicleVo(parkingLocationDto , parkingLocationDto.getParkingLocid());
+        	
+        	this.parkedVehicleCountRepository.saveAll(parkedVehicleVos);
+        	
         	 return new EsResponse<>(IConstants.RESPONSE_STATUS_OK  , this.ENV.getProperty("parking.location.update.success"));
         	
         	}
@@ -384,15 +379,17 @@ public class AgentParkingLocService  {
 	
 			this.parkedVehicleCountRepository.save(parkedVehicleCountVo);
 			
+			
 			if(checkInDto.getBookingId() >0 ){
 				
 				Optional<ParkBookingHistory> parkBookingHistoryVo =  this.parkBookingHistoryRepository.findById(checkInDto.getBookingId() );
-				UserWallet agentWallet = this.userWalletRepository.findByUserId(userId).orElse(null); 
-				
-				Optional<ParkingDetails>  parkingDetailsVo = parkingDetailsRepository.findBylocationIdAndVehicleTypeId(checkInDto.getLocationId(), checkInDto.getVehicleTypeId());
 				
 				if(parkBookingHistoryVo.isPresent())
 				{
+					UserWallet agentWallet = this.userWalletRepository.findByUserId(userId).orElse(null); 
+					
+					Optional<ParkingDetails>  parkingDetailsVo = parkingDetailsRepository.findBylocationIdAndVehicleTypeId(checkInDto.getLocationId(), checkInDto.getVehicleTypeId());
+					
 					ParkBookingHistory  parkBookingHistory = parkBookingHistoryVo.get() ;
 					parkBookingHistory.setStatus(IConstants.ParkingStatus.PARKED);
 					
@@ -406,7 +403,14 @@ public class AgentParkingLocService  {
 					
 					this.parkBookingHistoryRepository.save(parkBookingHistoryVo.get());
 				 }
+			
 				processReferalAmt(parkBookingHistoryVo.get().getUserId());
+				
+			}
+			else{
+				
+				ParkBookingHistory   manualParkingBookingVo  = parkBookingMapper.createManualParkingBookingHitsoryVo(checkInDto);
+				this.parkBookingHistoryRepository.save(manualParkingBookingVo);
 				
 			}
 			return  new EsResponse<>(IConstants.RESPONSE_STATUS_OK,  this.ENV.getProperty("vehicle.checkin.success"));

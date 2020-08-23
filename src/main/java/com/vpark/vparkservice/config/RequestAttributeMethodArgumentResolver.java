@@ -1,6 +1,5 @@
 package com.vpark.vparkservice.config;
 
-import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.core.MethodParameter;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -11,7 +10,6 @@ import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
-
 import com.vpark.vparkservice.dto.SpringSecurityUserDetails;
 import com.vpark.vparkservice.model.RequestAttribute;
 
