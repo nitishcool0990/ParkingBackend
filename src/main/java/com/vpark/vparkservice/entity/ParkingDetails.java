@@ -41,7 +41,7 @@ public class ParkingDetails extends Savable {
     
     @Column(name = "STATUS", nullable = false, length = 10)
     @Enumerated(EnumType.STRING)
-    private IConstants.Status status = IConstants.Status.INACTIVE;
+    private IConstants.Status status = IConstants.Status.ACTIVE;
     
     
     @ManyToOne( cascade = CascadeType.ALL , fetch = FetchType.LAZY)
