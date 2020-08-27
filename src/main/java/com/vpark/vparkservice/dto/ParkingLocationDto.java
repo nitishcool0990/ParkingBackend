@@ -36,8 +36,8 @@ public class ParkingLocationDto {
 	private byte[] image ;
 	private Integer remainingParking;
 	private String chargesType ;
-
 	private Double maxLimit;
+	private boolean favParking  = false;
 	
 	
 	public ParkingLocationDto(BigInteger parkingId, Object latitude, Object longitude, double distance, String color,
@@ -53,7 +53,7 @@ public class ParkingLocationDto {
 	}
 
 	public ParkingLocationDto(Long bookingParkId,  double monthlyRate, Double rating, String describe,String parkingName,
-			 String openTime,String closeTime,String bookingRate , double cancelBookingHr , double advanceBookingHr  ,  byte[] image,TreeMap hourlyTimeSlot,int remainingParking) {
+			 String openTime,String closeTime,String bookingRate , double cancelBookingHr , double advanceBookingHr  ,  byte[] image ,TreeMap hourlyTimeSlot,int remainingParking) {
 		this.bookingParkId = bookingParkId;
 		this.monthlyRate = monthlyRate;
 		this.rating = rating;

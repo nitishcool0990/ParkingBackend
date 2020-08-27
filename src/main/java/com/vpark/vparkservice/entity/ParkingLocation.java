@@ -65,11 +65,15 @@ public class ParkingLocation extends Savable {
     private double rating = 5;
     
     @Column(name = "ADVANCE_BOOKING_HR")
-    private double advanceBookingHr = 1;
+    private double advanceBookingHr = 2;
     
     
     @Column(name = "BOOKING_CANCEL_HR")
     private double bookingCancelHr = 0.5;
+    
+    @Column(name = "DISPLAY_FLAG")
+    @Enumerated(EnumType.STRING)
+    private  IConstants.Default displayFlag = IConstants.Default.TRUE ;
     
     @Lob
     @Column(name  = "photo")

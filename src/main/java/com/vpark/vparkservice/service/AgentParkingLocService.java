@@ -102,9 +102,6 @@ public class AgentParkingLocService  {
 	        	ParkingLocation parkLocEntity  = this.parkingLocationRepository.findBylatitudeAndlongitudeAndparkName(parkingLocationDto.getLatitude() , 
 	        			 parkingLocationDto.getLongitude() , parkingLocationDto.getParkName());
 	        	
-	        	if(null != parkLocEntity  && parkLocEntity.getUser().getId() != userId){
-	        		return new EsResponse<>(IConstants.RESPONSE_DUPLICATE_LOCATION  , this.ENV.getProperty("parking.location.already.exist"));
-	        	}
 	        	
 			if (null != parkLocEntity && parkLocEntity.getUser().getId() == userId  && parkLocEntity.getStatus().equals(IConstants.Status.INACTIVE)   ) {
 				
@@ -112,6 +109,10 @@ public class AgentParkingLocService  {
 	
 				return new EsResponse<>(IConstants.RESPONSE_STATUS_OK , this.ENV.getProperty("parking.location.creation.success"));
 			}
+			else if(null != parkLocEntity  ){
+        		return new EsResponse<>(IConstants.RESPONSE_DUPLICATE_LOCATION  , this.ENV.getProperty("parking.location.already.exist"));
+        	}
+        	
 
 	        	ParkingLocation parkingLocVo = new ParkingLocation () ;
 	        	BeanUtils.copyProperties(parkingLocationDto, parkingLocVo);
@@ -144,7 +145,7 @@ public class AgentParkingLocService  {
 	 
 	 public EsResponse<List<AgentParkingLocationDTO>> findAllParkingLocationByUserId(long userId) {
 	        try {
-	        	List<ParkingLocation> parkingLocVos = this.parkingLocationRepository.FindByUserId(userId);
+	        	List<ParkingLocation> parkingLocVos = this.parkingLocationRepository.FindActiveParkingByUserId(userId);
 	        	
 	        	List<AgentParkingLocationDTO> parkLocDtos = parkingLocVos .stream()
 	      			  .map((parkingLocVo) -> {
@@ -200,7 +201,7 @@ public class AgentParkingLocService  {
 			Optional<ParkingLocation> parkingLocVo = this.parkingLocationRepository.findById(locId);
 
 			if (parkingLocVo.isPresent()){
-				parkingLocVo.get().setStatus(IConstants.Status.INACTIVE);
+				parkingLocVo.get().setDisplayFlag(IConstants.Default.FALSE);
 				this.parkingLocationRepository.save(parkingLocVo.get());
 			}
 			

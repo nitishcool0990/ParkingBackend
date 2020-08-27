@@ -30,8 +30,8 @@ public class ParkingBookingController implements IParkingBookingController {
 	 private Environment ENV;
 	 
 	@Override
-	public ResponseEntity<EsResponse<ParkingLocationDto>> getParkingInfo(long parkingId, long vehicleTypeId) {
-		return ResponseEntity.ok(this.parkingBookingService.getParkingInfo(parkingId,vehicleTypeId));
+	public ResponseEntity<EsResponse<ParkingLocationDto>> getParkingInfo(long parkingId, long vehicleTypeId  , long userId) {
+		return ResponseEntity.ok(this.parkingBookingService.getParkingInfo(parkingId,vehicleTypeId  , userId));
 	}
 	
 	public  ResponseEntity<EsResponse<PaymentDTO>> initBooking( InitBookingDTO  initBookingDto , long userId ){

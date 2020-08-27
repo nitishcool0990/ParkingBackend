@@ -28,6 +28,7 @@ import com.vpark.vparkservice.entity.AgentTransHistory;
 import com.vpark.vparkservice.entity.BonusCodeUsers;
 import com.vpark.vparkservice.entity.BonusCodes;
 import com.vpark.vparkservice.entity.CashFreeTransHistory;
+import com.vpark.vparkservice.entity.FavouriteParking;
 import com.vpark.vparkservice.entity.ParkBookingHistory;
 import com.vpark.vparkservice.entity.ParkTransHistory;
 import com.vpark.vparkservice.entity.ParkedVehicleCount;
@@ -41,6 +42,7 @@ import com.vpark.vparkservice.repository.IAgentTransHistoryRepository;
 import com.vpark.vparkservice.repository.IBonusCodeRepository;
 import com.vpark.vparkservice.repository.IBonusCodeUserRepository;
 import com.vpark.vparkservice.repository.ICashFreeTransHistory;
+import com.vpark.vparkservice.repository.IFavouriteParkingRepository;
 import com.vpark.vparkservice.repository.IParkBookingHistoryRepository;
 import com.vpark.vparkservice.repository.IParkTransHistoryRepository;
 import com.vpark.vparkservice.repository.IParkedVehicleCountRepository;
@@ -94,15 +96,24 @@ public class ParkingBookingService {
 	 
 	 @Autowired
 	 private IBonusCodeUserRepository bonusCodeUserRepo;
+	 
+	 @Autowired
+	 private IFavouriteParkingRepository   favouriteParkingRepository  ;
 	    
 	
 	 
-	public EsResponse<ParkingLocationDto> getParkingInfo(long parkingId, long vehicleTypeId) {
+	public EsResponse<ParkingLocationDto> getParkingInfo(long parkingId, long vehicleTypeId , long userId) {
 		try {
 			List<Object[]> objList = parkingLocationRepository.getParkingInfo(parkingId, vehicleTypeId);
 			
+			Optional<FavouriteParking>  favouParking  = favouriteParkingRepository.findByLocationIdAndUserId(parkingId, userId) ;
+		
+			
 			if (!objList.isEmpty()) {
 				ParkingLocationDto parkingLocDTO = this.parkBookingMapper.convertToParkingLocationDTO(objList);
+				if(favouParking.isPresent()){
+					parkingLocDTO.setFavParking(true);
+				}
 				if(parkingLocDTO.getRemainingParking() >0) {
 					return new EsResponse<>(IConstants.RESPONSE_STATUS_OK, parkingLocDTO , this.ENV.getProperty("booking.parking.details"));
 				}else{

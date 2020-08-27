@@ -24,7 +24,7 @@ import com.vpark.vparkservice.model.RequestAttribute;
 public interface IParkingBookingController {
 	
 	 @GetMapping(value=IConstants.VERSION_1 + "/parkingInfo/{parkingId}/{vehicleTypeId}")
-	    ResponseEntity<EsResponse<ParkingLocationDto>> getParkingInfo(@PathVariable long  parkingId,@PathVariable long vehicleTypeId);
+	    ResponseEntity<EsResponse<ParkingLocationDto>> getParkingInfo(@PathVariable long  parkingId,@PathVariable long vehicleTypeId  , @RequestAttribute("Id") long id );
 	 
 	 @PostMapping(value=IConstants.VERSION_1 + "/initBooking")
 	    ResponseEntity<EsResponse<PaymentDTO>> initBooking( @RequestBody  InitBookingDTO  initBookingDto ,@RequestAttribute("Id") long id );

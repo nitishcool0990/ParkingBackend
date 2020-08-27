@@ -22,10 +22,11 @@ public interface IParkingLocationRepository extends JpaRepository<ParkingLocatio
     		+ " WHERE vehicle_type_id = ?6 and pl.status='ACTIVE' and pd.status='ACTIVE' HAVING distance <= ?4 ORDER BY distance ASC   LIMIT ?5", nativeQuery = true)
     List<Object[]> getClosestParkingArea(String units,double  latitude,double  longitude, int distance,int limit ,int vehicleTypeId );
     
-    @Query("Select pl from  ParkingLocation pl where pl.user.id = ?1" )
- 	List<ParkingLocation> FindByUserId(long userId);
+    @Query("Select pl from  ParkingLocation pl where pl.user.id = ?1 and pl.displayFlag  = 'TRUE'" )
+ 	List<ParkingLocation> FindActiveParkingByUserId(long userId);
     
-    @Query("Select pl.id , pl.parkName, pl.openTime , pl.closeTime , pl.description , pl.rating ,pc.charges ,  pd.monthlyRate, pd.bookingRate , pl.advanceBookingHr , pl.bookingCancelHr , pl.photo,pc.hours,pvc.remainingSpace,pd.chargesType,pd.maxLimit"
+    @Query("Select pl.id , pl.parkName, pl.openTime , pl.closeTime , pl.description , pl.rating ,pc.charges ,  pd.monthlyRate, pd.bookingRate , pl.advanceBookingHr , "
+    		+ " pl.bookingCancelHr , pl.photo,  pc.hours,  pvc.remainingSpace , pd.chargesType, pd.maxLimit  "
     		+ "  from  ParkingLocation pl "
     		+ " left join ParkingDetails pd on pl.id= pd.parkingLocation "
     		+ " left join ParkingCharges pc on pd.id= pc.parkingDetails "
