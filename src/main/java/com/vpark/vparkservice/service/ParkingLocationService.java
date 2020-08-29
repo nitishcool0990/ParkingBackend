@@ -1,7 +1,7 @@
 package com.vpark.vparkservice.service;
 
 import com.vpark.vparkservice.constants.IConstants;
-import com.vpark.vparkservice.dto.ParkingLocationDto;
+import com.vpark.vparkservice.dto.ParkingLocationDTO;
 import com.vpark.vparkservice.dto.ParkingReviewDTO;
 import com.vpark.vparkservice.entity.ParkingLocation;
 import com.vpark.vparkservice.entity.ParkingReviews;
@@ -127,16 +127,16 @@ public class ParkingLocationService {
     }
 
     
-    public EsResponse<List<ParkingLocationDto>> findLocationByCoordinates(double  latitude,double  longitude,int  vehicleTypeId  , long userId) {
+    public EsResponse<List<ParkingLocationDTO>> findLocationByCoordinates(double  latitude,double  longitude,int  vehicleTypeId  , long userId) {
     	try {
     		
     		System.out.println("latitude " +latitude+" longitude "+longitude+" vehicleTypeId "+vehicleTypeId+" userId "+userId);
     		 List<Object[]> closestParkingList = parkingLocationRepository.getClosestParkingArea("KM",latitude, longitude, 2, 20,vehicleTypeId);
     		
     		 if(closestParkingList!=null && closestParkingList.size()>0) {
-	    		 List<ParkingLocationDto> list = closestParkingList.stream()
+	    		 List<ParkingLocationDTO> list = closestParkingList.stream()
 	    				 
-	    				 .map(objectArray->new ParkingLocationDto((BigInteger)objectArray[0], objectArray[1], objectArray[2], (double)objectArray[3], objectArray[4].toString(), 
+	    				 .map(objectArray->new ParkingLocationDTO((BigInteger)objectArray[0], objectArray[1], objectArray[2], (double)objectArray[3], objectArray[4].toString(), 
 	    						                                                             (double)objectArray[5], (double)objectArray[6])).collect(Collectors.toList());
 	    		  
 	    		 return new EsResponse<>(IConstants.RESPONSE_STATUS_OK,list,  this.ENV.getProperty("parking.location.found"));

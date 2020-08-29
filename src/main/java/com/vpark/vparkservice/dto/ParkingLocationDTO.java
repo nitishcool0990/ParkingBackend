@@ -7,11 +7,14 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.vpark.vparkservice.constants.IConstants;
 import lombok.Data;
 import java.math.BigInteger;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.TreeMap;
 
 @Data
 @JsonInclude(Include.NON_NULL)
-public class ParkingLocationDto {
+public class ParkingLocationDTO {
 	
 	  
 	private BigInteger parkingId;
@@ -38,9 +41,11 @@ public class ParkingLocationDto {
 	private String chargesType ;
 	private Double maxLimit;
 	private boolean favParking  = false;
+	private  LocalDateTime currentTime  = LocalDateTime.now() ;
+	private List<VehicleDTO>   vehicleList = new ArrayList<VehicleDTO>() ;
 	
 	
-	public ParkingLocationDto(BigInteger parkingId, Object latitude, Object longitude, double distance, String color,
+	public ParkingLocationDTO(BigInteger parkingId, Object latitude, Object longitude, double distance, String color,
 			double hours, double monthlyRate) {
 		super();
 		this.parkingId = parkingId;
@@ -52,7 +57,7 @@ public class ParkingLocationDto {
 		this.monthlyRate = monthlyRate;
 	}
 
-	public ParkingLocationDto(Long bookingParkId,  double monthlyRate, Double rating, String describe,String parkingName,
+	public ParkingLocationDTO(Long bookingParkId,  double monthlyRate, Double rating, String describe,String parkingName,
 			 String openTime,String closeTime,String bookingRate , double cancelBookingHr , double advanceBookingHr  ,  byte[] image ,TreeMap hourlyTimeSlot,int remainingParking) {
 		this.bookingParkId = bookingParkId;
 		this.monthlyRate = monthlyRate;
@@ -69,7 +74,7 @@ public class ParkingLocationDto {
 		this.remainingParking=remainingParking;
 	}
 	
-	public ParkingLocationDto(Long bookingParkId, Object latitude, Object longitude) {
+	public ParkingLocationDTO(Long bookingParkId, Object latitude, Object longitude) {
 		this.bookingParkId = bookingParkId;
 		this.latitude = latitude;
 		this.longitude = longitude;

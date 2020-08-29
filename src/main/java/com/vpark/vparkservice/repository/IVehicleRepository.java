@@ -2,7 +2,7 @@ package com.vpark.vparkservice.repository;
 
 
 import com.vpark.vparkservice.constants.IConstants;
-import com.vpark.vparkservice.dto.VehicleDto;
+import com.vpark.vparkservice.dto.VehicleDTO;
 import com.vpark.vparkservice.entity.User;
 import com.vpark.vparkservice.entity.Vehicle;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -21,7 +21,7 @@ import java.util.List;
 public interface IVehicleRepository extends JpaRepository<Vehicle, Long> {
 
 
-    List<VehicleDto> findByVehicleNoLikeAndUserOrderByModifiedDateDesc(String vehicleNo, User user);
+    List<VehicleDTO> findByVehicleNoLikeAndUserOrderByModifiedDateDesc(String vehicleNo, User user);
 
     @Query("Select v from  Vehicle v where v.user.id = ?1" )
 	List<Vehicle> FindByUserId(long userId);
@@ -36,4 +36,7 @@ public interface IVehicleRepository extends JpaRepository<Vehicle, Long> {
 
     @Query(value = "select  * from vehicles " ,nativeQuery = true  )
     List<Vehicle> findAllVehicleNumber();
+    
+    @Query(value = "select  v from Vehicle v where  v.vehicleType.id =?1 and v.user.id = ?2 and v.dispalyFlag = 'TRUE' ")
+    List<Vehicle> findActiveUserVehiclesByVehicleType(long vehicleTypeId  , long userId);
 }

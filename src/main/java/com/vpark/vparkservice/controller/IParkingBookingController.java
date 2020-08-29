@@ -14,7 +14,7 @@ import com.vpark.vparkservice.dto.CashFreeDTO;
 import com.vpark.vparkservice.dto.DoneBookingDTO;
 import com.vpark.vparkservice.dto.InitBookingDTO;
 import com.vpark.vparkservice.dto.MyParkingHistoryDTO;
-import com.vpark.vparkservice.dto.ParkingLocationDto;
+import com.vpark.vparkservice.dto.ParkingLocationDTO;
 import com.vpark.vparkservice.dto.PaymentDTO;
 import com.vpark.vparkservice.model.EsResponse;
 import com.vpark.vparkservice.model.RequestAttribute;
@@ -24,7 +24,7 @@ import com.vpark.vparkservice.model.RequestAttribute;
 public interface IParkingBookingController {
 	
 	 @GetMapping(value=IConstants.VERSION_1 + "/parkingInfo/{parkingId}/{vehicleTypeId}")
-	    ResponseEntity<EsResponse<ParkingLocationDto>> getParkingInfo(@PathVariable long  parkingId,@PathVariable long vehicleTypeId  , @RequestAttribute("Id") long id );
+	    ResponseEntity<EsResponse<ParkingLocationDTO>> getParkingInfo(@PathVariable long  parkingId,@PathVariable long vehicleTypeId  , @RequestAttribute("Id") long id );
 	 
 	 @PostMapping(value=IConstants.VERSION_1 + "/initBooking")
 	    ResponseEntity<EsResponse<PaymentDTO>> initBooking( @RequestBody  InitBookingDTO  initBookingDto ,@RequestAttribute("Id") long id );
@@ -33,7 +33,7 @@ public interface IParkingBookingController {
 	 ResponseEntity<EsResponse<PaymentDTO>> addBookingAmount(@RequestBody CashFreeDTO cashFreeDto,@RequestAttribute("Id")  long id);
 
 	 @PostMapping(value=IConstants.VERSION_1 + "/doneBooking")
-	 ResponseEntity<EsResponse<ParkingLocationDto>> doneBooking( @RequestBody DoneBookingDTO  doneBookingDto  , @RequestAttribute("Id") long id );
+	 ResponseEntity<EsResponse<ParkingLocationDTO>> doneBooking( @RequestBody DoneBookingDTO  doneBookingDto  , @RequestAttribute("Id") long id );
 
 	 @GetMapping(value=IConstants.VERSION_1+"/myBooking")
 	    ResponseEntity<EsResponse<List<MyParkingHistoryDTO>>> getUserParkingHistory(@RequestAttribute("Id")  long userId);

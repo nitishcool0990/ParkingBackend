@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
@@ -21,9 +23,10 @@ import com.vpark.vparkservice.dto.CashFreeDTO;
 import com.vpark.vparkservice.dto.DoneBookingDTO;
 import com.vpark.vparkservice.dto.InitBookingDTO;
 import com.vpark.vparkservice.dto.MyParkingHistoryDTO;
-import com.vpark.vparkservice.dto.ParkingLocationDto;
+import com.vpark.vparkservice.dto.ParkingLocationDTO;
 import com.vpark.vparkservice.dto.PaymentDTO;
 import com.vpark.vparkservice.dto.PaymetGateWayDTO;
+import com.vpark.vparkservice.dto.VehicleDTO;
 import com.vpark.vparkservice.entity.AgentTransHistory;
 import com.vpark.vparkservice.entity.BonusCodeUsers;
 import com.vpark.vparkservice.entity.BonusCodes;
@@ -99,25 +102,41 @@ public class ParkingBookingService {
 	 
 	 @Autowired
 	 private IFavouriteParkingRepository   favouriteParkingRepository  ;
+	 
+	 @Autowired
+	 private ModelMapper modelMapper;
 	    
 	
 	 
-	public EsResponse<ParkingLocationDto> getParkingInfo(long parkingId, long vehicleTypeId , long userId) {
+	public EsResponse<ParkingLocationDTO> getParkingInfo(long parkingId, long vehicleTypeId , long userId) {
 		try {
-			List<Object[]> objList = parkingLocationRepository.getParkingInfo(parkingId, vehicleTypeId);
-			
+			List<Object[]> objList = parkingLocationRepository.getParkingInfo(parkingId, vehicleTypeId) ;
 			Optional<FavouriteParking>  favouParking  = favouriteParkingRepository.findByLocationIdAndUserId(parkingId, userId) ;
+			  List<Vehicle> vehicleVos   = vehicleRepository.findActiveUserVehiclesByVehicleType(vehicleTypeId , userId);
 		
 			
 			if (!objList.isEmpty()) {
-				ParkingLocationDto parkingLocDTO = this.parkBookingMapper.convertToParkingLocationDTO(objList);
-				if(favouParking.isPresent()){
-					parkingLocDTO.setFavParking(true);
+				
+				ParkingLocationDTO parkingLocDto = this.parkBookingMapper.convertToParkingLocationDTO(objList);
+			    
+				if(null !=vehicleVos  && vehicleVos.size() >0){
+					
+					List<VehicleDTO> vehicleDtos = vehicleVos .stream()
+	      			  .map((vehicleVo) -> {
+	      				VehicleDTO  vehicleDto =  modelMapper.map(vehicleVo , VehicleDTO.class);
+	      				return vehicleDto ;
+	      			  })
+	      			  .collect(Collectors.toList());
+					parkingLocDto.setVehicleList(vehicleDtos);
 				}
-				if(parkingLocDTO.getRemainingParking() >0) {
-					return new EsResponse<>(IConstants.RESPONSE_STATUS_OK, parkingLocDTO , this.ENV.getProperty("booking.parking.details"));
+				
+				if(favouParking.isPresent()){
+					parkingLocDto.setFavParking(true);
+				}
+				if(parkingLocDto.getRemainingParking() >0) {
+					return new EsResponse<>(IConstants.RESPONSE_STATUS_OK, parkingLocDto , this.ENV.getProperty("booking.parking.details"));
 				}else{
-					return new EsResponse<>(IConstants.RESPONSE_STATUS_OK, parkingLocDTO , this.ENV.getProperty("booking.parking.notavaible"));
+					return new EsResponse<>(IConstants.RESPONSE_STATUS_OK, parkingLocDto , this.ENV.getProperty("booking.parking.notavaible"));
 				}
 			} 
 			else {
@@ -185,7 +204,7 @@ public class ParkingBookingService {
 				 
 		
 			   List<Object[]> objList = this.parkingLocationRepository.getParkingInfo(initBookingDto.getParkLocId() ,vehicleVo.get().getVehicleType().getId());
-		        ParkingLocationDto location = this.parkBookingMapper.convertToParkingLocationDTO(objList);
+		        ParkingLocationDTO location = this.parkBookingMapper.convertToParkingLocationDTO(objList);
 		        
 				LocalTime fromLOCDateTime = LocalTime.of(Integer.parseInt(location.getOpenTime().split(":")[0]), Integer.parseInt(location.getOpenTime().split(":")[1]));
 				LocalTime toLOCDateTime =  LocalTime.of(Integer.parseInt(location.getCloseTime().split(":")[0]),Integer.parseInt(location.getCloseTime().split(":")[1]));
@@ -332,7 +351,7 @@ public class ParkingBookingService {
 	
 	@Synchronized
 	@Transactional(readOnly = false,   propagation = Propagation.REQUIRED)
-	public EsResponse<ParkingLocationDto> doneBooking(DoneBookingDTO  doneBookingDto , long userId ) {
+	public EsResponse<ParkingLocationDTO> doneBooking(DoneBookingDTO  doneBookingDto , long userId ) {
 		try {
 		Optional<Vehicle>  vehicleVo   = this.vehicleRepository.findById(doneBookingDto.getVehicleId());
 	    UserWallet userWallet = this.userWalletRepo.findByUserId(userId).orElse(null);
@@ -413,7 +432,7 @@ public class ParkingBookingService {
 									this.bonusCodeUserRepo.save(userBonusCode);
 								}
 								this.userWalletRepo.save(userWallet);
-							ParkingLocationDto sendLoc = new ParkingLocationDto(savedParkBookingHistoryVo.getId(), parkingDetails.getParkingLocation().getLatitude(),
+							ParkingLocationDTO sendLoc = new ParkingLocationDTO(savedParkBookingHistoryVo.getId(), parkingDetails.getParkingLocation().getLatitude(),
 									                                  parkingDetails.getParkingLocation().getLongitude());
 
 							return new EsResponse<>(IConstants.RESPONSE_ADD_PAYMENT, sendLoc , this.ENV.getProperty("bookins.success"));

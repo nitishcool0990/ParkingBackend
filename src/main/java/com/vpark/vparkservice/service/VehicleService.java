@@ -1,7 +1,7 @@
 package com.vpark.vparkservice.service;
 
 import com.vpark.vparkservice.constants.IConstants;
-import com.vpark.vparkservice.dto.VehicleDto;
+import com.vpark.vparkservice.dto.VehicleDTO;
 import com.vpark.vparkservice.dto.VehicleTypeDTO;
 import com.vpark.vparkservice.entity.User;
 import com.vpark.vparkservice.entity.Vehicle;
@@ -37,13 +37,13 @@ public class VehicleService {
     
 
   
-    public EsResponse<List<VehicleDto>> findVehicleByUserId(long userId) {
+    public EsResponse<List<VehicleDTO>> findVehicleByUserId(long userId) {
         try {
         	List<Vehicle> vehicleVos = this.vehicleRepository.FindActiveVehicleByUserId(userId);
         	
-        	List<VehicleDto> vehicleDtos = vehicleVos .stream()
+        	List<VehicleDTO> vehicleDtos = vehicleVos .stream()
       			  .map((vehicleVo) -> {
-      				VehicleDto  vehicleDto =  modelMapper.map(vehicleVo , VehicleDto.class);
+      				VehicleDTO  vehicleDto =  modelMapper.map(vehicleVo , VehicleDTO.class);
       				return vehicleDto ;
       			  })
       			  .collect(Collectors.toList());
@@ -58,7 +58,7 @@ public class VehicleService {
     
 
     
-    public EsResponse<Vehicle> createNewVehicle(VehicleDto vehicleDto , long userId ) {
+    public EsResponse<Vehicle> createNewVehicle(VehicleDTO vehicleDto , long userId ) {
         try {
         	List<Vehicle> vehicleList =this.vehicleRepository.FindByUserId(userId);
         	Vehicle vehicleExistVo = null ;
@@ -124,7 +124,7 @@ public class VehicleService {
    
     
     
-    public EsResponse<?> updateVehicle( VehicleDto vehicleDto , long userId ) {
+    public EsResponse<?> updateVehicle( VehicleDTO vehicleDto , long userId ) {
         try {
         
         	if(vehicleDto.getIsDefault().equalsIgnoreCase( "TRUE")){

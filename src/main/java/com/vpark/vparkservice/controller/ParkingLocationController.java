@@ -1,7 +1,7 @@
 package com.vpark.vparkservice.controller;
 
 import com.vpark.vparkservice.constants.IConstants;
-import com.vpark.vparkservice.dto.ParkingLocationDto;
+import com.vpark.vparkservice.dto.ParkingLocationDTO;
 import com.vpark.vparkservice.dto.ParkingReviewDTO;
 import com.vpark.vparkservice.model.EsResponse;
 import com.vpark.vparkservice.model.RequestAttribute;
@@ -29,7 +29,7 @@ public class ParkingLocationController implements IParkingLocationController {
 
     
     @Override
-    public ResponseEntity<EsResponse<List<ParkingLocationDto>>> findLocationByCoordinates(@RequestParam("latitude") double  latitude,
+    public ResponseEntity<EsResponse<List<ParkingLocationDTO>>> findLocationByCoordinates(@RequestParam("latitude") double  latitude,
     		 @RequestParam("longitude") double  longitude,@RequestParam("vehicleTypeId") int  vehicleTypeId , @RequestAttribute("Id")  long userId ) {
         return ResponseEntity.ok(this.parkingLocationService.findLocationByCoordinates(latitude, longitude,vehicleTypeId  , userId));
     }

@@ -13,7 +13,7 @@ import com.vpark.vparkservice.dto.CashFreeDTO;
 import com.vpark.vparkservice.dto.DoneBookingDTO;
 import com.vpark.vparkservice.dto.InitBookingDTO;
 import com.vpark.vparkservice.dto.MyParkingHistoryDTO;
-import com.vpark.vparkservice.dto.ParkingLocationDto;
+import com.vpark.vparkservice.dto.ParkingLocationDTO;
 import com.vpark.vparkservice.dto.PaymentDTO;
 import com.vpark.vparkservice.model.EsResponse;
 import com.vpark.vparkservice.model.RequestAttribute;
@@ -30,7 +30,7 @@ public class ParkingBookingController implements IParkingBookingController {
 	 private Environment ENV;
 	 
 	@Override
-	public ResponseEntity<EsResponse<ParkingLocationDto>> getParkingInfo(long parkingId, long vehicleTypeId  , long userId) {
+	public ResponseEntity<EsResponse<ParkingLocationDTO>> getParkingInfo(long parkingId, long vehicleTypeId  , long userId) {
 		return ResponseEntity.ok(this.parkingBookingService.getParkingInfo(parkingId,vehicleTypeId  , userId));
 	}
 	
@@ -54,7 +54,7 @@ public class ParkingBookingController implements IParkingBookingController {
 	}
 
 	@Override
-	public ResponseEntity<EsResponse<ParkingLocationDto>> doneBooking(DoneBookingDTO  doneBookingDto , long userId ) {
+	public ResponseEntity<EsResponse<ParkingLocationDTO>> doneBooking(DoneBookingDTO  doneBookingDto , long userId ) {
 
 		if(doneBookingDto.getParkingLocId() <= 0 ){
 			   return ResponseEntity.badRequest().body(new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("invalid.id")));
