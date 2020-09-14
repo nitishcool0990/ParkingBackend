@@ -46,14 +46,14 @@ public class ParkingLocationDTO {
 	
 	
 	public ParkingLocationDTO(BigInteger parkingId, Object latitude, Object longitude, double distance, String color,
-			double hours, double monthlyRate) {
+			double hourlyRate, double monthlyRate) {
 		super();
 		this.parkingId = parkingId;
 		this.latitude = latitude;
 		this.longitude = longitude;
 		this.distance = distance;
 		this.color = color;
-		this.hours = hours;
+		this.hourlyRate = hourlyRate;
 		this.monthlyRate = monthlyRate;
 	}
 

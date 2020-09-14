@@ -28,28 +28,35 @@ public class FavouriteParkingLocService {
 	 private  IFavouriteParkingRepository  favParkingRepository ;
 	 
 	 
-	 public  EsResponse<?> addFavouriteParkingLocation(long locId , long userId ){
-		 try{
-	
-		    	 FavouriteParking favParkingVo = new FavouriteParking() ;
-		    	 ParkingLocation  parkLocVo = new ParkingLocation();
-		    	 User user = new User() ;
-		    	 
-		    	 parkLocVo.setId(locId);
-		         user.setId(userId);
-		    	 
-		         favParkingVo.setUser(user);
-		    	 favParkingVo.setParkingLocation(parkLocVo);
-		    	
-		    	 this.favParkingRepository.save(favParkingVo);
-		    	 return new EsResponse<>(IConstants.RESPONSE_STATUS_OK, this.ENV.getProperty("parking.fav.save.success"));
-			 
-		  } catch (Exception e) {
-	            e.printStackTrace();
-	            return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("parking.fav.save.failed"));
-	        }
-		
-	 }
+	public EsResponse<?> addFavouriteParkingLocation(long locId, long userId) {
+		try {
+
+			Optional<FavouriteParking> existFavParkingVo = this.favParkingRepository.findByLocationIdAndUserId(locId,
+					userId);
+
+			if (existFavParkingVo.isPresent()) {
+				return new EsResponse<>(IConstants.RESPONSE_STATUS_OK , this.ENV.getProperty("parking.fav.exist"));
+			}
+
+			FavouriteParking favParkingVo = new FavouriteParking();
+			ParkingLocation parkLocVo = new ParkingLocation();
+			User user = new User();
+
+			parkLocVo.setId(locId);
+			user.setId(userId);
+
+			favParkingVo.setUser(user);
+			favParkingVo.setParkingLocation(parkLocVo);
+
+			this.favParkingRepository.save(favParkingVo);
+			return new EsResponse<>(IConstants.RESPONSE_STATUS_OK, this.ENV.getProperty("parking.fav.save.success"));
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new EsResponse<>(IConstants.RESPONSE_STATUS_ERROR, this.ENV.getProperty("parking.fav.save.failed"));
+		}
+
+	}
 	 
 	 
 	 
