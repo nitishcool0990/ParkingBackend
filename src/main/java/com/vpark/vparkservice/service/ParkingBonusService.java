@@ -43,12 +43,16 @@ public class ParkingBonusService {
 									bonusDto = new BonusDTO();
 									bonusDto.setBonusCode(bonusCode.getCode());
 									bonusDto.setDesc(bonusCode.getRemarks());
+									bonusDto.setBonusAmt(bonusCode.getDiscountAmt());
+									bonusDto.setBonusPer(bonusCode.getDiscountPerc());
 									bonusCodeID.add(bonusCode.getId());
 									break;
 								}else if(bonusCode.getId() != (long)obj[1] ) {
 									bonusDto = new BonusDTO();
 									bonusDto.setBonusCode(bonusCode.getCode());
 									bonusDto.setDesc(bonusCode.getRemarks());
+									bonusDto.setBonusAmt(bonusCode.getDiscountAmt());
+									bonusDto.setBonusPer(bonusCode.getDiscountPerc());
 									bonusCodeID.add(bonusCode.getId());
 	
 									break;

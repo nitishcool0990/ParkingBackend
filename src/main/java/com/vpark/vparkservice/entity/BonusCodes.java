@@ -21,10 +21,10 @@ public class BonusCodes extends Savable{
 	private String code ;
 	
 	@Column(name = "DISCOUNT_PERC")
-	private double discountPerc ;
+	private Double discountPerc ;
 	
 	@Column(name = "DISCOUNT_AMT")
-	private double discountAmt ;
+	private Double discountAmt ;
 	
 	@Column(name = "IS_BOOKING_PAYMENT_CODE")
 	private boolean isbookingPaymentCode ;
